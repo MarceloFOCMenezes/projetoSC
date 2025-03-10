@@ -83,14 +83,12 @@ class PedidoController {
     }
 
     @DeleteMapping("/{id}")
-    fun excluir(@PathVariable id: Long): ResponseEntity<Pedido>{
-
-        if (id <= 0){
+    fun excluir(@PathVariable id: Int): ResponseEntity<Pedido>{
+        if (id < 0){
             return ResponseEntity.status(404).build()
         }
         return ResponseEntity.status(200).build()
     }
-
 
 
 }
