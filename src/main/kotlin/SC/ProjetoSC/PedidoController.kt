@@ -71,24 +71,37 @@ class PedidoController {
 
 
     @PostMapping
-    fun criarPedido(@RequestBody novoPedido: Pedido): ResponseEntity<Pedido>{
+    fun criarPedido(@RequestBody novoPedido: Pedido): ResponseEntity<Any>{
+        if (novoPedido.dtPedido == null ||
+            novoPedido.dtEntrega == null ||
+            novoPedido.precoTotal == null ||
+            novoPedido.isRetirada == null
+        ) {
+            return ResponseEntity.status(400).body("Campos Faltando!")
+        }
         pedidos.add(novoPedido)
         return ResponseEntity.status(201).body(novoPedido)
     }
 
     @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Int, @RequestBody pedidoAtualizado: Pedido): ResponseEntity<Pedido> {
+    fun atualizar(@PathVariable id: Int, @RequestBody pedidoAtualizado: Pedido): ResponseEntity<Any> {
+        if (pedidoAtualizado.dtPedido == null ||
+            pedidoAtualizado.dtEntrega == null ||
+            pedidoAtualizado.precoTotal == null ||
+            pedidoAtualizado.isRetirada == null
+        ) {
+            return ResponseEntity.status(400).body("Campos Faltando!")
+        }
         pedidos[id] = pedidoAtualizado
         return ResponseEntity.status(200).build()
     }
 
     @DeleteMapping("/{id}")
-    fun excluir(@PathVariable id: Int): ResponseEntity<Pedido>{
+    fun excluir(@PathVariable id: Int): ResponseEntity<String>{
         if (id < 0){
-            return ResponseEntity.status(404).build()
+            return ResponseEntity.status(404).body("Usuário não encontrado com o ID: $id")
         }
-        return ResponseEntity.status(200).build()
+        return ResponseEntity.status(200).body("Pedido deletado com sucesso!")
     }
-
 
 }
