@@ -19,11 +19,11 @@ import java.time.LocalDateTime
 class PedidoController {
 
     val pedidos = mutableListOf<Pedido>(
-        Pedido(0, LocalDateTime.parse("2020-10-02T18:13:00"), LocalDateTime.parse("2020-10-15T15:00:00"),
+        Pedido(0, LocalDateTime.parse("2020-10-02T18:13:00"), LocalDateTime.parse("2020-10-15T15:10:00"),
             StatusPagamento.PENDENTE, 300.00, true),
-        Pedido(1, LocalDateTime.parse("2025-04-01T10:00:00"), LocalDateTime.parse("2025-04-11T16:00:00"),
+        Pedido(1, LocalDateTime.parse("2025-04-01T10:00:00"), LocalDateTime.parse("2025-04-11T16:20:00"),
             StatusPagamento.PAGO, 450.00, false),
-        Pedido(2, LocalDateTime.parse("2025-03-16T12:00:00"), LocalDateTime.parse("2025-03-21T10:00:00"),
+        Pedido(2, LocalDateTime.parse("2025-03-16T12:00:00"), LocalDateTime.parse("2025-03-21T10:15:00"),
             StatusPagamento.NAO_PAGO, 350.00, false)
     )
 

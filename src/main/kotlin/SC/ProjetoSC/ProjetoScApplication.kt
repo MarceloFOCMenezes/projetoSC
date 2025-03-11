@@ -9,3 +9,5 @@ class ProjetoScApplication
 fun main(args: Array<String>) {
 	runApplication<ProjetoScApplication>(*args)
 }
+
+

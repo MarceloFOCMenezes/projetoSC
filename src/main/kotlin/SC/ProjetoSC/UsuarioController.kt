@@ -54,10 +54,12 @@ class UsuarioController {
     }
 
     @PatchMapping
-    fun alterarSenha(@RequestParam id: Int, @RequestParam senha:String):ResponseEntity<String>{
-        if (id < 0 || id >= listaUsuario.size)
-            return ResponseEntity.status(404).body("Usuário não encontrado com o ID: $id")
-        listaUsuario[id].Senha = senha
+    fun alterarSenha(@RequestParam email: String, @RequestParam senha:String):ResponseEntity<String>{
+        var usuario = listaUsuario.find { it.Email == email }
+
+        if (usuario == null)
+            return ResponseEntity.status(404).body("Usuário não encontrado com o Email: $email")
+        usuario.Senha = senha
         return ResponseEntity.ok("Senha alterada com sucesso!")
     }
 
@@ -65,6 +67,15 @@ class UsuarioController {
     fun alterarUsuario(@RequestParam id: Int, @RequestBody novoUsuario: Usuario):ResponseEntity<String>{
         if(id < 0 || id >= listaUsuario.size)
             return ResponseEntity.status(404).body("Usuário não encontrado com o ID: $id")
+
+        if (novoUsuario.Nome.isNullOrBlank() ||
+            novoUsuario.Email.isNullOrBlank() ||
+            novoUsuario.Telefone.isNullOrBlank() ||
+            novoUsuario.Senha.isNullOrBlank() ||
+            novoUsuario.Tipo == null
+        ) {
+            return ResponseEntity.status(400).body("Campos Faltando!")
+        }
         listaUsuario[id] = novoUsuario
         return ResponseEntity.ok("Usuário alterado com sucesso!")
     }
