@@ -1,4 +1,4 @@
-package SC.ProjetoSC
+package SC.ProjetoSC.entity
 
 import java.time.LocalDateTime
 
