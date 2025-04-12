@@ -1,5 +1,6 @@
 package SC.ProjetoSC.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -31,6 +32,7 @@ data class Usuario(
     @field:NotBlank @field:Size(min = 11, max = 11)
     var telefone: String? = null,
 
+    @JsonIgnore
     @field:NotBlank @field:Size(min = 8, max = 45)
     var senha: String? = null,
 

@@ -2,6 +2,8 @@ package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.entity.StatusPagamento
 import SC.ProjetoSC.entity.Pedido
+import SC.ProjetoSC.repository.PedidoRepository
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,93 +18,65 @@ import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/pedidos")
+class PedidoController (val repositorio: PedidoRepository) {
 
-class PedidoController {
-
-    val pedidos = mutableListOf<Pedido>(
-        Pedido(0, LocalDateTime.parse("2020-10-02T18:13:00"), LocalDateTime.parse("2020-10-15T15:10:00"),
-            StatusPagamento.PENDENTE, 300.00, true),
-        Pedido(1, LocalDateTime.parse("2025-04-01T10:00:00"), LocalDateTime.parse("2025-04-11T16:20:00"),
-            StatusPagamento.PAGO, 450.00, false),
-        Pedido(2, LocalDateTime.parse("2025-03-16T12:00:00"), LocalDateTime.parse("2025-03-21T10:15:00"),
-            StatusPagamento.NAO_PAGO, 350.00, false)
-    )
-
-    var maisCaro = Pedido(3, LocalDateTime.parse("2025-05-21T09:00:00"), LocalDateTime.parse("2025-05-30T10:00:00"),
-        StatusPagamento.PAGO, 600.00, false)
+//    var maisCaro = Pedido(3, LocalDateTime.parse("2025-05-21T09:00:00"), LocalDateTime.parse("2025-05-30T10:00:00"),
+//        StatusPagamento.PAGO, 600.00, false)
+//    @GetMapping("/mais-caro")
+//    fun maisCaro(): Pedido {
+//        return maisCaro
+//    }
 
 
-    @GetMapping("/mais-caro")
-    fun maisCaro(): Pedido {
-        return maisCaro
-    }
-
+    // lista todos os pedidos ou filtra por data do pedido realizado ou data de entrega do pedido!
     @GetMapping
     fun lista(@RequestParam(required = false) dtPedido: LocalDateTime?, @RequestParam(required = false) dtEntrega: LocalDateTime?):
             ResponseEntity<List<Pedido>> {
 
-        if (dtPedido == null && dtEntrega == null) {
-            if (pedidos.isEmpty()) {
-                return ResponseEntity.status(204).build()
-                
-            }
-            return ResponseEntity.status(200).body(pedidos)
+        // definindo o conteúdo da lista
+        val pedidos: List<Pedido> = when {
+            dtPedido != null && dtEntrega != null -> repositorio.findByDtPedidoAndDtEntregaGreaterThanEqual(dtPedido, dtEntrega)
 
+            dtPedido != null -> repositorio.findByDtPedido(dtPedido)
+
+            dtEntrega != null -> repositorio.findByDtEntregaGreaterThanEqual(dtEntrega)
+
+            else -> repositorio.findAll()
         }
 
-        val dtPedidoFiltrada = dtPedido != null
-        val dtEntregaFiltrada = dtEntrega != null
-
-        val listaPedido = mutableListOf<Pedido>()
-
-        if (dtPedidoFiltrada && dtEntregaFiltrada){
-            listaPedido.addAll(pedidos.filter {
-                it.dtPedido == dtPedido && it.dtEntrega!! >= dtEntrega!!
-            })
-        } else if (dtPedidoFiltrada) {
-                listaPedido.addAll(pedidos.filter { it.dtPedido == dtPedido })
+        // definindo o resultado retornado de acordo com oq tem na lista
+        return if (pedidos.isEmpty()) {
+            ResponseEntity.status(204).build()
         } else {
-            listaPedido.addAll(pedidos.filter { it.dtEntrega!! >= dtEntrega!! })
+            ResponseEntity.status(200).body(pedidos)
         }
-        if (listaPedido.isEmpty()) {
-            return ResponseEntity.status(204).build()
-        }
-        return ResponseEntity.status(200).body(listaPedido)
     }
 
-
     @PostMapping
-    fun criarPedido(@RequestBody novoPedido: Pedido): ResponseEntity<Any>{
-        if (novoPedido.dtPedido == null ||
-            novoPedido.dtEntrega == null ||
-            novoPedido.precoTotal == null ||
-            novoPedido.isRetirada == null
-        ) {
-            return ResponseEntity.status(400).body("Campos Faltando!")
-        }
-        pedidos.add(novoPedido)
-        return ResponseEntity.status(201).body(novoPedido)
+    fun criarPedido(@RequestBody @Valid novoPedido: Pedido): ResponseEntity<Pedido> {
+        val pedidoCriado = repositorio.save(novoPedido)
+        return ResponseEntity.status(201).body(pedidoCriado)
     }
 
     @PutMapping("/{id}")
-    fun atualizar(@PathVariable id: Int, @RequestBody pedidoAtualizado: Pedido): ResponseEntity<Any> {
-        if (pedidoAtualizado.dtPedido == null ||
-            pedidoAtualizado.dtEntrega == null ||
-            pedidoAtualizado.precoTotal == null ||
-            pedidoAtualizado.isRetirada == null
-        ) {
-            return ResponseEntity.status(400).body("Campos Faltando!")
+    fun atualizar(@PathVariable id: Int, @RequestBody @Valid pedidoAtualizado: Pedido): ResponseEntity<Pedido> {
+
+        // verificar se o pedido existe
+        if (!repositorio.existsById(id)) {
+            return ResponseEntity.status(404).build()
         }
-        pedidos[id] = pedidoAtualizado
-        return ResponseEntity.status(200).build()
+        // garante que o ID na url será uasdo, mesmo se pedidoAtualizado.id vier diferente ou nulo, assim evita sobreescrever outro pedido sem querer
+        val pedidoAtt = pedidoAtualizado.copy(id = id)
+        repositorio.save(pedidoAtt)
+        return ResponseEntity.status(200).body(pedidoAtt)
     }
 
     @DeleteMapping("/{id}")
-    fun excluir(@PathVariable id: Int): ResponseEntity<String>{
-        if (id < 0){
-            return ResponseEntity.status(404).body("Usuário não encontrado com o ID: $id")
+    fun excluir(@PathVariable id: Int): ResponseEntity<Void>{
+        if (!repositorio.existsById(id)){
+            return ResponseEntity.status(404).build()
         }
-        return ResponseEntity.status(200).body("Pedido deletado com sucesso!")
+        repositorio.deleteById(id)
+        return ResponseEntity.status(200).build()
     }
-
 }

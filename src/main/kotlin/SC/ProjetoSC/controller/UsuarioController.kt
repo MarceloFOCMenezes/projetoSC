@@ -65,7 +65,7 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         repositorio.save(usuario)
         return ResponseEntity.status(200).body(usuario)
     }
-    
+
     @PutMapping
     fun alterarUsuario(@RequestParam id: Int, @RequestBody @Valid novoUsuario: Usuario):ResponseEntity<Usuario>{
         // verificar se o usuário existe
