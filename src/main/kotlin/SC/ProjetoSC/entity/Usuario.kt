@@ -2,6 +2,7 @@ package SC.ProjetoSC.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
@@ -21,22 +22,28 @@ data class Usuario(
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Schema(description = "Identificador do usuário")
     var id:Int?,
 
     @field:NotBlank @field:Size(min = 2, max = 45)
+    @Schema(description = "Nome do usuário")
     var nome: String? = null,
 
     @field:NotBlank @field:Size(min = 6, max = 150) @field:Email
+    @Schema(description = "E-mail do usuário")
     var email: String? = null,
 
     @field:NotBlank @field:Size(min = 11, max = 11)
+    @Schema(description = "Número de telefone do usuário")
     var telefone: String? = null,
 
     @JsonIgnore
     @field:NotBlank @field:Size(min = 8, max = 45)
+    @Schema(description = "Senha da conta do usuário")
     var senha: String? = null,
 
     @field:NotNull @field:PositiveOrZero
+    @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
     var tipo: Int? = 0
 ) {
 
