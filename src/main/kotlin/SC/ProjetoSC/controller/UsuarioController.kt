@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDateTime
+
 @Tag(name = "Usuários", description = "Operações relacionadas aos usuários do sistema")
 @RestController
 @RequestMapping("/usuarios")
@@ -57,8 +59,32 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         if (usuarioEncontrado.senha != senha) {
             return ResponseEntity.status(401).build()
         }
+
+        // Atualiza o status de login e a data do último login
+        usuarioEncontrado.logado = true
+        usuarioEncontrado.dataUltimoLogin = LocalDateTime.now()
+        repositorio.save(usuarioEncontrado)
+
         return ResponseEntity.status(200).body(usuarioEncontrado)
     }
+
+    @PatchMapping("/logoff")
+    @Operation(summary = "Realizar logoff", description = "Realiza o logoff do usuário no sistema.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Logoff realizado com sucesso. O corpo da resposta contém o usuário deslogado."),
+        ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun logoff(@RequestParam email: String): ResponseEntity<Usuario> {
+        val usuarioEncontrado = repositorio.findByEmailIgnoreCase(email)
+            ?: return ResponseEntity.status(404).build()
+
+        // Atualiza o status de login
+        usuarioEncontrado.logado = false
+        repositorio.save(usuarioEncontrado)
+
+        return ResponseEntity.status(200).body(usuarioEncontrado)
+    }
+
 
     @PostMapping
     @Operation(summary = "Cadastrar um novo usuário", description = "Cadastrar um novo usuário no sistema.")

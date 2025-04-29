@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
+import java.time.LocalDateTime
 
 /*
 Com @Entity, o Spring vai supor que essa classe 'espelha',
@@ -44,7 +45,13 @@ data class Usuario(
 
     @field:NotNull @field:PositiveOrZero
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
-    var tipo: Int? = 0
+    var tipo: Int? = 0,
+
+    @Schema(description = "Indica se o usuário está logado")
+    var logado: Boolean = false,
+
+    @Schema(description = "Data e hora do último login do usuário")
+    var dataUltimoLogin: LocalDateTime? = null
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades
