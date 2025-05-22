@@ -103,12 +103,19 @@ class UsuarioController (val repositorio: UsuarioRepository) {
 
     @PatchMapping
     @Operation(summary = "Alterar senha", description = "Altera a senha de um usuário.")
-    @ApiResponse(responseCode = "200", description = "Senha alterada com sucesso. O corpo da resposta contém os dados do usuário.")
+    @ApiResponses( value  = [
+        ApiResponse(responseCode = "200", description = "Senha alterada com sucesso. O corpo da resposta contém os dados do usuário."),
+        ApiResponse(responseCode = "409", description = "Senha nova igual a senha atual. O corpo da resposta estará vazio."),
+        ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
+    ])
     fun alterarSenha(@RequestParam @Email email: String, @RequestParam @Size(min = 8, max = 45) senha:String):ResponseEntity<Usuario>{
         // como o @Valid só funciona pra @RequestBody, aqui validamos usando as validações lá da classe mesmo!
 
         val usuario = repositorio.findByEmailIgnoreCase(email)
             ?: return ResponseEntity.status(404).build()
+        if (usuario.senha == senha) {
+            return ResponseEntity.status(409).build()
+        }
         usuario.senha = senha
         repositorio.save(usuario)
         return ResponseEntity.status(200).body(usuario)

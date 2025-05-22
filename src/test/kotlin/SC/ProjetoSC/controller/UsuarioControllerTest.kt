@@ -193,7 +193,21 @@ fun get_loginVazio() {
  // TESTES DA FUNÇÃO: alterarSenha
 
  @Test
+ @DisplayName("AlterarSenha: senha aprovada = status 200 com o usuário correto")
  fun alterarSenha() {
+    // programando o mock pra se comportar como se houvesse dados na tabela
+    `when`(repository.existsById(1)).thenReturn(true)
+    `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
+    val retorno = controller.alterarSenha(1, "novaSenha")
+
+    // verificando se o status da resposta é 200
+    assertEquals(200, retorno.statusCode.value())
+    // verificando se o corpo da resposta é igual ao usuario
+    assertEquals(usuario, retorno.body)
+    // verificando se a senha foi alterada
+    assertEquals("novaSenha", usuario.senha)
+    // verificando se o usuario foi salvo no repositorio
+    verify(repository, times(1)).save(usuario)
  }
 
  // -----------------------------------------------------------------------
