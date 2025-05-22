@@ -48,7 +48,7 @@ class UsuarioController (val repositorio: UsuarioRepository) {
     @Operation(summary = "Realizar login", description = "Retorna o usuário logado.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Usuário logado com sucesso. O corpo da resposta contém o usuário logado."),
-        ApiResponse(responseCode = "201", description = "Credenciais incorretas. O corpo da resposta estará vazio."),
+        ApiResponse(responseCode = "401", description = "Credenciais incorretas. O corpo da resposta estará vazio."),
         ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
     ])
     fun login(@RequestParam email:String, @RequestParam senha: String):ResponseEntity<Usuario> {
