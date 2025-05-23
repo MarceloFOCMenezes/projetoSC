@@ -2,11 +2,7 @@ package SC.ProjetoSC.entity
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -43,18 +39,21 @@ data class Pedido (
 
 
 
-    @field:NotBlank
-    @Schema(description = "FK do cliente que fez o pedido")
+    @field:NotNull (message = "A FK do cliente respectivo é obrigatória.")
+    @Schema(description = "FK do cliente que fez o pedido - usuário")
     @ManyToOne
-    val fkCliente:Usuario? = null,
+    @JoinColumn(name = "fkCliente", nullable = false)
+    val cliente:Usuario? = null,
 
-    @field:NotBlank
+    @field:NotNull(message = "A FK do endereço respectivo é obrigatória.")
     @Schema(description = "FK do endereço de entrega do pedido")
     @ManyToOne
-    val fkEndereco:Endereco? = null,
+    @JoinColumn(name = "fkEndereco", nullable = false)
+    val endereco:Endereco? = null,
 
-    @field:NotBlank
+    @field:NotNull (message = "A FK do status do pedido é obrigatória.")
     @Schema(description = "FK do status atual do pedido")
     @ManyToOne
-    val fkStatusPedido:StatusPedido? = null,
+    @JoinColumn(name = "fkStatusPedido", nullable = false)
+    val statusPedido:StatusPedido? = null,
 )

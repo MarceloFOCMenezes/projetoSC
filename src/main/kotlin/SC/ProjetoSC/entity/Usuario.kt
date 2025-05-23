@@ -3,11 +3,7 @@ package SC.ProjetoSC.entity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
@@ -44,9 +40,11 @@ data class Usuario(
     @Schema(description = "Senha da conta do usuário")
     var senha: String? = null,
 
-    @field:NotNull @field:PositiveOrZero
+
+    @field:NotNull
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
     @ManyToOne
+    @JoinColumn(name = "fkTipoUsuario", nullable = false) // indica o nome do atributo na tabela, nullable false indica que não pode ser nulo
     var tipo: TipoUsuario? = null,
 
     @Schema(description = "Indica se o usuário está logado")
