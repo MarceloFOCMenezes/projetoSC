@@ -57,6 +57,4 @@ data class Pedido (
     @Schema(description = "FK do status atual do pedido")
     @ManyToOne
     val fkStatusPedido:StatusPedido? = null,
-
-
 )

@@ -1,6 +1,7 @@
 package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.entity.Pedido
+import SC.ProjetoSC.entity.TipoUsuario
 import SC.ProjetoSC.entity.Usuario
 import SC.ProjetoSC.repository.UsuarioRepository
 import org.junit.jupiter.api.Test
@@ -17,18 +18,25 @@ class UsuarioControllerTest {
  // criando um dublê do tipo mock para UsuarioRepository e fazendo as configurações iniciais
  val repository = mock(UsuarioRepository::class.java)
  val controller = UsuarioController(repository)
+
+lateinit var tipoUsuario: TipoUsuario
+
  lateinit var usuario: Usuario
  lateinit var usuario2: Usuario
  lateinit var usuario3: Usuario
 
+
  @BeforeEach
  fun setup() {
+     tipoUsuario = TipoUsuario(1, "Cliente")
+
+
   // usuario logado
-  usuario = Usuario(1, "Paula", "paula@email.com", "123456789", "12345678", 0, true)
+  usuario = Usuario(1, "Paula", "paula@email.com", "123456789", "12345678", logado = true)
     // usuario não logado
-  usuario2 = Usuario(2 , "Zé", "zezinho@gmail.com", "123456789", "12345678", 0, false)
+  usuario2 = Usuario(2 , "Zé", "zezinho@gmail.com", "123456789", "12345678", logado = false)
     // usuario não existente
-  usuario3 = Usuario(9, "Luana", "luana@outlook.com", "123456789", "12345678", 0, false)
+  usuario3 = Usuario(9, "Luana", "luana@outlook.com", "123456789", "12345678", logado = false)
   // aqui vamos seguir o seguinte: 1-> existe | 9-> não existe
   `when`(repository.existsById(1)).thenReturn(true)
   `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
