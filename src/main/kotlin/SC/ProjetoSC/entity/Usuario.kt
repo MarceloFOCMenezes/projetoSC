@@ -7,6 +7,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
@@ -45,7 +46,8 @@ data class Usuario(
 
     @field:NotNull @field:PositiveOrZero
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
-    var tipo: Int? = 0,
+    @ManyToOne
+    var tipo: TipoUsuario? = null,
 
     @Schema(description = "Indica se o usuário está logado")
     var logado: Boolean = false,
