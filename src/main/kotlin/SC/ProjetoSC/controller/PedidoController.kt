@@ -88,9 +88,9 @@ class PedidoController (val repositorio: PedidoRepository) {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Excluir pedido", description = "Retorna o status 200 caso pedido excluído com sucesso.")
+    @Operation(summary = "Excluir pedido", description = "Retorna o status 204 caso pedido excluído com sucesso.")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Pedido excluído com sucesso. O corpo da resposta estará vazio."),
+        ApiResponse(responseCode = "204", description = "Pedido excluído com sucesso. O corpo da resposta estará vazio."),
         ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
     ])
     fun excluir(@PathVariable id: Int): ResponseEntity<Void>{
@@ -98,6 +98,6 @@ class PedidoController (val repositorio: PedidoRepository) {
             return ResponseEntity.status(404).build()
         }
         repositorio.deleteById(id)
-        return ResponseEntity.status(200).build()
+        return ResponseEntity.status(204).build()
     }
 }

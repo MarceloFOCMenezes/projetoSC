@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.ManyToOne
 import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -38,5 +39,22 @@ data class Pedido (
 
     @field:NotNull
     @Schema(description = "Indica se o pedido é para retirada ou entrega")
-    var isRetirada: Boolean? = null
+    var isRetirada: Boolean? = null,
+
+
+
+    @field:NotBlank
+    @Schema(description = "FK do cliente que fez o pedido")
+    @ManyToOne
+    val fkCliente:Usuario? = null,
+
+    @field:NotBlank
+    @Schema(description = "FK do endereço de entrega do pedido")
+    @ManyToOne
+    val fkEndereco:Endereco? = null,
+
+    @field:NotBlank
+    @Schema(description = "FK do status atual do pedido")
+    @ManyToOne
+    val fkStatusPedido:StatusPedido? = null,
 )
