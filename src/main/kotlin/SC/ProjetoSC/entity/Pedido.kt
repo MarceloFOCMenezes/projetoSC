@@ -15,27 +15,27 @@ data class Pedido (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador do pedido")
-    var id: Int = 0,
+    val id: Int? = null,
 
     @field:NotNull
     @Schema(description = "Data em que o pedido foi realizado")
-    var dtPedido: LocalDateTime? = null,
+    val dtPedido: LocalDateTime? = null,
 
     @field:NotNull @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
     @Schema(description = "Data de entrega do pedido")
-    var dtEntrega: LocalDateTime? = null,
+    val dtEntrega: LocalDateTime? = null,
 
     @field:NotNull
     @Schema(description = "Status atual do pagamento do pedido")
-    var statusPagamento: StatusPagamento = StatusPagamento.NAO_PAGO,
+    val statusPagamento: StatusPagamento = StatusPagamento.NAO_PAGO,
 
     @field:NotNull @field:PositiveOrZero
     @Schema(description = "Preço total do pedido")
-    var precoTotal: Double? = 0.0,
+    val precoTotal: Double? = 0.0,
 
     @field:NotNull
     @Schema(description = "Indica se o pedido é para retirada ou entrega")
-    var isRetirada: Boolean? = null,
+    val isRetirada: Boolean? = null,
 
 
 

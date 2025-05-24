@@ -21,37 +21,37 @@ data class Usuario(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador do usuário")
-    var id:Int?,
+    val id:Int? = null,
 
     @field:NotBlank @field:Size(min = 2, max = 45)
     @Schema(description = "Nome do usuário")
-    var nome: String? = null,
+    val nome: String? = null,
 
     @field:NotBlank @field:Size(min = 6, max = 150) @field:Email
     @Schema(description = "E-mail do usuário")
-    var email: String? = null,
+    val email: String? = null,
 
     @field:NotBlank @field:Size(min = 11, max = 11)
     @Schema(description = "Número de telefone do usuário")
-    var telefone: String? = null,
+    val telefone: String? = null,
 
     @JsonIgnore
     @field:NotBlank @field:Size(min = 8, max = 45)
     @Schema(description = "Senha da conta do usuário")
-    var senha: String? = null,
+    val senha: String? = null,
 
 
     @field:NotNull
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
     @ManyToOne
     @JoinColumn(name = "fkTipoUsuario", nullable = false) // indica o nome do atributo na tabela, nullable false indica que não pode ser nulo
-    var tipo: TipoUsuario? = null,
+    val tipo: TipoUsuario? = null,
 
     @Schema(description = "Indica se o usuário está logado")
-    var logado: Boolean = false,
+    val logado: Boolean = false,
 
     @Schema(description = "Data e hora do último login do usuário")
-    var dataUltimoLogin: LocalDateTime? = null
+    val dataUltimoLogin: LocalDateTime? = null
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades

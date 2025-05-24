@@ -10,14 +10,15 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 @Entity
-data class StatusPedido(
+data class TipoData(
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val idStatusPedido: Int? = null,
+    @Schema(description = "Identificador do tipo de data")
+    val idData:Int? = null,
 
-    @field:NotBlank @field:Size(min = 2, max = 255)
-    @Schema(description = "Descrição do status do pedido")
-    val descricao: String? = null
-) {
-}
+    @field:NotBlank @field:Size(min = 2, max = 45)
+    @Schema(description = "Nome do tipo de data")
+    val nomeData: String? = null
+)
+{constructor() : this(null, null) }

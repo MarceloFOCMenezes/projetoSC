@@ -20,7 +20,7 @@ data class TipoIngrediente(
 
     @field:NotBlank @field:Size(min = 2, max = 45)
     @Schema(description = "Descrição do tipo de ingrediente")
-    var descricao: String? = null,
+    val descricao: String? = null,
 
     @field:NotNull
     @field:PositiveOrZero(message = "A quantidade máxima deve ser zero ou positiva.")
