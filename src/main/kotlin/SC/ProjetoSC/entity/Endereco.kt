@@ -18,15 +18,14 @@ data class Endereco (
 
     @field:NotBlank @field:Size(min = 2, max = 45)
     @Schema(description = "Nome do endereço")
-    var nomeEndereco: String? = null,
+    val nomeEndereco: String? = null,
 
     @field:NotBlank @field:Size(min = 2, max = 10)
     @Schema(description = "Número do endereço")
-    var numeroEndereco: String? = null,
-
+    val numeroEndereco: String? = null,
 
     @field:NotBlank @field:Size(min = 8, max = 8)
     @Schema(description = "CEP do endereço, apenas números")
-    var cepEndereco: String? = null,
+    val cepEndereco: String? = null,
 ){
 }
