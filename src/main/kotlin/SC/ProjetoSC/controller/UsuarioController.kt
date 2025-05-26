@@ -55,7 +55,7 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         if (!repositorio.existsByEmailIgnoreCase(email)) {
             return ResponseEntity.status(404).build()
         }
-        val usuarioEncontrado = repositorio.findByEmailIgnoreCase(email)
+        var usuarioEncontrado = repositorio.findByEmailIgnoreCase(email)
         if (usuarioEncontrado.senha != senha) {
             return ResponseEntity.status(401).build()
         }
