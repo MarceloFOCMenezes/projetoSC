@@ -1,5 +1,6 @@
 package SC.ProjetoSC.entity
 
+import SC.ProjetoSC.Enum.TipoUsuarioEnum
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
@@ -21,37 +22,44 @@ data class Usuario(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(description = "Identificador do usuário")
+    @Column(name = "id_usuario")
     val id:Int? = null,
 
     @field:NotBlank @field:Size(min = 2, max = 45)
     @Schema(description = "Nome do usuário")
-    val nome: String? = null,
+    @Column(name = "nome_usuario")
+    var nome: String? = null,
 
     @field:NotBlank @field:Size(min = 6, max = 150) @field:Email
     @Schema(description = "E-mail do usuário")
+    @Column(name = "email_usuario", unique = true) // indica que o e-mail não pode se repetir
     val email: String? = null,
 
     @field:NotBlank @field:Size(min = 11, max = 11)
     @Schema(description = "Número de telefone do usuário")
+    @Column(name = "telefone_usuario")
     val telefone: String? = null,
 
     @JsonIgnore
     @field:NotBlank @field:Size(min = 8, max = 45)
     @Schema(description = "Senha da conta do usuário")
-    val senha: String? = null,
+    @Column(name = "senha_usuario", unique = true)
+    var senha: String? = null,
 
 
     @field:NotNull
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
-    @ManyToOne
-    @JoinColumn(name = "fkTipoUsuario", nullable = false) // indica o nome do atributo na tabela, nullable false indica que não pode ser nulo
-    val tipo: TipoUsuario? = null,
+    @Enumerated(EnumType.STRING) // para armazenar o valor como string no banco de dados
+    @Column(name = "tipo_usuario", nullable = false)
+    val tipo: TipoUsuarioEnum? = null,
 
+    @Transient // não será persistido no banco de dados
     @Schema(description = "Indica se o usuário está logado")
-    val logado: Boolean = false,
+    var logado: Boolean = false,
 
     @Schema(description = "Data e hora do último login do usuário")
-    val dataUltimoLogin: LocalDateTime? = null
+    @Column(name = "data_ultimo_login")
+    var dataUltimoLogin: LocalDateTime? = null
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades

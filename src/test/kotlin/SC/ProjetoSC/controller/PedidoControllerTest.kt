@@ -1,5 +1,6 @@
 package SC.ProjetoSC.controller
 
+import SC.ProjetoSC.Enum.StatusPagamentoEnum
 import SC.ProjetoSC.entity.*
 import SC.ProjetoSC.repository.PedidoRepository
 import org.junit.jupiter.api.Test
@@ -33,7 +34,7 @@ class PedidoControllerTest {
    id = 1,
    dtPedido = null,
    dtEntrega = null,
-   statusPagamento = StatusPagamento.NAO_PAGO,
+   statusPagamento = StatusPagamentoEnum.NAO_PAGO,
    precoTotal = 0.0,
    isRetirada = false,
    fkCliente = fkCliente,

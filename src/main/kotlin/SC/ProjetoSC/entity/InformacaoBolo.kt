@@ -11,12 +11,12 @@ import java.io.Serializable
 @Embeddable
 data class InformacaoBoloId(
     @Schema(description = "ID do ItemPedido")
-    @Column(name = "fkItemPedido")
+    @Column(name = "fk_item_pedido")
     @field:NotNull
     val itemPedidoId: Int = 0,
 
     @Schema(description = "ID do Anexo")
-    @Column(name = "fkAnexo")
+    @Column(name = "fk_anexo")
     @field:NotNull
     val anexoId: Int = 0
 ) : Serializable

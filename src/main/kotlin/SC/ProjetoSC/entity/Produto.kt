@@ -1,5 +1,6 @@
 package SC.ProjetoSC.entity
 
+import SC.ProjetoSC.Enum.UnidadeMedidaEnum
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
@@ -7,12 +8,13 @@ import jakarta.validation.constraints.Size
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PositiveOrZero
 import java.math.BigDecimal
-
+@Table(name = "Produto")
 @Entity
 data class Produto(
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_produto", nullable = false, unique = true)
     val idProduto: Int? = null,
 
     @field:NotBlank(message = "A descrição do produto é obrigatória e não pode ser vazia.")
@@ -21,6 +23,7 @@ data class Produto(
 
     @field:NotNull(message = "O preço unitário é obrigatório.")
     @field:PositiveOrZero(message = "O preço unitário deve ser zero ou positivo.")
+    @Column(name = "preco_unitario", precision = 10, scale = 2)
     val precoUnitario: BigDecimal? = null,
 
     @field:NotBlank(message = "A categoria é obrigatória e não pode ser vazia.")
@@ -31,16 +34,16 @@ data class Produto(
     val ativo: Boolean? = null,
 
     @field:NotNull(message = "O campo temIngrediente é obrigatório.")
+    @Column(name = "tem_ingrediente")
     val temIngrediente: Boolean? = null,
 
     @field:Size(max = 255, message = "A observação deve ter no máximo 255 caracteres, preenchimento opcional.")
     val observacao: String? = null,
 
-
-    @ManyToOne
-    @JoinColumn(name = "fkunidadeMedida", nullable = false)
+    @Column(name = "unidade_medida", nullable = false)
+    @Enumerated(EnumType.STRING) // Armazena o valor como string no banco de dados
     @field:NotNull(message = "A unidade de medida é obrigatória.")
-    val unidadeMedida: UnidadeMedida? = null
+    val unidadeMedida: UnidadeMedidaEnum? = null
 ) {
     constructor() : this(
         null,

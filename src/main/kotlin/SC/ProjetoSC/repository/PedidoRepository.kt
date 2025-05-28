@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.time.LocalDateTime
 
 interface PedidoRepository : JpaRepository<Pedido, Int> {
+
+
     // buscar somente por data de pedido
     fun findByDtPedido(dtPedido:LocalDateTime):List<Pedido>
 

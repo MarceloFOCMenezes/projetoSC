@@ -1,13 +1,18 @@
 package SC.ProjetoSC.controller
 
-import SC.ProjetoSC.entity.StatusPagamento
+import RequestPedidoDTO
+import SC.ProjetoSC.Services.PedidoServices
 import SC.ProjetoSC.entity.Pedido
+import SC.ProjetoSC.repository.EnderecoRepository
 import SC.ProjetoSC.repository.PedidoRepository
+import SC.ProjetoSC.repository.StatusPedidoRepository
+import SC.ProjetoSC.repository.UsuarioRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,7 +27,12 @@ import java.time.LocalDateTime
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
 @RestController
 @RequestMapping("/pedidos")
-class PedidoController (val repositorio: PedidoRepository) {
+class PedidoController(
+    val repositorio: PedidoRepository,
+    val pedidoServices: PedidoServices
+) {
+
+    // exemplo de pedido mais caro, só para teste
 
 //    var maisCaro = Pedido(3, LocalDateTime.parse("2025-05-21T09:00:00"), LocalDateTime.parse("2025-05-30T10:00:00"),
 //        StatusPagamento.PAGO, 600.00, false)
@@ -30,6 +40,7 @@ class PedidoController (val repositorio: PedidoRepository) {
 //    fun maisCaro(): Pedido {
 //        return maisCaro
 //    }
+
 
 
     // lista todos os pedidos ou filtra por data do pedido realizado ou data de entrega do pedido!
@@ -64,9 +75,9 @@ class PedidoController (val repositorio: PedidoRepository) {
     @PostMapping
     @Operation(summary = "Adicionar um novo pedido", description = "Retorna o pedido criado.")
     @ApiResponse(responseCode = "201", description = "Pedido adicionado com sucesso. O corpo da resposta contém os dados do pedido criado.")
-    fun criarPedido(@RequestBody @Valid novoPedido: Pedido): ResponseEntity<Pedido> {
-        val pedidoCriado = repositorio.save(novoPedido)
-        return ResponseEntity.status(201).body(pedidoCriado)
+    fun criarPedido(@RequestBody @Valid novoPedido: RequestPedidoDTO): ResponseEntity<Any> {
+        val pedido = pedidoServices.criarPedido(novoPedido)
+        return ResponseEntity.status(HttpStatus.CREATED).body(pedido)
     }
 
     @PutMapping("/{id}")
