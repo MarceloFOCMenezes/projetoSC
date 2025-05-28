@@ -24,9 +24,9 @@ data class Pedido(
     @Column(name = "dt_pedido", nullable = false)
     val dtPedido: LocalDateTime? = LocalDateTime.now(),
 
-    @field:NotNull @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
+    @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
     @Schema(description = "Data de entrega do pedido")
-    @Column(name = "dt_entrega", nullable = false)
+    @Column(name = "dt_entrega", nullable = true)
     val dtEntrega: LocalDateTime? = null,
 
     @field:NotNull @field:PositiveOrZero
@@ -44,7 +44,6 @@ data class Pedido(
     @JoinColumn(name = "fk_cliente", nullable = false)
     val cliente:Usuario? = null,
 
-    @field:NotNull(message = "A FK do endereço respectivo é obrigatória.")
     @Schema(description = "FK do endereço de entrega do pedido")
     @ManyToOne
     @JoinColumn(name = "fk_endereco", nullable = true)
