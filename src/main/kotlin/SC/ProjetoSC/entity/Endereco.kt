@@ -1,9 +1,11 @@
 package SC.ProjetoSC.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 @Table(name = "Endereco")
 @Entity
@@ -19,14 +21,64 @@ data class Endereco (
     @Column(name = "nome_endereco")
     val nomeEndereco: String? = null,
 
-    @field:NotBlank @field:Size(min = 2, max = 10)
-    @Schema(description = "Número do endereço")
-    @Column(name = "numero_endereco")
-    val numeroEndereco: String? = null,
+    @field:NotBlank
+    @Column(name = "cep", length = 8, nullable = false)
+    @Schema(description = "CEP do endereço")
+    val cep: String,
 
-    @field:NotBlank @field:Size(min = 8, max = 8)
-    @Schema(description = "CEP do endereço, apenas números")
-    @Column(name = "cep_endereco")
-    val cepEndereco: String? = null,
+    @field:NotBlank
+    @Column(name = "logradouro", length = 100, nullable = false)
+    @Schema(description = "Logradouro, rua ou avenida")
+    val logradouro: String,
+
+    @field:NotBlank
+    @Column(name = "numero", length = 10, nullable = false)
+    @Schema(description = "Número do endereço")
+    val numero: String,
+
+    @Column(name = "complemento", length = 50)
+    @Schema(description = "Complemento do endereço (ex: apto, bloco)")
+    val complemento: String? = null,
+
+    @field:NotBlank
+    @Column(name = "bairro", length = 60, nullable = false)
+    @Schema(description = "Bairro")
+    val bairro: String,
+
+    @field:NotBlank
+    @Column(name = "cidade", length = 60, nullable = false)
+    @Schema(description = "Cidade")
+    val cidade: String,
+
+    @field:NotBlank
+    @Pattern(regexp = "[A-Z]{2}", message = "Estado deve ser a sigla, como SP, RJ, MG...")
+    @Column(name = "estado", length = 2, nullable = false)
+    @Schema(description = "Estado (UF)")
+    val estado: String,
+
+    @Column(name = "ponto_referencia", length = 100)
+    @Schema(description = "Ponto de referência")
+    val pontoReferencia: String? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "fk_usuario")
+    @JsonIgnore
+    @Schema(description = "Usuário dono do endereço")
+    val usuario: Usuario? = null
+
+
 ){
+    constructor() : this(
+        idEndereco = null,
+        nomeEndereco = null,
+        cep = "",
+        logradouro = "",
+        numero = "",
+        complemento = null,
+        bairro = "",
+        cidade = "",
+        estado = "",
+        pontoReferencia = null,
+        usuario = null
+    )
 }

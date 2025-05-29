@@ -52,23 +52,11 @@ class PedidoController(
     ])
     fun lista(@RequestParam(required = false) dtPedido: LocalDateTime?, @RequestParam(required = false) dtEntrega: LocalDateTime?):
             ResponseEntity<List<Pedido>> {
-
-        // definindo o conteúdo da lista
-        val pedidos: List<Pedido> = when {
-            dtPedido != null && dtEntrega != null -> repositorio.findByDtPedidoAndDtEntregaGreaterThanEqual(dtPedido, dtEntrega)
-
-            dtPedido != null -> repositorio.findByDtPedido(dtPedido)
-
-            dtEntrega != null -> repositorio.findByDtEntregaGreaterThanEqual(dtEntrega)
-
-            else -> repositorio.findAll()
-        }
-
-        // definindo o resultado retornado de acordo com oq tem na lista
-        return if (pedidos.isEmpty()) {
-            ResponseEntity.status(204).build()
+        val listaPedidos = pedidoServices.listarPedidos(dtPedido, dtEntrega);
+        return if (listaPedidos.isEmpty()) {
+            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         } else {
-            ResponseEntity.status(200).body(pedidos)
+            ResponseEntity.status(HttpStatus.OK).body(listaPedidos)
         }
     }
 
@@ -77,6 +65,7 @@ class PedidoController(
     @ApiResponse(responseCode = "201", description = "Pedido adicionado com sucesso. O corpo da resposta contém os dados do pedido criado.")
     fun criarPedido(@RequestBody @Valid novoPedido: RequestPedidoDTO): ResponseEntity<Any> {
         val pedido = pedidoServices.criarPedido(novoPedido)
+
         return ResponseEntity.status(HttpStatus.CREATED).body(pedido)
     }
 

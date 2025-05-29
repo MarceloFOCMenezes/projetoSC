@@ -15,4 +15,6 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
     // essa função filtra os pedidos por dtPedido e por dtEntrega
     fun findByDtPedidoAndDtEntregaGreaterThanEqual(dtPedido:LocalDateTime, dtEntrega:LocalDateTime):List<Pedido>
+
+    fun findByDtEntrega(dtEntrega: LocalDateTime): List<Pedido>
 }
