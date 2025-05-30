@@ -29,6 +29,11 @@ data class Pedido(
     @Column(name = "dt_entrega", nullable = true)
     val dtEntrega: LocalDateTime? = null,
 
+    @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
+    @Schema(description = "Data de entrega do pedido")
+    @Column(name = "dt_entrega_esperada", nullable = true)
+    val dtEntregaEsperada: LocalDateTime? = null,
+
     @field:NotNull @field:PositiveOrZero
     @Schema(description = "Preço total do pedido")
     @Column(name = "preco_total", nullable = false)
@@ -60,7 +65,7 @@ data class Pedido(
     @Schema(description = "FK do status atual do pedido")
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
-    val forma_Pagamento:FormaPagamentoEnum? = null,
+    val formaPagamento:FormaPagamentoEnum? = null,
 
 
     )

@@ -13,12 +13,12 @@ import java.io.Serializable
 data class ItemPedidoIngredienteId(
 
     @Schema(description = "ID do ItemPedido")
-    @Column(name = "fkItemPedido")
+    @Column(name = "fk_item_pedido")
     @field:NotNull
     val itemPedidoId: Int = 0,
 
     @Schema(description = "ID do Ingrediente")
-    @Column(name = "fkIngrediente")
+    @Column(name = "fk_ingrediente")
     @field:NotNull
     val ingredienteId: Int = 0
 
@@ -27,6 +27,7 @@ data class ItemPedidoIngredienteId(
 // Entidade que representa a tabela de associação N:N entre ItemPedido e Ingrediente.
 // Não possui um campo ID próprio, mas sim uma chave composta (@EmbeddedId).
 @Schema(description = "Associação N:N entre ItemPedido e Ingrediente")
+@Table(name = "item_pedido_ingrediente")
 @Entity
 data class ItemPedidoIngrediente(
     // Chave composta formada pelas FKs de ItemPedido e Ingrediente
@@ -40,7 +41,7 @@ data class ItemPedidoIngrediente(
     @field:NotNull
     @ManyToOne
     @MapsId("itemPedidoId")
-    @JoinColumn(name = "fkItemPedido", nullable = false)
+    @JoinColumn(name = "fk_item_pedido", nullable = false)
     val itemPedido: ItemPedido? = null,
 
     // Relacionamento com Ingrediente. O @MapsId indica que o campo ingredienteId da chave composta
@@ -49,7 +50,7 @@ data class ItemPedidoIngrediente(
     @field:NotNull
     @ManyToOne
     @MapsId("ingredienteId")
-    @JoinColumn(name = "fkIngrediente", nullable = false)
+    @JoinColumn(name = "fk_ingrediente", nullable = false)
     val ingrediente: Ingrediente? = null
 
 ) { constructor() : this(ItemPedidoIngredienteId(0, 0), null, null) }

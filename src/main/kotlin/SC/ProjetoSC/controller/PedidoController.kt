@@ -1,12 +1,9 @@
 package SC.ProjetoSC.controller
 
-import RequestPedidoDTO
+import SC.ProjetoSC.DTO.PedidoDto
 import SC.ProjetoSC.Services.PedidoServices
 import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.repository.EnderecoRepository
 import SC.ProjetoSC.repository.PedidoRepository
-import SC.ProjetoSC.repository.StatusPedidoRepository
-import SC.ProjetoSC.repository.UsuarioRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -17,13 +14,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
+
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
 @RestController
 @RequestMapping("/pedidos")
@@ -44,30 +40,45 @@ class PedidoController(
 
 
     // lista todos os pedidos ou filtra por data do pedido realizado ou data de entrega do pedido!
+//    @GetMapping
+//    @Operation(summary = "Listar todos os pedidos", description = "Retorna uma lista com todos os pedidos registrados no sistema.")
+//    @ApiResponses(value = [
+//        ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
+//        ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado com os critérios informados. O corpo da resposta estará vazio.")
+//    ])
+//    fun lista(@RequestParam(required = false) dtPedido: LocalDateTime?, @RequestParam(required = false) dtEntrega: LocalDateTime?):
+//            ResponseEntity<List<Pedido>> {
+//        val listaPedidos = pedidoServices.listarPedidos(dtPedido, dtEntrega);
+//        return if (listaPedidos.isEmpty()) {
+//            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+//        } else {
+//            ResponseEntity.status(HttpStatus.OK).body(listaPedidos)
+//        }
+//    }
+
     @GetMapping
-    @Operation(summary = "Listar todos os pedidos", description = "Retorna uma lista com todos os pedidos registrados no sistema.")
+    @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
-        ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado com os critérios informados. O corpo da resposta estará vazio.")
+        ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado. O corpo da resposta estará vazio.")
     ])
-    fun lista(@RequestParam(required = false) dtPedido: LocalDateTime?, @RequestParam(required = false) dtEntrega: LocalDateTime?):
-            ResponseEntity<List<Pedido>> {
-        val listaPedidos = pedidoServices.listarPedidos(dtPedido, dtEntrega);
-        return if (listaPedidos.isEmpty()) {
+    fun listarPedidos(@RequestParam(required = false) idUsuario: Int?): ResponseEntity<PedidoDto> {
+        val pedido = pedidoServices.listarPedidos(idUsuario)
+        return if (pedido.itensPedido!!.isEmpty()) {
             ResponseEntity.status(HttpStatus.NO_CONTENT).build()
         } else {
-            ResponseEntity.status(HttpStatus.OK).body(listaPedidos)
+            ResponseEntity.status(HttpStatus.OK).body(pedido)
         }
     }
 
-    @PostMapping
-    @Operation(summary = "Adicionar um novo pedido", description = "Retorna o pedido criado.")
-    @ApiResponse(responseCode = "201", description = "Pedido adicionado com sucesso. O corpo da resposta contém os dados do pedido criado.")
-    fun criarPedido(@RequestBody @Valid novoPedido: RequestPedidoDTO): ResponseEntity<Any> {
-        val pedido = pedidoServices.criarPedido(novoPedido)
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedido)
-    }
+//    @PostMapping
+//    @Operation(summary = "Adicionar um novo pedido", description = "Retorna o pedido criado.")
+//    @ApiResponse(responseCode = "201", description = "Pedido adicionado com sucesso. O corpo da resposta contém os dados do pedido criado.")
+//    fun criarPedido(@RequestBody @Valid novoPedido: RequestPedidoDTO): ResponseEntity<Any> {
+//        val pedido = pedidoServices.criarPedido(novoPedido)
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body(pedido)
+//    }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar pedido", description = "Retorna o pedido atualizado.")
