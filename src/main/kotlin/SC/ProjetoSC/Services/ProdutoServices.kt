@@ -4,6 +4,8 @@ import SC.ProjetoSC.dto.RequestProdutoDTO
 import SC.ProjetoSC.entity.Produto
 import SC.ProjetoSC.repository.ProdutoRepository
 import SC.ProjetoSC.repository.UsuarioRepository
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,6 +24,24 @@ class ProdutoServices (
         )
         produtoRepository.save(produto)
         return produto
+    }
+
+    fun atualizarProduto(id:Int, dto: RequestProdutoDTO): ResponseEntity<Any> {
+        val produtoOpt = produtoRepository.findById(id)
+        if (produtoOpt.isEmpty) return ResponseEntity.status(404).build()
+
+        val produtoExist = produtoOpt.get()
+        val produtoAtt = produtoExist.copy(
+            descricao = dto.descricao,
+            precoUnitario = dto.precoUnitario,
+            categoria = dto.categoria,
+            ativo = dto.ativo,
+            temIngrediente = dto.temIngrediente,
+            observacao = dto.observacao,
+            unidadeMedida = dto.unidadeMedida
+        )
+        produtoRepository.save(produtoAtt)
+        return ResponseEntity.status(200).body(produtoAtt)
     }
 
 }
