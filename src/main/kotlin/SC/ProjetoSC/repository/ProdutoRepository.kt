@@ -7,5 +7,5 @@ interface ProdutoRepository: JpaRepository<Produto, Int> {
 
     //todo
     // buscar produto por nome
-    fun findByNome(nome: String): List<Produto>
+    fun findByDescricao(nome: String): List<Produto>
 }

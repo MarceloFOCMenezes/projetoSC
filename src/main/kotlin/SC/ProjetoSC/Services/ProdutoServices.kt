@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ProdutoServices (
-    private val produtoRepository: ProdutoRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val produtoRepository: ProdutoRepository
 ) {
     fun criarProduto(requestProduto:RequestProdutoDTO): Produto {
         val produto = Produto(
