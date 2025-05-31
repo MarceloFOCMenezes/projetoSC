@@ -1,7 +1,7 @@
 package SC.ProjetoSC.controller
 
+import SC.ProjetoSC.Enum.TipoUsuarioEnum
 import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.entity.TipoUsuario
 import SC.ProjetoSC.entity.Usuario
 import SC.ProjetoSC.repository.UsuarioRepository
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ class UsuarioControllerTest {
  val repository = mock(UsuarioRepository::class.java)
  val controller = UsuarioController(repository)
 
-lateinit var tipoUsuario: TipoUsuario
+lateinit var tipoUsuario: TipoUsuarioEnum
 
  lateinit var usuario: Usuario
  lateinit var usuario2: Usuario
@@ -28,19 +28,36 @@ lateinit var tipoUsuario: TipoUsuario
 
  @BeforeEach
  fun setup() {
-     tipoUsuario = TipoUsuario(1, "Cliente")
-
-
-  // usuario logado
-  usuario = Usuario(1, "Paula", "paula@email.com", "123456789", "12345678", logado = true)
-    // usuario não logado
-  usuario2 = Usuario(2 , "Zé", "zezinho@gmail.com", "123456789", "12345678", logado = false)
-    // usuario não existente
-  usuario3 = Usuario(9, "Luana", "luana@outlook.com", "123456789", "12345678", logado = false)
-  // aqui vamos seguir o seguinte: 1-> existe | 9-> não existe
-  `when`(repository.existsById(1)).thenReturn(true)
-  `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
-  `when`(repository.existsById(9)).thenReturn(false)
+     usuario = Usuario(
+         id = 1,
+         nome = "Paula",
+         email = "paula@email.com",
+         telefone = "123456789",
+         senha = "12345678",
+         tipo = TipoUsuarioEnum.cliente, // Enum correto
+         logado = true
+     )
+     usuario2 = Usuario(
+         id = 2,
+         nome = "Zé",
+         email = "zezinho@gmail.com",
+         telefone = "123456789",
+         senha = "12345678",
+         tipo = TipoUsuarioEnum.cliente,
+         logado = false
+     )
+     usuario3 = Usuario(
+         id = 9,
+         nome = "Luana",
+         email = "luana@outlook.com",
+         telefone = "123456789",
+         senha = "12345678",
+         tipo = TipoUsuarioEnum.cliente,
+         logado = false
+     )
+     `when`(repository.existsById(1)).thenReturn(true)
+     `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
+     `when`(repository.existsById(9)).thenReturn(false)
  }
 
  // TESTES DA FUNÇÃO: listarUsuarios
