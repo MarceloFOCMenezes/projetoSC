@@ -1,206 +1,165 @@
 package SC.ProjetoSC.controller
 
+import RequestPedidoDTO
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
-import SC.ProjetoSC.entity.*
-import SC.ProjetoSC.repository.*
 import SC.ProjetoSC.Services.PedidoServices
-import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import SC.ProjetoSC.controller.PedidoController
+import SC.ProjetoSC.entity.Endereco
+import SC.ProjetoSC.entity.Pedido
+import SC.ProjetoSC.entity.StatusPedido
+import SC.ProjetoSC.entity.Usuario
+import SC.ProjetoSC.repository.PedidoRepository
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import org.springframework.http.ResponseEntity
+import java.time.LocalDateTime
 import java.util.*
 
 class PedidoControllerTest {
 
-    val pedidoRepository = mock(PedidoRepository::class.java)
-    val usuarioRepository = mock(UsuarioRepository::class.java)
-    val enderecoRepository = mock(EnderecoRepository::class.java)
-    val statusPedidoRepository = mock(StatusPedidoRepository::class.java)
-    val pedidoServices = PedidoServices(pedidoRepository, usuarioRepository, enderecoRepository, statusPedidoRepository)
-    val controller = PedidoController(pedidoRepository, pedidoServices)
+    private val pedidoRepository = mock(PedidoRepository::class.java)
+    private val pedidoServices = mock(PedidoServices::class.java)
+    private val controller = PedidoController(pedidoRepository, pedidoServices)
 
-    lateinit var cliente: Usuario
+    lateinit var usuario: Usuario
     lateinit var endereco: Endereco
     lateinit var statusPedido: StatusPedido
     lateinit var pedido: Pedido
 
     @BeforeEach
     fun setup() {
-        cliente = Usuario(id = 1, nome = "Cliente Teste", email = "cliente@gmail.com")
-        endereco = Endereco(idEndereco = 1,
-            nomeEndereco = "Rua Teste",
+        usuario = Usuario(
+            id = 1,
+            nome = "Cliente Teste",
+            email = "cliente@email.com",
+            telefone = "123456789",
+            senha = "senha123",
+            tipo = SC.ProjetoSC.Enum.TipoUsuarioEnum.cliente,
+            logado = false
+        )
+        endereco = Endereco(
+            idEndereco = 1,
+            nomeEndereco = "Casa",
             cep = "12345678",
             logradouro = "Rua Teste",
-            numero = "123",
-            complemento = null,
+            numero = "100",
+            complemento = "Apto 10",
             bairro = "Centro",
             cidade = "Cidade Teste",
             estado = "SP",
-            pontoReferencia = null,
-            usuario = cliente)
-        statusPedido = StatusPedido(idStatusPedido = 1, descricao = "Pedido em andamento")
+            pontoReferencia = "Próximo à praça",
+            usuario = usuario // se necessário, senão pode ser null
+        )
+        statusPedido = StatusPedido(
+            idStatusPedido = 1,
+            descricao = "Em aberto"
+        )
         pedido = Pedido(
             id = 1,
-            dtPedido = null,
-            dtEntrega = null,
-            precoTotal = 10.0,
+            dtPedido = LocalDateTime.now(),
+            dtEntrega = LocalDateTime.now().plusDays(2),
+            precoTotal = 100.0,
             isRetirada = false,
-            forma_Pagamento = FormaPagamentoEnum.pix,
-            cliente = cliente,
+            cliente = usuario,
             endereco = endereco,
-            statusPedido = statusPedido
+            statusPedido = statusPedido,
+            forma_Pagamento = FormaPagamentoEnum.pix
         )
     }
 
-    // todo: corrigir testes
+    @Test
+    @DisplayName("lista: COM dados = status 200 com lista de pedidos")
+    fun lista() {
+        val pedidos = listOf(pedido)
+        `when`(pedidoServices.listarPedidos(null, null)).thenReturn(pedidos)
 
-//    @Test
-//    @DisplayName("criarProduto: COM dados = status 201 com o produto criado")
-//    fun criarProduto() {
-//        val dto = RequestProdutoDTO(
-//            descricao = "Produto Teste",
-//            precoUnitario = java.math.BigDecimal("10.50"),
-//            categoria = "Bebida",
-//            ativo = true,
-//            temIngrediente = false,
-//            observacao = "Sem observação",
-//            unidadeMedida = UnidadeMedidaEnum.unidade
-//        )
-//
-//        `when`(repository.save(any(Produto::class.java))).thenReturn(produto)
-//
-//        val retorno = controller.criarProduto(dto)
-//
-//        assertEquals(201, retorno.statusCode.value())
-//        val body = retorno.body as Produto
-//        assertEquals("Produto Teste", body.descricao)
-//        assertEquals(java.math.BigDecimal("10.50"), body.precoUnitario)
-//        assertEquals("Bebida", body.categoria)
-//        assertEquals(true, body.ativo)
-//        assertEquals(false, body.temIngrediente)
-//        assertEquals("Sem observação", body.observacao)
-//        assertEquals(UnidadeMedidaEnum.unidade, body.unidadeMedida)
-//    }
-//}
-//
-// // -----------------------------------------------------------------------
-// // TESTES DA FUNÇÃO: listar pedidos
-//
-//@Test
-//@DisplayName("lista: COM dados = status 200 com a lista correta")
-// fun lista() {
-//    // programando o mock pra se comportar como se houvesse dados na tabela
-//    `when`(repository.findAll()).thenReturn(mutableListOf(pedido))
-//
-//    val retorno = controller.lista(null, null)
-//
-//    // verificando se o status da resposta é 200
-//    assertEquals(200, retorno.statusCode.value())
-//    // verificando se o corpo da resposta tem 1 elemento
-//    assertEquals(1, retorno.body?.size)
-// }
-//
-//    @Test
-//    @DisplayName("lista: SEM dados = status 204 sem corpo de resposta")
-//    fun listaVazio() {
-//        // programando o mock pra se comportar como se NÂO houvesse dados na tabela
-//        `when`(repository.findAll()).thenReturn(mutableListOf())
-//
-//        val retorno = controller.lista(null, null)
-//
-//        // verificando se o status da resposta é 204
-//        assertEquals(204, retorno.statusCode.value())
-//        // verificando se o corpo da resposta é nulo
-//        assertNull(retorno.body)
-//    }
-//
-//
-// // -----------------------------------------------------------------------
-// // TESTES DA FUNÇÃO: criarPedido
-//
-//@Test
-//@DisplayName("criarPedido: COM dados = status 201 com o pedido criado")
-// fun criarPedido() {
-//    // programando o mock pra se comportar como se houvesse dados na tabela
-//    `when`(repository.save(pedido)).thenReturn(pedido)
-//    val retorno = controller.criarPedido(pedido)
-//
-//    // verificando se o status da resposta é 201
-//    assertEquals(201, retorno.statusCode.value())
-//    // verificando se o corpo da resposta tem 1 elemento
-//    assertEquals(1, retorno.body?.id)
-//    assertEquals(fkCliente, retorno.body?.fkCliente)
-//    assertEquals(fkEndereco, retorno.body?.fkEndereco)
-//    assertEquals(fkStatusPedido, retorno.body?.fkStatusPedido)
-// }
-//
-// // -----------------------------------------------------------------------
-// // TESTES DA FUNÇÃO: atualizar pedido
-//
-//@Test
-//@DisplayName("atualizar: COM dados = status 200 com o pedido atualizado")
-// fun atualizar() {
-//    // programando o mock pra se comportar como se houvesse dados na tabela
-//    `when`(repository.existsById(1)).thenReturn(true)
-//    `when`(repository.save(pedido)).thenReturn(pedido)
-//
-//    val retorno = controller.atualizar(1, pedido)
-//
-//    // verificando se o status da resposta é 200
-//    assertEquals(200, retorno.statusCode.value())
-//    // verificando se o corpo da resposta tem 1 elemento
-//    assertEquals(1, retorno.body?.id)
-//    assertEquals(fkCliente, retorno.body?.fkCliente)
-//    assertEquals(fkEndereco, retorno.body?.fkEndereco)
-//    assertEquals(fkStatusPedido, retorno.body?.fkStatusPedido)
-//
-// }
-//
-//    @Test
-//    @DisplayName("atualizar: SEM dados = status 404 sem corpo de resposta")
-//    fun atualizarVazio() {
-//        // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-//        `when`(repository.existsById(1)).thenReturn(false)
-//
-//        val retorno = controller.atualizar(1, pedido)
-//
-//        // verificando se o status da resposta é 404
-//        assertEquals(404, retorno.statusCode.value())
-//        // verificando se o corpo da resposta é nulo
-//        assertNull(retorno.body)
-//    }
-//
-// // -----------------------------------------------------------------------
-// // TESTES DA FUNÇÃO: excluir pedido
-//
-//@Test
-//@DisplayName("excluir: COM dados = status 204 sem corpo de resposta")
-// fun excluir() {
-//    // programando o mock pra se comportar como se houvesse dados na tabela
-//    `when`(repository.existsById(1)).thenReturn(true)
-//
-//    val retorno = controller.excluir(1)
-//
-//    // verificando se o status da resposta é 204
-//    assertEquals(204, retorno.statusCode.value())
-//    // verificando se o corpo da resposta é nulo
-//    assertNull(retorno.body)
-//    // verificando se o método deleteById foi chamado com o id correto
-//    verify(repository).deleteById(1)
-// }
-//
-//    @Test
-//    @DisplayName("excluir: COM dados = status 404 sem corpo de resposta")
-//    fun excluirVazio() {
-//        // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-//        `when`(repository.existsById(1)).thenReturn(false)
-//
-//        val retorno = controller.excluir(1)
-//
-//        // verificando se o status da resposta é 404
-//        assertEquals(404, retorno.statusCode.value())
-//        // verificando se o corpo da resposta é nulo
-//        assertNull(retorno.body)
-//    }
- }
+        val response = controller.lista(null, null)
 
+        assertEquals(200, response.statusCode.value())
+        assertEquals(1, response.body?.size)
+        assertEquals(pedido, response.body?.get(0))
+    }
+
+    @Test
+    @DisplayName("lista: SEM dados = status 204 sem corpo")
+    fun listaVazio() {
+        `when`(pedidoServices.listarPedidos(null, null)).thenReturn(emptyList())
+
+        val response = controller.lista(null, null)
+
+        assertEquals(204, response.statusCode.value())
+        assertNull(response.body)
+    }
+
+    @Test
+    @DisplayName("criarPedido: COM dados = status 201 com o pedido criado")
+    fun criarPedido() {
+        val dto = RequestPedidoDTO(
+            precoTotal = 100.0,
+            isRetirada = false,
+            clienteId = 1,
+            enderecoId = 1,
+            formaPagamento = FormaPagamentoEnum.pix
+        )
+        `when`(pedidoServices.criarPedido(dto)).thenReturn(pedido)
+
+        val response = controller.criarPedido(dto)
+
+        assertEquals(201, response.statusCode.value())
+        val body = response.body as Pedido
+        assertEquals(pedido.id, body.id)
+        assertEquals(usuario, body.cliente)
+        assertEquals(endereco, body.endereco)
+        assertEquals(statusPedido, body.statusPedido)
+    }
+
+    @Test
+    @DisplayName("atualizar: COM dados = status 200 com o pedido atualizado")
+    fun atualizar() {
+        `when`(pedidoRepository.existsById(1)).thenReturn(true)
+        `when`(pedidoRepository.save(any(Pedido::class.java))).thenReturn(pedido)
+
+        val response = controller.atualizar(1, pedido)
+
+        assertEquals(200, response.statusCode.value())
+        assertEquals(pedido, response.body)
+    }
+
+    @Test
+    @DisplayName("atualizar: pedido não encontrado = status 404 sem corpo")
+    fun atualizarVazio() {
+        `when`(pedidoRepository.existsById(99)).thenReturn(false)
+
+        val response = controller.atualizar(99, pedido)
+
+        assertEquals(404, response.statusCode.value())
+        assertNull(response.body)
+    }
+
+    @Test
+    @DisplayName("excluir: pedido encontrado = status 204 sem corpo")
+    fun excluir() {
+        `when`(pedidoRepository.existsById(1)).thenReturn(true)
+        doNothing().`when`(pedidoRepository).deleteById(1)
+
+        val response = controller.excluir(1)
+
+        assertEquals(204, response.statusCode.value())
+        assertNull(response.body)
+        verify(pedidoRepository, times(1)).deleteById(1)
+    }
+
+    @Test
+    @DisplayName("excluir: pedido não encontrado = status 404 sem corpo")
+    fun excluirVazio() {
+        `when`(pedidoRepository.existsById(99)).thenReturn(false)
+
+        val response = controller.excluir(99)
+
+        assertEquals(404, response.statusCode.value())
+        assertNull(response.body)
+    }
+}
