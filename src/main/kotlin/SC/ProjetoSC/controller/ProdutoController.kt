@@ -36,4 +36,14 @@ class ProdutoController(
     fun atualizarProduto(@PathVariable id:Int, @RequestBody @Valid produtoAtualizado: RequestProdutoDTO): ResponseEntity<Any> {
         return produtoServices.atualizarProduto(id, produtoAtualizado)
     }
+
+    @PatchMapping("/{id}")
+    @Operation(summary = "Desativar ou Reativar um produto", description = "Atualiza o status de ativo de um produto existente no sistema.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Status do produto atualizado com sucesso. O corpo da resposta contém os dados do produto atualizado"),
+        ApiResponse(responseCode = "404", description = "Produto não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun atualizarStatusProduto(@PathVariable id:Int): ResponseEntity<Any> {
+        return produtoServices.atualizarStatusProduto(id)
+    }
 }

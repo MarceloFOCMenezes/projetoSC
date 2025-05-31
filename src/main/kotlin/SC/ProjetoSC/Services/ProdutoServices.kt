@@ -44,4 +44,14 @@ class ProdutoServices (
         return ResponseEntity.status(200).body(produtoAtt)
     }
 
+    fun atualizarStatusProduto(id:Int): ResponseEntity<Any> {
+        val produtoOpt = produtoRepository.findById(id)
+        if (produtoOpt.isEmpty) return ResponseEntity.status(404).build()
+
+        val produto = produtoOpt.get()
+        val novoStatus = !(produto.ativo ?: false)
+        val produtoAtualizado = produto.copy(ativo = novoStatus)
+        produtoRepository.save(produtoAtualizado)
+        return ResponseEntity.status(200).body(produtoAtualizado)
+    }
 }

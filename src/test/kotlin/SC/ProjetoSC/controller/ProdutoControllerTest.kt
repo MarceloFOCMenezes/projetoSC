@@ -120,8 +120,62 @@ class ProdutoControllerTest {
 
  // ----------------------------------------------------------------------------------------------
 
-// TESTES DA FUNÇÃO desativarProduto
+// TESTES DA FUNÇÃO atualizarStatusProduto
 
+ // src/test/kotlin/SC/ProjetoSC/controller/ProdutoControllerTest.kt
+
+ @Test
+ @DisplayName("atualizarStatusProduto: desativa produto ativo")
+ fun atualizarStatusProduto_desativaProdutoAtivo() {
+  val produtoAtivo = Produto(
+   idProduto = 1,
+   descricao = "Produto Ativo",
+   precoUnitario = BigDecimal("10.00"),
+   categoria = "Lanche",
+   ativo = true,
+   temIngrediente = true,
+   observacao = "Ativo",
+   unidadeMedida = UnidadeMedidaEnum.unidade
+  )
+  `when`(repository.findById(1)).thenReturn(Optional.of(produtoAtivo))
+  `when`(repository.save(any(Produto::class.java))).thenAnswer { it.getArgument(0) }
+
+  val response = service.atualizarStatusProduto(1)
+  assertEquals(200, response.statusCode.value())
+  val body = response.body as Produto
+  assertEquals(false, body.ativo)
+ }
+
+ @Test
+ @DisplayName("atualizarStatusProduto: ativa produto inativo")
+ fun atualizarStatusProduto_ativaProdutoInativo() {
+  val produtoInativo = Produto(
+   idProduto = 2,
+   descricao = "Produto Inativo",
+   precoUnitario = BigDecimal("15.00"),
+   categoria = "Bebida",
+   ativo = false,
+   temIngrediente = false,
+   observacao = "Inativo",
+   unidadeMedida = UnidadeMedidaEnum.quilo
+  )
+  `when`(repository.findById(2)).thenReturn(Optional.of(produtoInativo))
+  `when`(repository.save(any(Produto::class.java))).thenAnswer { it.getArgument(0) }
+
+  val response = service.atualizarStatusProduto(2)
+  assertEquals(200, response.statusCode.value())
+  val body = response.body as Produto
+  assertEquals(true, body.ativo)
+ }
+
+ @Test
+ @DisplayName("atualizarStatusProduto: produto não encontrado = status 404")
+ fun atualizarStatusProduto_naoEncontrado() {
+  `when`(repository.findById(99)).thenReturn(Optional.empty())
+  val response = service.atualizarStatusProduto(99)
+  assertEquals(404, response.statusCode.value())
+  assertNull(response.body)
+ }
 
  // ----------------------------------------------------------------------------------------------
 
