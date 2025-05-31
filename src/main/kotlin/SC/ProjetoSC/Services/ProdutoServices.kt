@@ -54,4 +54,33 @@ class ProdutoServices (
         produtoRepository.save(produtoAtualizado)
         return ResponseEntity.status(200).body(produtoAtualizado)
     }
+
+    fun listarProdutos(descricao:String?, ativos:Boolean?): List<Produto> {
+        val filtroAtivos = ativos ?: true // por padrão, vai exibir somente produtos ativos
+
+        return when {
+            // Buscar apenas inativos e por nome
+            ativos == false && !descricao.isNullOrBlank() ->
+                produtoRepository.findByDescricaoContainsIgnoreCaseAndAtivoFalse(descricao)
+
+            // Buscar apenas inativos, sem nome
+            ativos == false ->
+                produtoRepository.findByAtivoFalse()
+
+            // Buscar apenas ativos e por nome
+            ativos == true && !descricao.isNullOrBlank() ->
+                produtoRepository.findByDescricaoContainsIgnoreCaseAndAtivoTrue(descricao)
+
+            // Buscar apenas ativos, sem nome
+            ativos == true ->
+                produtoRepository.findByAtivoTrue()
+
+            // Buscar todos (ativos e inativos) por nome
+            !descricao.isNullOrBlank() ->
+                produtoRepository.findByDescricaoContainsIgnoreCase(descricao)
+
+            // Buscar todos (ativos e inativos), sem nome
+            else -> produtoRepository.findAll()
+        }
+    }
 }

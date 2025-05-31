@@ -2,6 +2,7 @@ package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.Services.ProdutoServices
 import SC.ProjetoSC.dto.RequestProdutoDTO
+import SC.ProjetoSC.entity.Produto
 import SC.ProjetoSC.repository.ProdutoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -45,5 +46,23 @@ class ProdutoController(
     ])
     fun atualizarStatusProduto(@PathVariable id:Int): ResponseEntity<Any> {
         return produtoServices.atualizarStatusProduto(id)
+    }
+
+    @GetMapping
+    @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista com todos os produtos registrados no sistema.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso."),
+        ApiResponse(responseCode = "204", description = "Nenhum produto encontrado.")
+    ])
+    fun listarProdutos(
+        @RequestParam(required = false)descricao:String?,
+        @RequestParam(required = false)ativos:Boolean?
+    ): ResponseEntity<List<Produto>> {
+        val produtos = produtoServices.listarProdutos(descricao,ativos)
+        return if (produtos.isEmpty()) {
+            ResponseEntity.status(204).build()
+        } else {
+            ResponseEntity.status(200).body(produtos)
+        }
     }
 }

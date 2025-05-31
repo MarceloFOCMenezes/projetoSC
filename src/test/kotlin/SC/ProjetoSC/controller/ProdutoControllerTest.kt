@@ -122,8 +122,6 @@ class ProdutoControllerTest {
 
 // TESTES DA FUNÇÃO atualizarStatusProduto
 
- // src/test/kotlin/SC/ProjetoSC/controller/ProdutoControllerTest.kt
-
  @Test
  @DisplayName("atualizarStatusProduto: desativa produto ativo")
  fun atualizarStatusProduto_desativaProdutoAtivo() {
@@ -180,5 +178,140 @@ class ProdutoControllerTest {
  // ----------------------------------------------------------------------------------------------
 
  // TESTES DA FUNÇÃO listarProdutos
+ @Test
+ @DisplayName("listarProdutos: padrão (ativos) = status 200 com lista de ativos")
+ fun listarProdutos_ativosPadrao() {
+  val produto1 = Produto(1, "Coca-Cola", BigDecimal("5.00"), "Bebida", true, false, "Gelada", UnidadeMedidaEnum.unidade)
+  val produto2 = Produto(2, "Hamburguer", BigDecimal("15.00"), "Lanche", true, true, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findByAtivoTrue()).thenReturn(listOf(produto1, produto2))
+
+  val response = controller.listarProdutos(null, true) // <-- use true explicitamente
+  assertEquals(200, response.statusCode.value())
+  assertEquals(2, response.body?.size)
+  assertTrue(response.body!!.all { it.ativo == true })
+ }
+
+ @Test
+ @DisplayName("listarProdutos: padrão (ativos) sem resultados = status 204")
+ fun listarProdutos_ativosPadrao_semResultados() {
+  `when`(repository.findByAtivoTrue()).thenReturn(emptyList())
+
+  val response = controller.listarProdutos(null, null)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: todos os produtos = status 200 com lista completa")
+ fun listarProdutos_todos() {
+  val produto1 = Produto(1, "Coca-Cola", BigDecimal("5.00"), "Bebida", true, false, "Gelada", UnidadeMedidaEnum.unidade)
+  val produto2 = Produto(2, "Hamburguer", BigDecimal("15.00"), "Lanche", false, true, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findAll()).thenReturn(listOf(produto1, produto2))
+
+  val response = controller.listarProdutos(null, null) // ativos = null para buscar todos
+  assertEquals(200, response.statusCode.value())
+  assertEquals(2, response.body?.size)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: todos os produtos sem resultados = status 204")
+ fun listarProdutos_todos_semResultados() {
+  `when`(repository.findAll()).thenReturn(emptyList())
+
+  val response = controller.listarProdutos(null, false)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (ativos) = status 200 com lista correta")
+ fun listarProdutos_buscaNomeAtivos() {
+  val produto = Produto(3, "Suco de Laranja", BigDecimal("7.00"), "Bebida", true, false, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findByDescricaoContainsIgnoreCaseAndAtivoTrue("Suco")).thenReturn(listOf(produto))
+
+  val response = controller.listarProdutos("Suco", true) // <-- use true explicitamente
+  assertEquals(200, response.statusCode.value())
+  assertEquals(1, response.body?.size)
+  assertEquals("Suco de Laranja", response.body?.get(0)?.descricao)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (ativos) sem resultados = status 204")
+ fun listarProdutos_buscaNomeAtivos_semResultados() {
+  `when`(repository.findByDescricaoContainsIgnoreCaseAndAtivoTrue("Inexistente")).thenReturn(emptyList())
+
+  val response = controller.listarProdutos("Inexistente", null)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (todos) = status 200 com lista correta")
+ fun listarProdutos_buscaNomeTodos() {
+  val produto = Produto(4, "Suco de Uva", BigDecimal("8.00"), "Bebida", false, false, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findByDescricaoContainsIgnoreCase("Suco")).thenReturn(listOf(produto))
+
+  val response = controller.listarProdutos("Suco", null) // ativos = null para buscar todos por nome
+  assertEquals(200, response.statusCode.value())
+  assertEquals(1, response.body?.size)
+  assertEquals("Suco de Uva", response.body?.get(0)?.descricao)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (todos) sem resultados = status 204")
+ fun listarProdutos_buscaNomeTodos_semResultados() {
+  `when`(repository.findByDescricaoContainsIgnoreCase("Nada")).thenReturn(emptyList())
+
+  val response = controller.listarProdutos("Nada", false)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: somente inativos = status 200 com lista de inativos")
+ fun listarProdutos_inativos() {
+  val produto1 = Produto(1, "Produto Inativo 1", BigDecimal("5.00"), "Bebida", false, false, "Obs", UnidadeMedidaEnum.unidade)
+  val produto2 = Produto(2, "Produto Inativo 2", BigDecimal("15.00"), "Lanche", false, true, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findByAtivoFalse()).thenReturn(listOf(produto1, produto2))
+
+  val response = controller.listarProdutos(null, false)
+  assertEquals(200, response.statusCode.value())
+  assertEquals(2, response.body?.size)
+  assertTrue(response.body!!.all { it.ativo == false })
+ }
+
+ @Test
+ @DisplayName("listarProdutos: somente inativos sem resultados = status 204")
+ fun listarProdutos_inativos_semResultados() {
+  `when`(repository.findByAtivoFalse()).thenReturn(emptyList())
+
+  val response = controller.listarProdutos(null, false)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (inativos) = status 200 com lista correta")
+ fun listarProdutos_buscaNomeInativos() {
+  val produto = Produto(3, "Suco de Goiaba", BigDecimal("7.00"), "Bebida", false, false, null, UnidadeMedidaEnum.unidade)
+  `when`(repository.findByDescricaoContainsIgnoreCaseAndAtivoFalse("Suco")).thenReturn(listOf(produto))
+
+  val response = controller.listarProdutos("Suco", false)
+  assertEquals(200, response.statusCode.value())
+  assertEquals(1, response.body?.size)
+  assertEquals("Suco de Goiaba", response.body?.get(0)?.descricao)
+  assertEquals(false, response.body?.get(0)?.ativo)
+ }
+
+ @Test
+ @DisplayName("listarProdutos: busca por nome (inativos) sem resultados = status 204")
+ fun listarProdutos_buscaNomeInativos_semResultados() {
+  `when`(repository.findByDescricaoContainsIgnoreCaseAndAtivoFalse("Nada")).thenReturn(emptyList())
+
+  val response = controller.listarProdutos("Nada", false)
+  assertEquals(204, response.statusCode.value())
+  assertNull(response.body)
+ }
+
 }
 
