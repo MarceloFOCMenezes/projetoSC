@@ -11,15 +11,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
 @Tag(name = "Usuários", description = "Operações relacionadas aos usuários do sistema")
@@ -151,4 +143,50 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         repositorio.deleteById(id)
         return ResponseEntity.status(200).build()
     }
+
+    @PatchMapping("/recuperar-senha")
+    @Operation(summary = "Recuperar senha", description = "Gera uma nova senha e retorna para o usuário.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Senha gerada com sucesso."),
+        ApiResponse(responseCode = "404", description = "Usuário não encontrado.")
+    ])
+    fun recuperarSenha(@RequestParam @Email email: String): ResponseEntity<String> {
+        val usuario = repositorio.findByEmailIgnoreCase(email)
+        val novaSenha = (100000..999999).random().toString()
+
+        usuario.senha = novaSenha
+        repositorio.save(usuario)
+
+        return ResponseEntity.status(200).body("Senha gerada com sucesso")
+    }
+
+    @PutMapping("/desativar/{id}")
+    fun desativarUsuario(@PathVariable id: Int): ResponseEntity<Usuario> {
+        return if (repositorio.existsById(id)) {
+            val usuario = repositorio.findById(id).get()
+            usuario.logado = false
+            repositorio.save(usuario)
+            ResponseEntity.ok(usuario)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+    @PutMapping("/{id}")
+    fun atualizarUsuario(@PathVariable id: Int, @RequestBody novosDados: Usuario): ResponseEntity<Usuario> {
+        return if (repositorio.existsById(id)) {
+            val usuarioExistente = repositorio.findById(id).get()
+
+            usuarioExistente.nome = novosDados.nome ?: usuarioExistente.nome
+            usuarioExistente.email = novosDados.email ?: usuarioExistente.email
+            usuarioExistente.telefone = novosDados.telefone ?: usuarioExistente.telefone
+
+            repositorio.save(usuarioExistente)
+            ResponseEntity.ok(usuarioExistente)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
+
 }
