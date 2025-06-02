@@ -15,12 +15,12 @@ data class ItemPedidoIngredienteId(
     @Schema(description = "ID do ItemPedido")
     @Column(name = "fk_item_pedido")
     @field:NotNull
-    val itemPedidoId: Int = 0,
+    val itemPedidoId: Int? = null,
 
     @Schema(description = "ID do Ingrediente")
     @Column(name = "fk_ingrediente")
     @field:NotNull
-    val ingredienteId: Int = 0
+    val ingredienteId: Int? = null
 
 ) : Serializable { constructor() : this(0, 0) }
 
@@ -33,7 +33,7 @@ data class ItemPedidoIngrediente(
     // Chave composta formada pelas FKs de ItemPedido e Ingrediente
     @Schema(description = "Chave composta formada pelas FKs de ItemPedido e Ingrediente")
     @EmbeddedId
-    val id: ItemPedidoIngredienteId,
+    val id: ItemPedidoIngredienteId? = null,
 
     // Relacionamento com ItemPedido. O @MapsId indica que o campo itemPedidoId da chave composta
     // será preenchido automaticamente com o id do ItemPedido associado.
@@ -53,4 +53,4 @@ data class ItemPedidoIngrediente(
     @JoinColumn(name = "fk_ingrediente", nullable = false)
     val ingrediente: Ingrediente? = null
 
-) { constructor() : this(ItemPedidoIngredienteId(0, 0), null, null) }
+) { constructor() : this(null, null, null) }

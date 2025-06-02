@@ -1,17 +1,15 @@
-package SC.ProjetoSC.DTO
+package SC.ProjetoSC.Response
 
-import SC.ProjetoSC.entity.Produto
-
-data class PedidoDto (
+data class PedidoResponse (
     val dtPedido: String? = null,
     val dtEntregaEsperada: String? = null,
     val precoTotal: Double? = null,
     val isRetirada: Boolean? = null,
     val clienteId: Int? = null,
     val enderecoId: Int? = null,
-    val statusPedidoId: Int? = null,
+    val statusPedido: String? = null,
     val formaPagamento: String? = null,
-    val itensPedido: List<ItemPedidoDto>? = null
+    val itensPedido: List<ItemPedidoResponse>? = null
 ){
 
 }

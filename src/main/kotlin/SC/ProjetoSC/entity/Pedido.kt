@@ -19,10 +19,10 @@ data class Pedido(
     @Column(name = "id_pedido", nullable = false, unique = true)
     val id: Int? = null,
 
-    @field:NotNull
+
     @Schema(description = "Data em que o pedido foi realizado")
     @Column(name = "dt_pedido", nullable = false)
-    val dtPedido: LocalDateTime? = LocalDateTime.now(),
+    val dtPedido: LocalDateTime? = null,
 
     @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
     @Schema(description = "Data de entrega do pedido")
@@ -39,7 +39,6 @@ data class Pedido(
     @Column(name = "preco_total", nullable = false)
     val precoTotal: Double? = 0.0,
 
-    @field:NotNull
     @Schema(description = "Indica se o pedido é para retirada ou entrega")
     @Column(name = "is_retirada", nullable = false)
     val isRetirada: Boolean? = null,
@@ -49,19 +48,19 @@ data class Pedido(
     @JoinColumn(name = "fk_cliente", nullable = false)
     val cliente:Usuario? = null,
 
-    @field:NotNull(message = "A FK do endereço respectivo é obrigatória.")
+
     @Schema(description = "FK do endereço de entrega do pedido")
     @ManyToOne
     @JoinColumn(name = "fk_endereco", nullable = true)
     val endereco:Endereco? = null,
 
-    @field:NotNull (message = "A FK do status do pedido é obrigatória.")
+    @field:NotNull(message = "A FK do status do pedido é obrigatória.")
     @Schema(description = "FK do status atual do pedido")
     @ManyToOne
     @JoinColumn(name = "fk_status_pedido", nullable = false)
-    val statusPedido: StatusPedido? = null,
+    var statusPedido: StatusPedido? = null,
 
-    @field:NotNull (message = "A FK do status do pedido é obrigatória.")
+
     @Schema(description = "FK do status atual do pedido")
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
