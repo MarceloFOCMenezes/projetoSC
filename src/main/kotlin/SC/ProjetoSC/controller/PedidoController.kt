@@ -1,6 +1,8 @@
 package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
+import SC.ProjetoSC.Request.AlterarPedidoRequest
+import SC.ProjetoSC.Request.EnviarPedidoRequest
 import SC.ProjetoSC.Response.PedidoResponse
 import SC.ProjetoSC.Services.PedidoServices
 import SC.ProjetoSC.entity.Pedido
@@ -105,22 +107,20 @@ class PedidoController(
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping()
     @Operation(summary = "Atualizar pedido", description = "Retorna o pedido atualizado.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso. O corpo da resposta contém os dados do pedido atualizado"),
         ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
     ])
-    fun atualizar(@PathVariable id: Int, @RequestBody @Valid pedidoAtualizado: Pedido): ResponseEntity<Pedido> {
-
-        // verificar se o pedido existe
-        if (!repositorio.existsById(id)) {
-            return ResponseEntity.status(404).build()
+    fun atualizar(@RequestBody alterarPedidoRequest:AlterarPedidoRequest ): ResponseEntity<Pedido> {
+        val pedido = repositorio.findById(alterarPedidoRequest.idPedido!!)
+        if (pedido.isEmpty) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-        // garante que o ID na url será usado, mesmo se pedidoAtualizado.id vier diferente ou nulo, assim evita sobreescrever outro pedido sem querer
-        val pedidoAtt = pedidoAtualizado.copy(id = id)
-        repositorio.save(pedidoAtt)
-        return ResponseEntity.status(200).body(pedidoAtt)
+        val pedidoAtualizado = pedidoServices.atualizarPedido(alterarPedidoRequest)
+        return ResponseEntity.status(HttpStatus.OK).body(pedidoAtualizado)
+
     }
 
     @DeleteMapping("/{idPedido}")
@@ -136,5 +136,15 @@ class PedidoController(
         }
         pedidoServices.atualizarStatusPedido(idPedido, 8) // 8 é o ID do status "Cancelado"
         return ResponseEntity.status(HttpStatus.OK).build()
+    }
+
+    @PatchMapping("/enviarPedido")
+    fun enviarPedido(@RequestBody EnviarPedidoRequest: EnviarPedidoRequest): ResponseEntity<Any> {
+        val pedido = repositorio.findById(EnviarPedidoRequest.idPedido!!)
+        if (pedido.isEmpty) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }
+        pedidoServices.enviarPedido(EnviarPedidoRequest)
+        return ResponseEntity.status(HttpStatus.OK).body("Alteração realizada com sucesso!")
     }
 }

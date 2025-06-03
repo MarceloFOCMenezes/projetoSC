@@ -1,6 +1,9 @@
 package SC.ProjetoSC.Services
 
+import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
+import SC.ProjetoSC.Request.AlterarPedidoRequest
+import SC.ProjetoSC.Request.EnviarPedidoRequest
 import SC.ProjetoSC.Response.ItemPedidoResponse
 import SC.ProjetoSC.Response.ItemPedidoIngredienteResponse
 import SC.ProjetoSC.Response.PedidoResponse
@@ -84,6 +87,7 @@ class PedidoServices(
 
 
             pedidos = PedidoResponse(
+                idPedido = pedido.id,
                 dtPedido = pedido.dtPedido.toString(),
                 dtEntregaEsperada = pedido.dtEntregaEsperada.toString(),
                 precoTotal = pedido.precoTotal,
@@ -186,7 +190,10 @@ class PedidoServices(
                 produto = produto,
                 quantidade = adicionarItemPedidoRequest.quantidade // Defina a quantidade padrão como 1, ou ajuste conforme necessário
             )
+            pedido.precoTotal = pedido.precoTotal?.plus(produto.precoUnitario!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
             itemPedidoRepository.save(itemPedido)
+
+
 
             if(produto.temIngrediente!!){
                 if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
@@ -230,5 +237,37 @@ class PedidoServices(
             throw Exception("Erro ao adicionar ingrediente ao item de pedido: ${e.message}")
         }
 
+
+    }
+
+    fun atualizarPedido(alterarPedidoRequest: AlterarPedidoRequest): Pedido {
+        val pedido = pedidoRepository.findById(alterarPedidoRequest.idPedido!!)
+            .orElseThrow { Exception("Pedido não encontrado") }
+
+        pedido.dtEntregaEsperada = alterarPedidoRequest.dtEsperada.let {
+            java.time.LocalDateTime.parse(it!!)
+        }
+        pedido.precoTotal = alterarPedidoRequest.precoTotal
+        pedido.isRetirada = alterarPedidoRequest.retirada
+        pedido.formaPagamento = alterarPedidoRequest.formaPagamento.let {
+            FormaPagamentoEnum.valueOf(it!!)
+        }
+
+        return pedidoRepository.save(pedido)
+    }
+
+    fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest):Boolean{
+        val pedido = pedidoRepository.findById(enviarPedidoRequest.idPedido!!)
+            .orElseThrow { Exception("Pedido não encontrado") }
+
+        val linhasAfetadas = pedidoRepository.enviarPedido(
+            PedidoResponse(
+                idPedido = pedido.id,
+                precoTotal = enviarPedidoRequest.precoTotal,
+                isRetirada = enviarPedidoRequest.isRetirada,
+                formaPagamento = enviarPedidoRequest.formaPagamento?.let { FormaPagamentoEnum.valueOf(it) }.toString()
+            )
+        )
+        return linhasAfetadas > 0;
     }
 }

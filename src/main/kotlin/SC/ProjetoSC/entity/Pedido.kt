@@ -32,16 +32,16 @@ data class Pedido(
     @FutureOrPresent // não pode cadastrar uma entrega pra uma data que já foi
     @Schema(description = "Data de entrega do pedido")
     @Column(name = "dt_entrega_esperada", nullable = true)
-    val dtEntregaEsperada: LocalDateTime? = null,
+    var dtEntregaEsperada: LocalDateTime? = null,
 
     @field:NotNull @field:PositiveOrZero
     @Schema(description = "Preço total do pedido")
     @Column(name = "preco_total", nullable = false)
-    val precoTotal: Double? = 0.0,
+    var precoTotal: Double? = 0.0,
 
     @Schema(description = "Indica se o pedido é para retirada ou entrega")
     @Column(name = "is_retirada", nullable = false)
-    val isRetirada: Boolean? = null,
+    var isRetirada: Boolean? = null,
     @field:NotNull (message = "A FK do cliente respectivo é obrigatória.")
     @Schema(description = "FK do cliente que fez o pedido - usuário")
     @ManyToOne
@@ -64,7 +64,7 @@ data class Pedido(
     @Schema(description = "FK do status atual do pedido")
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
-    val formaPagamento:FormaPagamentoEnum? = null,
+    var formaPagamento:FormaPagamentoEnum? = null,
 
 
     )

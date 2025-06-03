@@ -1,6 +1,7 @@
 package SC.ProjetoSC.Response
 
 data class PedidoResponse (
+    val idPedido: Int? = null,
     val dtPedido: String? = null,
     val dtEntregaEsperada: String? = null,
     val precoTotal: Double? = null,
