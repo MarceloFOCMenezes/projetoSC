@@ -5,4 +5,5 @@ class AdicionarItemPedidoRequest {
     val idProduto: Int? = null
     var quantidade: Int? = 0
     val listaIngredientes: List<Int>? = null
+    val listaComentarios: List<String>? = null
 }

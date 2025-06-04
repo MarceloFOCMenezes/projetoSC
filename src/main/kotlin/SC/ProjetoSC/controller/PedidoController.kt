@@ -52,22 +52,30 @@ class PedidoController(
 //        }
 //    }
 
-    @GetMapping
+    @GetMapping("/carrinho")
     @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
         ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado. O corpo da resposta estará vazio.")
     ])
     fun listarPedidos(@RequestParam(required = false) idUsuario: Int?): ResponseEntity<PedidoResponse> {
-        val pedido = pedidoServices.getPedidoAtual(idUsuario)
-        return if (pedido.clienteId == null) {
-            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-        } else {
-            ResponseEntity.status(HttpStatus.OK).body(pedido)
+        try {
+            if (idUsuario == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(PedidoResponse())
+            }
+            val pedido = pedidoServices.listarPedidoAtual(idUsuario)
+            return if (pedido.idPedido == 0) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(pedido)
+            }
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(PedidoResponse())
         }
     }
 
-    @PatchMapping("/{idPedido}/status/{idStatus}")
+
+    @PatchMapping("/alterarStatus/{idPedido}/status/{idStatus}")
     @Operation(summary = "Atualizar status do pedido", description = "Atualiza o status de um pedido específico.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Status do pedido atualizado com sucesso. O corpo da resposta contém os dados do pedido atualizado."),
@@ -134,8 +142,14 @@ class PedidoController(
         if (pedido.isEmpty) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-        pedidoServices.atualizarStatusPedido(idPedido, 8) // 8 é o ID do status "Cancelado"
-        return ResponseEntity.status(HttpStatus.OK).build()
+        try {
+            pedidoServices.atualizarStatusPedido(idPedido, 8) // 8 é o ID do status "Cancelado"
+            return ResponseEntity.status(HttpStatus.OK).build()
+
+        }
+        catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
     }
 
     @PatchMapping("/enviarPedido")
@@ -144,7 +158,12 @@ class PedidoController(
         if (pedido.isEmpty) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
-        pedidoServices.enviarPedido(EnviarPedidoRequest)
-        return ResponseEntity.status(HttpStatus.OK).body("Alteração realizada com sucesso!")
+        try {
+            val pedidoAtualizado = pedidoServices.enviarPedido(EnviarPedidoRequest)
+            return ResponseEntity.status(HttpStatus.OK).body(pedidoAtualizado)
+        }
+        catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.localizedMessage)
+        }
     }
 }

@@ -20,73 +20,47 @@ class PedidoServices(
     private val itemPedidoIngredienteRepository: ItemPedidoIngredienteRepository,
     private val statusPedidoRepository: StatusPedidoRepository,
     private val ingredienteRepository: IngredienteRepository,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
+    private val EnderecoRepository: EnderecoRepository
 ) {
 
 
-    fun getPedidoAtual(idUsuario: Int?): PedidoResponse {
-            val pedidosUsuario: List<Pedido> = if (idUsuario == 0 || idUsuario == null) {
-                pedidoRepository.findAll() // Retorna todos os pedidos se o ID do usuário for 0
-            } else {
-                pedidoRepository.findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(idUsuario, 1) // Retorna os pedidos do usuário específico
-            }
+    private fun listarPedido(listaPedidos: List<Pedido>): List<PedidoResponse> {
+        return listaPedidos.map { pedido ->
+            val listaItensPedido = mutableListOf<ItemPedidoResponse>()
+            val itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!)
 
-        var pedidos = PedidoResponse()
-        pedidosUsuario.forEach { pedido ->
-
-            val ListaItensPedido = mutableListOf<ItemPedidoResponse>();
-            val ItensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!);
-
-
-
-            ItensPedido.forEach { item ->
-                val ListaIngredientes = mutableListOf<ItemPedidoIngredienteResponse>();
+            itensPedido.forEach { item ->
+                val listaIngredientes = mutableListOf<ItemPedidoIngredienteResponse>()
                 val produto = item.produto
                 var informacaoBolo: InformacaoBolo? = null
-                var ingredienteDTO: ItemPedidoIngredienteResponse? =   null
 
-                if (produto != null) {
-                    if(produto.temIngrediente == true){
-                        // Busca a informação do bolo associada ao item do pedido
-                        informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!)
-                            .orElse(null)
-
-
-                        val ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
+                if (produto?.temIngrediente == true) {
+                    informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null)
+                    val ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
                         ?.map { row ->
                             ItemPedidoIngredienteResponse(
                                 nome = row[0] as String,
                                 isPremium = (row[1] as Long) == 1L,
                                 descricao = row[2] as String
                             )
-                        }
-                        if (ingredientes!!.isNotEmpty() ) {
-                            ingredientes.forEach{ingrediente ->
-                            ListaIngredientes.add(ingredienteDTO ?: ItemPedidoIngredienteResponse(
-                                nome = ingrediente.nome,
-                                isPremium = ingrediente.isPremium,
-                                descricao = ingrediente.descricao
-                            ))
-
-                            }
-                        }
-                    }
+                        } ?: emptyList()
+                    listaIngredientes.addAll(ingredientes)
                 }
 
-                ListaItensPedido.add(
+                listaItensPedido.add(
                     ItemPedidoResponse(
                         descricao = produto?.descricao,
                         quantidade = item.quantidade,
                         precoUnitario = produtoRepository.findById(item.produto?.idProduto ?: 0)
-                            .orElse(null)?.precoUnitario!!.toDouble(),
+                            .orElse(null)?.precoUnitario?.toDouble(),
                         informacaoBolo = informacaoBolo,
-                        ingredientes = ListaIngredientes
+                        ingredientes = listaIngredientes
                     )
                 )
             }
 
-
-            pedidos = PedidoResponse(
+            PedidoResponse(
                 idPedido = pedido.id,
                 dtPedido = pedido.dtPedido.toString(),
                 dtEntregaEsperada = pedido.dtEntregaEsperada.toString(),
@@ -96,48 +70,37 @@ class PedidoServices(
                 enderecoId = pedido.endereco?.idEndereco,
                 statusPedido = pedido.statusPedido?.descricao,
                 formaPagamento = pedido.formaPagamento.toString(),
-                itensPedido = ListaItensPedido // Mapeia os produtos dos itens do pedido
+                itensPedido = listaItensPedido
             )
-
         }
-        return pedidos
+    }
+
+    fun listarPedidoAtual(idUsuario: Int): PedidoResponse {
+            val pedidosUsuario: List<Pedido> = pedidoRepository.findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(idUsuario, 1) // Retorna os pedidos do usuário específico
+
+        val pedidoAtual = listarPedido(pedidosUsuario).firstOrNull()
+
+        if(pedidoAtual == null) {
+            return PedidoResponse() // Retorna um PedidoResponse vazio se não houver pedidos
+        }
+        return pedidoAtual
+    }
+
+    fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
+        val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(idStatusPedido)
+        return listarPedido(pedidos)
     }
 
     fun atualizarStatusPedido(idPedido: Int, idStatusPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
-
-
         pedido.statusPedido = idStatusPedido?.let {
             statusPedidoRepository.findById(it).orElseThrow { Exception("Status do pedido não encontrado") }
         }
         pedidoRepository.save(pedido)
 
-        return PedidoResponse(
-            dtPedido = pedido.dtPedido.toString(),
-            dtEntregaEsperada = pedido.dtEntregaEsperada.toString(),
-            precoTotal = pedido.precoTotal,
-            isRetirada = pedido.isRetirada,
-            clienteId = pedido.cliente?.id,
-            enderecoId = pedido.endereco?.idEndereco,
-            statusPedido = pedido.statusPedido?.descricao,
-            formaPagamento = pedido.formaPagamento.toString(),
-            itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).map { item ->
-                ItemPedidoResponse(
-                    descricao = item.produto?.descricao,
-                    quantidade = item.quantidade,
-                    precoUnitario = item.produto?.precoUnitario?.toDouble(),
-                    informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null),
-                    ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
-                        .map { row ->
-                            ItemPedidoIngredienteResponse(
-                                nome = row[0] as String,
-                                isPremium = (row[1] as Long) == 1L,
-                                descricao = row[2] as String
-                            )
-                        }
-                )
-            }
-        )
+
+        val pedidoAutalizado = listarPedido(listOf(pedido)).first()
+        return pedidoAutalizado
     }
 
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
@@ -256,18 +219,24 @@ class PedidoServices(
         return pedidoRepository.save(pedido)
     }
 
-    fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest):Boolean{
+    fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest): PedidoResponse{
         val pedido = pedidoRepository.findById(enviarPedidoRequest.idPedido!!)
             .orElseThrow { Exception("Pedido não encontrado") }
 
-        val linhasAfetadas = pedidoRepository.enviarPedido(
-            PedidoResponse(
-                idPedido = pedido.id,
-                precoTotal = enviarPedidoRequest.precoTotal,
-                isRetirada = enviarPedidoRequest.isRetirada,
-                formaPagamento = enviarPedidoRequest.formaPagamento?.let { FormaPagamentoEnum.valueOf(it) }.toString()
-            )
-        )
-        return linhasAfetadas > 0;
+        pedido.formaPagamento = enviarPedidoRequest.formaPagamento.let {
+            FormaPagamentoEnum.valueOf(it!!)
+        }
+        pedido.isRetirada = enviarPedidoRequest.isRetirada
+
+        if(!pedido.isRetirada!!){
+            pedido.endereco = enviarPedidoRequest.enderecoId?.let {
+                EnderecoRepository.findById(it).orElseThrow { Exception("Endereço não encontrado") }
+            }
+        }
+        pedido.dtEntregaEsperada = enviarPedidoRequest.dataEntregaEsperada?.let {
+            java.time.LocalDateTime.parse(it)
+        } ?: pedido.dtEntregaEsperada
+
+        return listarPedido(listOf(pedido)).first()
     }
 }

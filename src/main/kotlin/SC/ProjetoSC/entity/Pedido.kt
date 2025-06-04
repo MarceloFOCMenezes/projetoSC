@@ -52,7 +52,7 @@ data class Pedido(
     @Schema(description = "FK do endereço de entrega do pedido")
     @ManyToOne
     @JoinColumn(name = "fk_endereco", nullable = true)
-    val endereco:Endereco? = null,
+    var endereco:Endereco? = null,
 
     @field:NotNull(message = "A FK do status do pedido é obrigatória.")
     @Schema(description = "FK do status atual do pedido")
