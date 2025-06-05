@@ -1,7 +1,7 @@
 package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.entity.TipoUsuario
+
 import SC.ProjetoSC.entity.Usuario
 import SC.ProjetoSC.repository.UsuarioRepository
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ class UsuarioControllerTest {
  val repository = mock(UsuarioRepository::class.java)
  val controller = UsuarioController(repository)
 
-lateinit var tipoUsuario: TipoUsuario
+
 
  lateinit var usuario: Usuario
  lateinit var usuario2: Usuario
@@ -28,7 +28,6 @@ lateinit var tipoUsuario: TipoUsuario
 
  @BeforeEach
  fun setup() {
-     tipoUsuario = TipoUsuario(1, "Cliente")
 
 
   // usuario logado

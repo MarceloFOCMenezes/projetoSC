@@ -1,9 +1,14 @@
 package SC.ProjetoSC.Request
 
-class AdicionarItemPedidoRequest {
-    val idCliente: Int? = null
-    val idProduto: Int? = null
-    var quantidade: Int? = 0
-    val listaIngredientes: List<Int>? = null
-    val listaComentarios: List<String>? = null
+import SC.ProjetoSC.Dto.InformacaoBoloDTO
+import SC.ProjetoSC.entity.InformacaoBolo
+
+data class AdicionarItemPedidoRequest(
+    val idCliente: Int? = null,
+    val idProduto: Int? = null,
+    var quantidade: Int? = 0,
+    val listaIngredientes: List<Int>? = null,
+    val informacaoBolo: InformacaoBoloDTO? = null,
+) {
+
 }

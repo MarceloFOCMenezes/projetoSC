@@ -1,7 +1,6 @@
 package SC.ProjetoSC.controller
 
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
-import SC.ProjetoSC.Request.AlterarPedidoRequest
 import SC.ProjetoSC.Request.EnviarPedidoRequest
 import SC.ProjetoSC.Response.PedidoResponse
 import SC.ProjetoSC.Services.PedidoServices
@@ -23,34 +22,6 @@ class PedidoController(
     val repositorio: PedidoRepository,
     val pedidoServices: PedidoServices
 ) {
-
-    // exemplo de pedido mais caro, só para teste
-
-//    var maisCaro = Pedido(3, LocalDateTime.parse("2025-05-21T09:00:00"), LocalDateTime.parse("2025-05-30T10:00:00"),
-//        StatusPagamento.PAGO, 600.00, false)
-//    @GetMapping("/mais-caro")
-//    fun maisCaro(): Pedido {
-//        return maisCaro
-//    }
-
-
-
-    // lista todos os pedidos ou filtra por data do pedido realizado ou data de entrega do pedido!
-//    @GetMapping
-//    @Operation(summary = "Listar todos os pedidos", description = "Retorna uma lista com todos os pedidos registrados no sistema.")
-//    @ApiResponses(value = [
-//        ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
-//        ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado com os critérios informados. O corpo da resposta estará vazio.")
-//    ])
-//    fun lista(@RequestParam(required = false) dtPedido: LocalDateTime?, @RequestParam(required = false) dtEntrega: LocalDateTime?):
-//            ResponseEntity<List<Pedido>> {
-//        val listaPedidos = pedidoServices.listarPedidos(dtPedido, dtEntrega);
-//        return if (listaPedidos.isEmpty()) {
-//            ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-//        } else {
-//            ResponseEntity.status(HttpStatus.OK).body(listaPedidos)
-//        }
-//    }
 
     @GetMapping("/carrinho")
     @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
@@ -102,40 +73,27 @@ class PedidoController(
     @PostMapping("/adicionarProduto")
     @Operation(summary = "Adicionar produto ao pedido", description = "Adiciona um produto a um pedido existente.")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "Produto adicionado ao pedido com sucesso. O corpo da resposta contém os dados do pedido atualizado."),
-        ApiResponse(responseCode = "404", description = "Pedido ou produto não encontrado. O corpo da resposta estará vazio.")
+        ApiResponse(responseCode = "201", description = "Produto adicionado ao pedido com sucesso. O corpo da resposta contém os dados do pedido atualizado." +
+                " e o status atualizado."),
+        ApiResponse(responseCode = "404", description = "Pedido ou produto não encontrado. O corpo da resposta estará vazio." +
+                " Verifique se o ID do pedido e do produto estão corretos."),
     ])
     fun adicionarProdutoAoPedido(@RequestBody adicionarItemPedidoRequest: AdicionarItemPedidoRequest): ResponseEntity<Any>{
         try {
-            pedidoServices.adicionarItemPedido(adicionarItemPedidoRequest)
-            return ResponseEntity.status(HttpStatus.CREATED).build()
+            val pedido = pedidoServices.adicionarItemPedido(adicionarItemPedidoRequest)
+            return ResponseEntity.status(HttpStatus.CREATED).body(pedido)
         }
         catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.localizedMessage)
         }
     }
 
-    @PutMapping()
-    @Operation(summary = "Atualizar pedido", description = "Retorna o pedido atualizado.")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso. O corpo da resposta contém os dados do pedido atualizado"),
-        ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
-    ])
-    fun atualizar(@RequestBody alterarPedidoRequest:AlterarPedidoRequest ): ResponseEntity<Pedido> {
-        val pedido = repositorio.findById(alterarPedidoRequest.idPedido!!)
-        if (pedido.isEmpty) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
-        }
-        val pedidoAtualizado = pedidoServices.atualizarPedido(alterarPedidoRequest)
-        return ResponseEntity.status(HttpStatus.OK).body(pedidoAtualizado)
-
-    }
-
     @DeleteMapping("/{idPedido}")
     @Operation(summary = "Excluir pedido", description = "Retorna o status 204 caso pedido excluído com sucesso.")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "204", description = "Pedido excluído com sucesso. O corpo da resposta estará vazio."),
-        ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
+        ApiResponse(responseCode = "204", description = "Pedido excluído com sucesso. O corpo da resposta estará vazio." ),
+        ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio." +
+                " Verifique se o ID do pedido está correto."),
     ])
     fun cancelarPedido(@PathVariable idPedido: Int): ResponseEntity<Void>{
         val pedido = repositorio.findById(idPedido)
@@ -153,6 +111,20 @@ class PedidoController(
     }
 
     @PatchMapping("/enviarPedido")
+    @Operation(
+        summary = "Enviar pedido para processamento",
+        description = "Atualiza o pedido para o status de enviado, processando a entrega ou retirada conforme informado."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Pedido enviado com sucesso. O corpo da resposta contém os dados do pedido atualizado." +
+                    " e o status atualizado."),
+            ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio." +
+                    " Verifique se o ID do pedido está correto."),
+            ApiResponse(responseCode = "500", description = "Erro interno ao processar o envio do pedido." +
+                    " O corpo da resposta contém a mensagem de erro detalhada.")
+        ]
+    )
     fun enviarPedido(@RequestBody EnviarPedidoRequest: EnviarPedidoRequest): ResponseEntity<Any> {
         val pedido = repositorio.findById(EnviarPedidoRequest.idPedido!!)
         if (pedido.isEmpty) {

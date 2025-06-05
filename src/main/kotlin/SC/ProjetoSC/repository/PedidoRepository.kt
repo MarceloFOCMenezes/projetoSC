@@ -22,4 +22,17 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     fun findByClienteId(clienteId: Int): List<Pedido>
     fun findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(clienteId: Int, statusPedidoId: Int): List<Pedido>
     fun findByStatusPedidoIdStatusPedido(statusPedidoId: Int): List<Pedido>
+
+    @Query("""
+        UPDATE Pedido p
+        SET p.statusPedido.idStatusPedido = 2,
+        p.dt_entrega_esperada = ?2,
+        p.is_retirada = ?3
+        p.forma_pagamento =?4
+        WHERE p.id_pedido = ?1
+    """, nativeQuery = true)
+    fun enviarPedido(
+        pedidoResponse:PedidoResponse
+    ): Int
+
 }

@@ -2,7 +2,6 @@ package SC.ProjetoSC.Services
 
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
-import SC.ProjetoSC.Request.AlterarPedidoRequest
 import SC.ProjetoSC.Request.EnviarPedidoRequest
 import SC.ProjetoSC.Response.ItemPedidoResponse
 import SC.ProjetoSC.Response.ItemPedidoIngredienteResponse
@@ -10,6 +9,8 @@ import SC.ProjetoSC.Response.PedidoResponse
 import SC.ProjetoSC.entity.*
 import SC.ProjetoSC.repository.*
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class PedidoServices(
@@ -67,7 +68,7 @@ class PedidoServices(
                 precoTotal = pedido.precoTotal,
                 isRetirada = pedido.isRetirada,
                 clienteId = pedido.cliente?.id,
-                enderecoId = pedido.endereco?.idEndereco,
+                endereco = pedido.endereco?.idEndereco?.let { EnderecoRepository.findById(it).orElse(null) },
                 statusPedido = pedido.statusPedido?.descricao,
                 formaPagamento = pedido.formaPagamento.toString(),
                 itensPedido = listaItensPedido
@@ -111,7 +112,7 @@ class PedidoServices(
             precoTotal = pedido.precoTotal,
             isRetirada = pedido.isRetirada,
             clienteId = pedido.cliente?.id,
-            enderecoId = pedido.endereco?.idEndereco,
+            endereco = pedido.endereco?.idEndereco?.let { EnderecoRepository.findById(it).orElse(null) },
             statusPedido = pedido.statusPedido?.descricao,
             formaPagamento = pedido.formaPagamento.toString(),
             itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).map { item ->
@@ -133,7 +134,7 @@ class PedidoServices(
         )
     }
 
-    fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) {
+    fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
             var pedido = pedidoRepository.findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(adicionarItemPedidoRequest.idCliente!!, 1).firstOrNull()
             if(pedido == null) {
@@ -156,15 +157,23 @@ class PedidoServices(
             pedido.precoTotal = pedido.precoTotal?.plus(produto.precoUnitario!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
             itemPedidoRepository.save(itemPedido)
 
-
-
             if(produto.temIngrediente!!){
+                if(adicionarItemPedidoRequest.informacaoBolo != null) {
+                    val informacaoBolo = InformacaoBolo(
+                        idItemPedido = itemPedido.idItemPedido!!,
+                        tema = adicionarItemPedidoRequest.informacaoBolo?.tema,
+                        detalhes = adicionarItemPedidoRequest.informacaoBolo?.detalhes,
+                    )
+                    informacaoBoloRepository.save(informacaoBolo)
+
+                }
                 if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
                     adicionarItemPedidoRequest.listaIngredientes?.forEach { idIngrediente ->
                         adicionarIngredienteAoItemPedido(itemPedido.idItemPedido!!, idIngrediente)
                     }
                 }
             }
+            return listarPedido(listOf(pedido)).first()
         }
         catch (e: Exception) {
             throw Exception("Erro ao adicionar item ao pedido: ${e.message}")
@@ -203,25 +212,12 @@ class PedidoServices(
 
     }
 
-    fun atualizarPedido(alterarPedidoRequest: AlterarPedidoRequest): Pedido {
-        val pedido = pedidoRepository.findById(alterarPedidoRequest.idPedido!!)
-            .orElseThrow { Exception("Pedido não encontrado") }
-
-        pedido.dtEntregaEsperada = alterarPedidoRequest.dtEsperada.let {
-            java.time.LocalDateTime.parse(it!!)
-        }
-        pedido.precoTotal = alterarPedidoRequest.precoTotal
-        pedido.isRetirada = alterarPedidoRequest.retirada
-        pedido.formaPagamento = alterarPedidoRequest.formaPagamento.let {
-            FormaPagamentoEnum.valueOf(it!!)
-        }
-
-        return pedidoRepository.save(pedido)
-    }
 
     fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest): PedidoResponse{
         val pedido = pedidoRepository.findById(enviarPedidoRequest.idPedido!!)
             .orElseThrow { Exception("Pedido não encontrado") }
+
+        pedido.statusPedido =  statusPedidoRepository.findById(2).orElseThrow { Exception("Status do pedido não encontrado") }
 
         pedido.formaPagamento = enviarPedidoRequest.formaPagamento.let {
             FormaPagamentoEnum.valueOf(it!!)
@@ -233,9 +229,9 @@ class PedidoServices(
                 EnderecoRepository.findById(it).orElseThrow { Exception("Endereço não encontrado") }
             }
         }
-        pedido.dtEntregaEsperada = enviarPedidoRequest.dataEntregaEsperada?.let {
-            java.time.LocalDateTime.parse(it)
-        } ?: pedido.dtEntregaEsperada
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+        val data = enviarPedidoRequest.dataEntregaEsperada
+        pedido.dtEntregaEsperada = LocalDateTime.parse(data!!, formatter)
 
         return listarPedido(listOf(pedido)).first()
     }
