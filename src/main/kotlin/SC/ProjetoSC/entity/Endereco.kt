@@ -10,16 +10,13 @@ import jakarta.validation.constraints.Size
 @Table(name = "Endereco")
 @Entity
 data class Endereco (
+    @JsonIgnore
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_endereco", nullable = false, unique = true)
     val idEndereco: Int? = null,
 
-    @field:NotBlank @field:Size(min = 2, max = 45)
-    @Schema(description = "Nome do endereço")
-    @Column(name = "nome_endereco")
-    val nomeEndereco: String? = null,
 
     @field:NotBlank
     @Column(name = "cep", length = 8, nullable = false)
@@ -70,7 +67,6 @@ data class Endereco (
 ){
     constructor() : this(
         idEndereco = null,
-        nomeEndereco = null,
         cep = "",
         logradouro = "",
         numero = "",

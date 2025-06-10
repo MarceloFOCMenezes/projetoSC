@@ -18,7 +18,7 @@ data class Ingrediente(
 
     @field:NotBlank @field:Size(min = 2, max = 45)
     @Schema(description = "Nome do ingrediente")
-    @Column(name = "nome_ingrediente")
+    @Column(name = "nome")
     val nome: String? = null,
 
     @Schema(description = "Indica se o produto é premium ou não")

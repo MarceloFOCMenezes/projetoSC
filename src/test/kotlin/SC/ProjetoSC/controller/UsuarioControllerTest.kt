@@ -18,9 +18,6 @@ class UsuarioControllerTest {
  // criando um dublê do tipo mock para UsuarioRepository e fazendo as configurações iniciais
  val repository = mock(UsuarioRepository::class.java)
  val controller = UsuarioController(repository)
-
-lateinit var tipoUsuario: TipoUsuarioEnum
-
  lateinit var usuario: Usuario
  lateinit var usuario2: Usuario
  lateinit var usuario3: Usuario
@@ -28,36 +25,16 @@ lateinit var tipoUsuario: TipoUsuarioEnum
 
  @BeforeEach
  fun setup() {
-     usuario = Usuario(
-         id = 1,
-         nome = "Paula",
-         email = "paula@email.com",
-         telefone = "123456789",
-         senha = "12345678",
-         tipo = TipoUsuarioEnum.cliente, // Enum correto
-         logado = true
-     )
-     usuario2 = Usuario(
-         id = 2,
-         nome = "Zé",
-         email = "zezinho@gmail.com",
-         telefone = "123456789",
-         senha = "12345678",
-         tipo = TipoUsuarioEnum.cliente,
-         logado = false
-     )
-     usuario3 = Usuario(
-         id = 9,
-         nome = "Luana",
-         email = "luana@outlook.com",
-         telefone = "123456789",
-         senha = "12345678",
-         tipo = TipoUsuarioEnum.cliente,
-         logado = false
-     )
-     `when`(repository.existsById(1)).thenReturn(true)
-     `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
-     `when`(repository.existsById(9)).thenReturn(false)
+  // usuario logado
+  usuario = Usuario(1, "Paula", "paula@email.com", "123456789", "12345678", logado = true)
+    // usuario não logado
+  usuario2 = Usuario(2 , "Zé", "zezinho@gmail.com", "123456789", "12345678", logado = false)
+    // usuario não existente
+  usuario3 = Usuario(9, "Luana", "luana@outlook.com", "123456789", "12345678", logado = false)
+  // aqui vamos seguir o seguinte: 1-> existe | 9-> não existe
+  `when`(repository.existsById(1)).thenReturn(true)
+  `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
+  `when`(repository.existsById(9)).thenReturn(false)
  }
 
  // TESTES DA FUNÇÃO: listarUsuarios
