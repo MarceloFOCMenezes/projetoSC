@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 @Table(name = "Endereco")
@@ -57,6 +58,9 @@ data class Endereco (
     @Schema(description = "Ponto de referência")
     val pontoReferencia: String? = null,
 
+    @field:NotNull(message = "O campo ativo é obrigatório.")
+    val ativo: Boolean? = null,
+
     @ManyToOne
     @JoinColumn(name = "fk_usuario")
     @JsonIgnore
@@ -75,6 +79,7 @@ data class Endereco (
         cidade = "",
         estado = "",
         pontoReferencia = null,
+        ativo = null,
         usuario = null
     )
 }
