@@ -36,5 +36,12 @@ data class Ingrediente(
     val tipoIngrediente: TipoIngrediente? = null,
 
 ){
-    constructor(): this(null, null, false, false, null)
+    constructor(
+        ativo: Boolean,
+        descricao: String?,
+        precoUnitario: Double?,
+        categoria: String?,
+        observacao: String?,
+        idIngrediente: Int
+    ) : this(null, null, false, false, null)
 }

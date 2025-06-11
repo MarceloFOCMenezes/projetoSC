@@ -12,5 +12,5 @@ data class RequestProdutoDTO(
     val observacao: String? = null,
     val unidadeMedida: UnidadeMedidaEnum? = null
 ){
-    constructor(): this(null, null, null, false, false, null, UnidadeMedidaEnum.unidade)
+    constructor(descricao: String, precoUnitario: Double) : this(null, null, null, false, false, null, UnidadeMedidaEnum.unidade)
 }
