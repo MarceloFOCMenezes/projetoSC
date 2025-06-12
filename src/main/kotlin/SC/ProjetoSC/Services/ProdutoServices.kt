@@ -71,7 +71,7 @@ class ProdutoServices (
             ativos == true && !descricao.isNullOrBlank() ->
                 produtoRepository.findByDescricaoContainsIgnoreCaseAndAtivoTrue(descricao)
 
-            // Buscar apenas ativos, sem nome
+                // Buscar apenas ativos, sem nome
             ativos == true ->
                 produtoRepository.findByAtivoTrue()
 
