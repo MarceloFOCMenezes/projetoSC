@@ -33,12 +33,12 @@ data class Usuario(
     @field:NotBlank @field:Size(min = 6, max = 150) @field:Email
     @Schema(description = "E-mail do usuário")
     @Column(name = "email_usuario", unique = true) // indica que o e-mail não pode se repetir
-    val email: String? = null,
+    var email: String? = null,
 
     @field:NotBlank @field:Size(min = 11, max = 11)
     @Schema(description = "Número de telefone do usuário")
     @Column(name = "telefone_usuario")
-    val telefone: String? = null,
+    var telefone: String? = null,
 
     @JsonIgnore
     @field:NotBlank @field:Size(min = 8, max = 45)
@@ -55,7 +55,7 @@ data class Usuario(
 
     @Transient // não será persistido no banco de dados
     @Schema(description = "Indica se o usuário está logado")
-    var logado: Boolean = false,
+    var logado: Boolean = true,
 
     @Schema(description = "Data e hora do último login do usuário")
     @Column(name = "data_ultimo_login")
