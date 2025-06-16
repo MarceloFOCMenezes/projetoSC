@@ -104,6 +104,9 @@ class PedidoServices(
         return pedidoAutalizado
     }
 
+
+
+
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
         return PedidoResponse(
@@ -133,6 +136,7 @@ class PedidoServices(
             }
         )
     }
+
 
     fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
@@ -211,6 +215,7 @@ class PedidoServices(
 
 
     }
+
 
 
     fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest): PedidoResponse{

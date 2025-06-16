@@ -1,8 +1,7 @@
 package SC.ProjetoSC.controller
 
-import SC.ProjetoSC.DTO.RequestIngredienteDTO
 import SC.ProjetoSC.Services.IngredienteServices
-import SC.ProjetoSC.dto.RequestProdutoDTO
+import SC.ProjetoSC.dto.RequestIngredienteDto
 import SC.ProjetoSC.entity.Ingrediente
 import SC.ProjetoSC.repository.IngredienteRepository
 import org.junit.jupiter.api.Test
@@ -34,7 +33,7 @@ class IngredienteControllerTest {
 @Test
 @DisplayName("Testando criação de ingrediente com status 201")
  fun criarIngrediente() {
-  val dto = RequestIngredienteDTO(
+  val dto = RequestIngredienteDto(
     descricao = "Recheio de Jujuba",
     precoUnitario = 50.0,
     categoria = "Recheio",
@@ -59,7 +58,7 @@ class IngredienteControllerTest {
 @Test
 @DisplayName("Testando atualização de ingrediente com status 200")
  fun atualizarIngrediente() {
-    val dto = RequestIngredienteDTO(
+    val dto = RequestIngredienteDto(
         descricao = "Recheio de Jujuba Atualizado",
         precoUnitario = 60.0,
         categoria = "Recheio",

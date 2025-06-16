@@ -156,8 +156,9 @@ fun get_loginVazio() {
  }
 
 
- // -----------------------------------------------------------------------
+ // ------------------------------------------------------------------------------------------------------------------
  // TESTES DA FUNÇÃO: cadastrarUsuario
+
 
  @Test
  @DisplayName("CadastrarUsuario: ainda não cadastrado = status 201 com o usuário correto")
@@ -238,7 +239,7 @@ fun alterarSenhaVazio() {
     assertNull(retorno.body)
 }
 
- // -----------------------------------------------------------------------
+ // -----------------------------------------------------------------------------------------------------
  // TESTES DA FUNÇÃO: alterarUsuario
 
  @Test
@@ -272,6 +273,7 @@ fun alterarSenhaVazio() {
 
  // -----------------------------------------------------------------------
  // TESTES DA FUNÇÃO: apagarUsuario
+
 
  @Test
  @DisplayName("ApagarUsuario: usuário encontrado = status 204 sem corpo")
