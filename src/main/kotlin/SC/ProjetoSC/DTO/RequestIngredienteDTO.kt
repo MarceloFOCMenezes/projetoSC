@@ -1,10 +1,10 @@
 package SC.ProjetoSC.dto
 
 data class RequestIngredienteDto(
-    val idTipoIngrediente: Int? = null,
-    val nome: String? = null,
-    val is_premium: Boolean? = null,
-    val Ativo: Boolean? = null,
+    var idTipoIngrediente: Int? = null,
+    var nome: String? = null,
+    var is_premium: Boolean? = null,
+    var Ativo: Boolean? = null,
 ) {
     constructor() : this(null, null, false, true,)
 }

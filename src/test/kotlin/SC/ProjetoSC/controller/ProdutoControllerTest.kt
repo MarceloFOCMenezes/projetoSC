@@ -78,7 +78,7 @@ class ProdutoControllerTest {
    ativo = false,
    temIngrediente = false,
    observacao = "Novo",
-   unidadeMedida = UnidadeMedidaEnum.quilo
+   unidadeMedida = UnidadeMedidaEnum.kg
   )
 
   `when`(repository.findById(1)).thenReturn(Optional.of(produto))
@@ -94,7 +94,7 @@ class ProdutoControllerTest {
   assertEquals(false, body.ativo)
   assertEquals(false, body.temIngrediente)
   assertEquals("Novo", body.observacao)
-  assertEquals(UnidadeMedidaEnum.quilo, body.unidadeMedida)
+  assertEquals(UnidadeMedidaEnum.kg, body.unidadeMedida)
  }
 
  @Test
@@ -107,7 +107,7 @@ class ProdutoControllerTest {
    ativo = false,
    temIngrediente = false,
    observacao = "Novo",
-   unidadeMedida = UnidadeMedidaEnum.quilo
+   unidadeMedida = UnidadeMedidaEnum.kg
   )
 
   `when`(repository.findById(2)).thenReturn(Optional.empty())
@@ -155,7 +155,7 @@ class ProdutoControllerTest {
    ativo = false,
    temIngrediente = false,
    observacao = "Inativo",
-   unidadeMedida = UnidadeMedidaEnum.quilo
+   unidadeMedida = UnidadeMedidaEnum.kg
   )
   `when`(repository.findById(2)).thenReturn(Optional.of(produtoInativo))
   `when`(repository.save(any(Produto::class.java))).thenAnswer { it.getArgument(0) }

@@ -20,12 +20,11 @@ class IngredienteServices(
         val ingrediente = Ingrediente(
             tipoIngrediente = tipoIngrediente,
             nome = novoIngrediente.nome,
-            premium =  novoIngrediente.is_premium ?: false,
+            premium = novoIngrediente.is_premium ?: false,
             ativo = novoIngrediente.Ativo ?: true,
         )
 
-        ingredienteRepository.save(ingrediente)
-        return ingrediente
+        return ingredienteRepository.save(ingrediente) // Retorna o objeto salvo
     }
 
 
