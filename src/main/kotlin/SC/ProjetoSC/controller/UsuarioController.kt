@@ -113,37 +113,6 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         return ResponseEntity.status(200).body(usuario)
     }
 
-    @PutMapping
-    @Operation(summary = "Alterar usuário", description = "Altera a conta do usuário logado no sistema.")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Usuário alterado com sucesso. O corpo da resposta contém o novo usuário logado."),
-        ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
-    ])
-    fun alterarUsuario(@RequestParam id: Int, @RequestBody @Valid novoUsuario: Usuario):ResponseEntity<Usuario>{
-        // verificar se o usuário existe
-        if (!repositorio.existsById(id)) {
-            return ResponseEntity.status(404).build()
-        }
-        val usuarioAtualizado = novoUsuario.copy(id = id)
-        //garante que o ID na URL será usado, mesmo se novoUsuario.id vier diferente ou nulo, assim evita sobreescrever outro usuário sem querer
-        repositorio.save(usuarioAtualizado)
-        return ResponseEntity.status(200).body(usuarioAtualizado)
-    }
-
-    @DeleteMapping
-    @Operation(summary = "Excluir usuário", description = "Exclui um usuário do sistema")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso. O corpo da resposta estará vazio."),
-        ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
-    ])
-    fun apagarUsuario(@RequestParam id: Int): ResponseEntity<Void> {
-        if (!repositorio.existsById(id)) {
-            return ResponseEntity.status(404).build()
-        }
-        repositorio.deleteById(id)
-        return ResponseEntity.status(200).build()
-    }
-
     @PatchMapping("/recuperar-senha")
     @Operation(summary = "Recuperar senha", description = "Gera uma nova senha e retorna para o usuário.")
     @ApiResponses(value = [

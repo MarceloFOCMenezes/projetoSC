@@ -20,6 +20,7 @@ data class Endereco (
 
     @field:NotBlank
     @Size(max = 50)
+    @Column(name = "nome_endereco", length = 50)
     val nomeEndereco: String? = null,
 
     @field:NotBlank

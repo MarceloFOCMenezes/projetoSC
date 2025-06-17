@@ -41,9 +41,9 @@ data class Usuario(
     var telefone: String? = null,
 
     @JsonIgnore
-    @field:NotBlank @field:Size(min = 8, max = 45)
+    @field:Size(min = 8, max = 45)
     @Schema(description = "Senha da conta do usuário")
-    @Column(name = "senha_usuario", unique = true)
+    @Column(name = "senha_usuario")
     var senha: String? = null,
 
 
