@@ -1,5 +1,6 @@
 package SC.ProjetoSC.Services
 
+import SC.ProjetoSC.dto.InformacaoBoloDTO
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
 import SC.ProjetoSC.Request.EnviarPedidoRequest
@@ -138,6 +139,7 @@ class PedidoServices(
     }
 
 
+
     fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
             var pedido = pedidoRepository.findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(adicionarItemPedidoRequest.idCliente!!, 1).firstOrNull()
@@ -214,9 +216,8 @@ class PedidoServices(
         }
 
 
+
     }
-
-
 
     fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest): PedidoResponse{
         val pedido = pedidoRepository.findById(enviarPedidoRequest.idPedido!!)
