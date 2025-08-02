@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignorar chave de API do Google
+src/main/resources/ele-doces-calendar.json
+
