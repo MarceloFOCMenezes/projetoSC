@@ -10,6 +10,7 @@ import SC.ProjetoSC.Response.PedidoResponse
 import SC.ProjetoSC.entity.*
 import SC.ProjetoSC.repository.*
 import org.springframework.stereotype.Service
+import sc.projetosc.Services.GoogleCalendarServices
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -23,7 +24,8 @@ class PedidoServices(
     private val statusPedidoRepository: StatusPedidoRepository,
     private val ingredienteRepository: IngredienteRepository,
     private val usuarioRepository: UsuarioRepository,
-    private val EnderecoRepository: EnderecoRepository
+    private val EnderecoRepository: EnderecoRepository,
+    private val googleCalendarServices: GoogleCalendarServices
 ) {
 
 
@@ -238,6 +240,9 @@ class PedidoServices(
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
         val data = enviarPedidoRequest.dataEntregaEsperada
         pedido.dtEntregaEsperada = LocalDateTime.parse(data!!, formatter)
+
+        // chamando a função para criar o evento no Google Calendar
+        googleCalendarServices.agendarEvento(pedido.id!!)
 
         return listarPedido(listOf(pedido)).first()
     }
