@@ -68,4 +68,20 @@ class GoogleCalendarController (
             return ResponseEntity.status(500).body("Erro ao criar agendamento: ${e.message}")
         }
     }
+
+    @DeleteMapping("/{idPedido}/excluir")
+    @Operation(summary = "Excluir evento", description = "Exclui um agendamento do Google Calendar com base no ID do pedido.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Evento excluído com sucesso."),
+        ApiResponse(responseCode = "404", description = "Evento ou pedido não encontrado."),
+        ApiResponse(responseCode = "500", description = "Erro ao excluir evento.")
+    ])
+    fun excluirEvento(@PathVariable idPedido: Int): ResponseEntity<Any> {
+        return try {
+            calendarService.excluirEvento(idPedido)
+            ResponseEntity.ok("Evento excluído com sucesso.")
+        } catch (e: Exception) {
+            ResponseEntity.status(500).body("Erro ao excluir evento: ${e.message}")
+        }
+    }
 }

@@ -46,7 +46,7 @@ class GoogleCalendarServices (
     }
 
 
-    fun agendarEvento(idPedido:Int) {
+    fun agendarEvento(idPedido: Int) {
         val pedido = pedidoRepository.findById(idPedido)
             .orElseThrow { Exception("Pedido não encontrado.") }
 
@@ -69,7 +69,7 @@ class GoogleCalendarServices (
             val nomeProduto = it.produto?.descricao ?: "Produto"
             val quantidade = it.quantidade ?: 1
             descricaoProdutos.append("- $nomeProduto x$quantidade\n")
-            }
+        }
 
         val descricaoEvento = """
         Cliente: $nomeCliente
@@ -77,22 +77,33 @@ class GoogleCalendarServices (
         Contato do cliente: $linkWhatsApp
         """.trimIndent()
 
-            // Definir a data e horário
-            val dataEntrega = pedido.dtEntregaEsperada
-            val startDateTime = DateTime(dataEntrega.toString() + "-03:00") // adaptável ao seu formato
-            val endDateTime = DateTime(dataEntrega?.plusHours(1).toString() + "-03:00")
+        // Definir a data e horário
+        val dataEntrega = pedido.dtEntregaEsperada
+        val startDateTime = DateTime(dataEntrega.toString() + "-03:00") // adaptável ao seu formato
+        val endDateTime = DateTime(dataEntrega?.plusHours(1).toString() + "-03:00")
 
-            val event = Event()
-                .setSummary("Pedido #${pedido.id}")
-                .setDescription(descricaoEvento)
-                .setLocation(if (isRetirada) "Retirada no ateliê" else "Entrega em: ${endereco?.logradouro}, ${endereco?.numero}")
-                .setStart(EventDateTime().setDateTime(startDateTime).setTimeZone("America/Sao_Paulo"))
-                .setEnd(EventDateTime().setDateTime(endDateTime).setTimeZone("America/Sao_Paulo"))
-                .setColorId(if (isRetirada) "2" else "1")
-                .setVisibility("private")
+        val event = Event()
+            .setSummary("Pedido #${pedido.id}")
+            .setDescription(descricaoEvento)
+            .setLocation(if (isRetirada) "Retirada no ateliê" else "Entrega em: ${endereco?.logradouro}, ${endereco?.numero}")
+            .setStart(EventDateTime().setDateTime(startDateTime).setTimeZone("America/Sao_Paulo"))
+            .setEnd(EventDateTime().setDateTime(endDateTime).setTimeZone("America/Sao_Paulo"))
+            .setColorId(if (isRetirada) "2" else "1")
+            .setVisibility("private")
 
-            // Insere no Google Calendar
-            calendar.events().insert("eledocesprojeto@gmail.com", event).execute()
-        }
-
+        // Insere no Google Calendar
+        calendar.events().insert("eledocesprojeto@gmail.com", event).execute()
     }
+
+    fun excluirEvento(idPedido: Int) {
+        val eventos = calendar.events().list("eledocesprojeto@gmail.com")
+            .setQ("Pedido #$idPedido") // buscar o evento a ser excluido pelo id dele, que fica no nome do evento
+            .setSingleEvents(true)
+            .execute()
+            .items
+        if (eventos.isEmpty()) { throw Exception("Evento não encontrado para o pedido #$idPedido.")}
+
+        eventos.forEach { evento ->
+            calendar.events().delete("eledocesprojeto@gmail.com", evento.id).execute()}
+    }
+}

@@ -14,13 +14,15 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import sc.projetosc.Services.GoogleCalendarServices
 
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
 @RestController
 @RequestMapping("/pedidos")
 class PedidoController(
     val repositorio: PedidoRepository,
-    val pedidoServices: PedidoServices
+    val pedidoServices: PedidoServices,
+    val googleCalendarServices: GoogleCalendarServices
 ) {
 
     @GetMapping("/carrinho")
@@ -101,6 +103,7 @@ class PedidoController(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
         try {
+            googleCalendarServices.excluirEvento(idPedido)// Exclui o evento do Google Calendar
             pedidoServices.atualizarStatusPedido(idPedido, 8) // 8 é o ID do status "Cancelado"
             return ResponseEntity.status(HttpStatus.OK).build()
 
