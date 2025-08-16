@@ -84,4 +84,23 @@ class GoogleCalendarController (
             ResponseEntity.status(500).body("Erro ao excluir evento: ${e.message}")
         }
     }
+
+
+    @GetMapping("/horarios/{periodo}")
+    @Operation(summary = "Listar horários por período", description = "Retorna os horários ocupados, livres e possíveis em um período (semana ou mês).")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Horários retornados com sucesso."),
+        ApiResponse(responseCode = "400", description = "Período inválido."),
+        ApiResponse(responseCode = "500", description = "Erro ao listar horários.")
+    ])
+    fun listarHorariosPorPeriodo(@PathVariable periodo: String): ResponseEntity<Any> {
+        return try {
+            val horarios = calendarService.listarHorariosPorPeriodoDetalhado(periodo)
+            ResponseEntity.ok(horarios)
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity.badRequest().body("Erro: ${e.message}")
+        } catch (e: Exception) {
+            ResponseEntity.status(500).body("Erro ao listar horários: ${e.message}")
+        }
+    }
 }
