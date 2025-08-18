@@ -35,13 +35,4 @@ data class Ingrediente(
     @JoinColumn(name = "fk_tipo_ingrediente", nullable = false) // indica o nome do atributo na tabela, nullable false indica que não pode ser nulo
     val tipoIngrediente: TipoIngrediente? = null,
 
-){
-    constructor(
-        ativo: Boolean,
-        descricao: String?,
-        precoUnitario: Double?,
-        categoria: String?,
-        observacao: String?,
-        idIngrediente: Int
-    ) : this(null, null, false, false, null)
-}
+)

@@ -1,5 +1,6 @@
 package SC.ProjetoSC.Services
 
+import SC.ProjetoSC.dto.InformacaoBoloDTO
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
 import SC.ProjetoSC.Request.EnviarPedidoRequest
@@ -104,6 +105,9 @@ class PedidoServices(
         return pedidoAutalizado
     }
 
+
+
+
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
         return PedidoResponse(
@@ -133,6 +137,8 @@ class PedidoServices(
             }
         )
     }
+
+
 
     fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
@@ -210,8 +216,8 @@ class PedidoServices(
         }
 
 
-    }
 
+    }
 
     fun enviarPedido(enviarPedidoRequest: EnviarPedidoRequest): PedidoResponse{
         val pedido = pedidoRepository.findById(enviarPedidoRequest.idPedido!!)

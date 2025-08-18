@@ -156,8 +156,9 @@ fun get_loginVazio() {
  }
 
 
- // -----------------------------------------------------------------------
+ // ------------------------------------------------------------------------------------------------------------------
  // TESTES DA FUNÇÃO: cadastrarUsuario
+
 
  @Test
  @DisplayName("CadastrarUsuario: ainda não cadastrado = status 201 com o usuário correto")
@@ -238,71 +239,7 @@ fun alterarSenhaVazio() {
     assertNull(retorno.body)
 }
 
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO: alterarUsuario
-
- @Test
- @DisplayName("AlterarUsuario: usuário encontrado = status 200 com o usuário correto")
- fun alterarUsuario() {
-    // programando o mock pra se comportar como se houvesse dados na tabela
-    `when`(repository.existsById(1)).thenReturn(true)
-    `when`(repository.save(usuario)).thenReturn(usuario)
-    val retorno = controller.alterarUsuario(1, usuario)
-
-    // verificando se o status da resposta é 200
-    assertEquals(200, retorno.statusCode.value())
-    // verificando se o corpo da resposta é igual ao usuario
-    assertEquals(usuario, retorno.body)
-    // verificando se o usuario foi salvo no repositorio
-    verify(repository, times(1)).save(usuario)
- }
-
- @Test
- @DisplayName("AlterarUsuario: usuário não encontrado = status 404 sem corpo")
- fun alterarUsuarioVazio() {
-    // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-    `when`(repository.existsById(9)).thenReturn(false)
-    val retorno = controller.alterarUsuario(9, usuario3)
-
-    // verificando se o status da resposta é 404
-    assertEquals(404, retorno.statusCode.value())
-    // verificando se o corpo da resposta é nulo
-    assertNull(retorno.body)
- }
-
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO: apagarUsuario
-
- @Test
- @DisplayName("ApagarUsuario: usuário encontrado = status 204 sem corpo")
- fun apagarUsuario() {
-    // programando o mock pra se comportar como se houvesse dados na tabela
-    `when`(repository.existsById(1)).thenReturn(true)
-    val retorno = controller.apagarUsuario(1)
-
-    // verificando se o status da resposta é 204
-    assertEquals(200, retorno.statusCode.value())
-    // verificando se o corpo da resposta é nulo
-    assertNull(retorno.body)
-    // verificando se o usuario foi apagado no repositorio
-    verify(repository, times(1)).deleteById(1)
- }
-    @Test
-    @DisplayName("ApagarUsuario: usuário não encontrado = status 404 sem corpo")
-    fun apagarUsuarioVazio() {
-        // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-        `when`(repository.existsById(9)).thenReturn(false)
-        val retorno = controller.apagarUsuario(9)
-
-        // verificando se o status da resposta é 404
-        assertEquals(404, retorno.statusCode.value())
-        // verificando se o corpo da resposta é nulo
-        assertNull(retorno.body)
-    }
-
-
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO:
+ // -----------------------------------------------------------------------------------------------------
 
 
 }

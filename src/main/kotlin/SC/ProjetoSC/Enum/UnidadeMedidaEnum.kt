@@ -1,6 +1,6 @@
 package SC.ProjetoSC.Enum
 
 enum class UnidadeMedidaEnum {
-    quilo,
+    kg,
     unidade
 }

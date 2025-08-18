@@ -1,6 +1,6 @@
 package SC.ProjetoSC.Request
 
-import SC.ProjetoSC.Dto.InformacaoBoloDTO
+import SC.ProjetoSC.dto.InformacaoBoloDTO
 import SC.ProjetoSC.entity.InformacaoBolo
 
 data class AdicionarItemPedidoRequest(

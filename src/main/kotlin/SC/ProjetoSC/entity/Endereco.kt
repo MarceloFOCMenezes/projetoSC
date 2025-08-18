@@ -18,6 +18,10 @@ data class Endereco (
     @Column(name = "id_endereco", nullable = false, unique = true)
     val idEndereco: Int? = null,
 
+    @field:NotBlank
+    @Size(max = 50)
+    @Column(name = "nome_endereco", length = 50)
+    val nomeEndereco: String? = null,
 
     @field:NotBlank
     @Column(name = "cep", length = 8, nullable = false)

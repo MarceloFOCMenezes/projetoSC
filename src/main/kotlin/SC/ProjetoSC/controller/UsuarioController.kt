@@ -1,5 +1,7 @@
 package SC.ProjetoSC.controller
 
+import SC.ProjetoSC.Enum.TipoUsuarioEnum
+import SC.ProjetoSC.Request.CadastroUsuarioRequest
 import SC.ProjetoSC.entity.Usuario
 import SC.ProjetoSC.repository.UsuarioRepository
 import io.swagger.v3.oas.annotations.Operation
@@ -11,6 +13,7 @@ import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
 import org.springframework.http.ResponseEntity
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
@@ -18,6 +21,7 @@ import java.time.LocalDateTime
 @RestController
 @RequestMapping("/usuarios")
 class UsuarioController (val repositorio: UsuarioRepository) {
+    val encoder = BCryptPasswordEncoder()
 
     @GetMapping
     @Operation(summary = "Listar todos os usuários", description = "Retorna uma lista com todos os usuários registrados no sistema.")
@@ -48,7 +52,10 @@ class UsuarioController (val repositorio: UsuarioRepository) {
             return ResponseEntity.status(404).build()
         }
         val usuarioEncontrado = repositorio.findByEmailIgnoreCase(email)
-        if (usuarioEncontrado.senha != senha) {
+
+        val senhaValida = encoder.matches(senha, usuarioEncontrado.senha)
+
+        if (!senhaValida) {
             return ResponseEntity.status(401).build()
         }
 
@@ -84,13 +91,43 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         ApiResponse(responseCode = "409", description = "Usuário já cadastrado. O corpo da resposta estará vazio."),
         ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso. O corpo da resposta contém os dados do usuário criado.")
     ])
-    fun cadastrarUsuario(@RequestBody @Valid @NotNull novoUsuario: Usuario): ResponseEntity<Usuario> {
+    fun cadastrarUsuario(@RequestBody @Valid @NotNull novoUsuario: CadastroUsuarioRequest): ResponseEntity<Usuario> {
         if (repositorio.existsByEmailIgnoreCase(novoUsuario.email!!)) {
             //para lembrar: O !! é o operador de not-null forcado. Ele diz para o compilador: "Confia em mim, essa variável não é nula. Pode usar."
             return ResponseEntity.status(409).build()
         }
-        val usuario = repositorio.save(novoUsuario)
-        return ResponseEntity.status(201).body(usuario)
+
+        if(novoUsuario.senha == null || novoUsuario.senha!!.length < 8)
+            return ResponseEntity.status(400).body(null) // Retorna 400 Bad Request se a senha for inválida
+
+        if (!novoUsuario.email.contains('@'))
+            return ResponseEntity.status(400).body(null) // Retorna 400 Bad Request o email não tiver @
+
+        if(novoUsuario.nome.isNullOrBlank() || novoUsuario.telefone.isNullOrBlank())
+            return ResponseEntity.status(400).body(null) // Retorna 400 Bad Request se o nome ou telefone estiverem vazios
+        if (novoUsuario.telefone.isNullOrBlank() || !novoUsuario.telefone.matches(Regex("^[0-9]{10,15}$"))) {
+            return ResponseEntity.status(400)
+                .body(null) // Retorna 400 Bad Request se o telefone não for só números ou não tiver entre 10 e 15 dígitos
+        }
+
+
+
+        val senhaCriptografada = encoder.encode(novoUsuario.senha);
+
+        val usuario:Usuario = Usuario(
+            nome = novoUsuario.nome,
+            email = novoUsuario.email,
+            telefone = novoUsuario.telefone,
+            senha = senhaCriptografada,
+            tipo = if(novoUsuario.admin == true) {
+                // se o admin for true, o usuário será do tipo ADMIN
+                TipoUsuarioEnum.confeiteira
+            } else {
+                // caso contrário, será do tipo CLIENTE
+                TipoUsuarioEnum.cliente
+            })
+        val usuarioSalvo = repositorio.save(usuario)
+        return ResponseEntity.status(201).body(usuarioSalvo)
     }
 
     @PatchMapping
@@ -111,37 +148,6 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         usuario.senha = senha
         repositorio.save(usuario)
         return ResponseEntity.status(200).body(usuario)
-    }
-
-    @PutMapping
-    @Operation(summary = "Alterar usuário", description = "Altera a conta do usuário logado no sistema.")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Usuário alterado com sucesso. O corpo da resposta contém o novo usuário logado."),
-        ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
-    ])
-    fun alterarUsuario(@RequestParam id: Int, @RequestBody @Valid novoUsuario: Usuario):ResponseEntity<Usuario>{
-        // verificar se o usuário existe
-        if (!repositorio.existsById(id)) {
-            return ResponseEntity.status(404).build()
-        }
-        val usuarioAtualizado = novoUsuario.copy(id = id)
-        //garante que o ID na URL será usado, mesmo se novoUsuario.id vier diferente ou nulo, assim evita sobreescrever outro usuário sem querer
-        repositorio.save(usuarioAtualizado)
-        return ResponseEntity.status(200).body(usuarioAtualizado)
-    }
-
-    @DeleteMapping
-    @Operation(summary = "Excluir usuário", description = "Exclui um usuário do sistema")
-    @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso. O corpo da resposta estará vazio."),
-        ApiResponse(responseCode = "204", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
-    ])
-    fun apagarUsuario(@RequestParam id: Int): ResponseEntity<Void> {
-        if (!repositorio.existsById(id)) {
-            return ResponseEntity.status(404).build()
-        }
-        repositorio.deleteById(id)
-        return ResponseEntity.status(200).build()
     }
 
     @PatchMapping("/recuperar-senha")
