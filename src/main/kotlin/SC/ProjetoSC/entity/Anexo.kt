@@ -1,9 +1,12 @@
 package SC.ProjetoSC.entity
 
+import SC.ProjetoSC.Enum.TipoUsuarioEnum
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
+import org.jetbrains.annotations.NotNull
+
 @Entity
 @Table(name = "anexo")
 data class Anexo(
