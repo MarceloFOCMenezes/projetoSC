@@ -23,6 +23,9 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     fun findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(clienteId: Int, statusPedidoId: Int): List<Pedido>
     fun findByStatusPedidoIdStatusPedido(statusPedidoId: Int): List<Pedido>
 
+    fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
+
+
     @Query("""
         UPDATE Pedido p
         SET p.statusPedido.idStatusPedido = 2,
