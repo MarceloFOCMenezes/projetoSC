@@ -92,10 +92,10 @@
 
 		<!-- dependencia para banco de dados h2 -->
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
 			<version>8.0.33</version>
-			<scope>runtime</scope>
+<!--			<scope>runtime</scope>-->
 		</dependency>
 
 <!--	dependencias da API do Google Calendar -->

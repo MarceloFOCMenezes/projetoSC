@@ -1,6 +1,5 @@
 package SC.ProjetoSC.Services
 
-import SC.ProjetoSC.dto.InformacaoBoloDTO
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
 import SC.ProjetoSC.Request.EnviarPedidoRequest

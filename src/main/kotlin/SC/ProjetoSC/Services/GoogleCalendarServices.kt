@@ -1,15 +1,11 @@
 package sc.projetosc.Services
 
 import SC.ProjetoSC.Enum.FormaPagamentoEnum
-import SC.ProjetoSC.entity.Endereco
 import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.entity.Usuario
 import SC.ProjetoSC.repository.*
 import com.google.api.client.util.DateTime
 import com.google.api.services.calendar.model.Event
-import com.google.api.services.calendar.model.EventAttendee
 import com.google.api.services.calendar.model.EventDateTime
-import com.google.api.services.calendar.model.EventReminder
 import org.springframework.stereotype.Service
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

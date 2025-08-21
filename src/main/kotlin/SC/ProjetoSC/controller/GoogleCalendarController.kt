@@ -1,7 +1,5 @@
 package sc.projetosc.controller
 
-import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.repository.ItemPedidoRepository
 import SC.ProjetoSC.repository.PedidoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse

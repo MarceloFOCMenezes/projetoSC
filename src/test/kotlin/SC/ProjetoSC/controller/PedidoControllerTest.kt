@@ -6,19 +6,20 @@ import SC.ProjetoSC.Services.PedidoServices
 import SC.ProjetoSC.entity.*
 import SC.ProjetoSC.repository.PedidoRepository
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 
 import org.springframework.http.HttpStatus
+import sc.projetosc.Services.GoogleCalendarServices
 import java.util.*
 
 class PedidoControllerTest {
 
   val repository = mock(PedidoRepository::class.java)
     val pedidoServices = mock(PedidoServices::class.java)
-    val controller = PedidoController(repository, pedidoServices)
+    val calendarServices = mock(GoogleCalendarServices::class.java)
+    val controller = PedidoController(repository, pedidoServices, calendarServices)
 
  // criando um pedido de teste
  lateinit var fkCliente: Usuario
