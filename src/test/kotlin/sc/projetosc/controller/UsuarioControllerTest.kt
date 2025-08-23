@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.mockito.Mockito.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.*
 
 class UsuarioControllerTest {
@@ -15,24 +16,21 @@ class UsuarioControllerTest {
  // criando um dublê do tipo mock para UsuarioRepository e fazendo as configurações iniciais
  val repository = mock(UsuarioRepository::class.java)
  val controller = UsuarioController(repository)
+    val encoder = BCryptPasswordEncoder()
  lateinit var usuario: Usuario
  lateinit var usuario2: Usuario
  lateinit var usuario3: Usuario
 
 
- @BeforeEach
- fun setup() {
-  // usuario logado
-  usuario = Usuario(1, "Paula", "paula@email.com", "123456789", "12345678", logado = true)
-    // usuario não logado
-  usuario2 = Usuario(2 , "Zé", "zezinho@gmail.com", "123456789", "12345678", logado = false)
-    // usuario não existente
-  usuario3 = Usuario(9, "Luana", "luana@outlook.com", "123456789", "12345678", logado = false)
-  // aqui vamos seguir o seguinte: 1-> existe | 9-> não existe
-  `when`(repository.existsById(1)).thenReturn(true)
-  `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
-  `when`(repository.existsById(9)).thenReturn(false)
- }
+    @BeforeEach
+    fun setup() {
+        usuario = Usuario(1, "Paula", "paula@email.com", "1234567890", encoder.encode("12345678"), logado = true)
+        usuario2 = Usuario(2, "Zé", "zezinho@gmail.com", "1234567890", encoder.encode("12345678"), logado = false)
+        usuario3 = Usuario(9, "Luana", "luana@outlook.com", "1234567890", encoder.encode("12345678"), logado = false)
+        `when`(repository.existsById(1)).thenReturn(true)
+        `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
+        `when`(repository.existsById(9)).thenReturn(false)
+    }
 
  // TESTES DA FUNÇÃO: listarUsuarios
 
@@ -157,23 +155,23 @@ fun get_loginVazio() {
  // TESTES DA FUNÇÃO: cadastrarUsuario
 
 
- @Test
- @DisplayName("CadastrarUsuario: ainda não cadastrado = status 201 com o usuário correto")
- fun cadastrarUsuario() {
-    // programando o mock pra se comportar como se houvesse dados na tabela
-    `when`(repository.existsByEmailIgnoreCase(usuario2.email!!)).thenReturn(false)
-    `when`(repository.save(usuario2)).thenReturn(usuario2)
-    val retorno = controller.cadastrarUsuario(usuario2)
+    // Kotlin
+    @Test
+    @DisplayName("CadastrarUsuario: ainda não cadastrado = status 201 com o usuário correto")
+    fun cadastrarUsuario() {
+        `when`(repository.existsByEmailIgnoreCase(usuario2.email!!)).thenReturn(false)
+        `when`(repository.save(any(Usuario::class.java))).thenAnswer { it.arguments[0] as Usuario }
+        val retorno = controller.cadastrarUsuario(usuario2)
 
-    // verificando se o status da resposta é 201
-    assertEquals(201, retorno.statusCode.value())
-    // verificando se o corpo da resposta é igual ao usuario
-    assertEquals(usuario2, retorno.body)
-    // verificando se o usuario foi salvo no repositorio
-    verify(repository, times(1)).save(usuario2)
-    // verificando se o usuario foi encontrado no repositorio
-    verify(repository, times(1)).existsByEmailIgnoreCase(usuario2.email!!)
- }
+        assertEquals(201, retorno.statusCode.value())
+        assertEquals(usuario2.nome, retorno.body?.nome)
+        assertEquals(usuario2.email, retorno.body?.email)
+        assertEquals(usuario2.telefone, retorno.body?.telefone)
+        assertNotNull(retorno.body?.senha)
+        assertEquals("cliente", retorno.body?.tipo?.name)
+        verify(repository, times(1)).save(any(Usuario::class.java))
+        verify(repository, times(1)).existsByEmailIgnoreCase(usuario2.email!!)
+    }
 
  @Test
     @DisplayName("CadastrarUsuario: já cadastrado = status 409 sem corpo")
