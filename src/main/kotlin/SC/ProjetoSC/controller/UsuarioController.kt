@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import sc.projetosc.dto.LoginDTO
 
 @Tag(name = "Usuários", description = "Operações relacionadas aos usuários do sistema")
 @RestController
 @RequestMapping("/usuarios")
+@CrossOrigin(origins = ["http://localhost:5173"])
 class UsuarioController (
     val repositorio: UsuarioRepository,
     val encoder: PasswordEncoder
@@ -41,25 +43,29 @@ class UsuarioController (
         }
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     @Operation(summary = "Realizar login", description = "Retorna o usuário logado.")
     @ApiResponses(value = [
         ApiResponse(responseCode = "200", description = "Usuário logado com sucesso. O corpo da resposta contém o usuário logado."),
         ApiResponse(responseCode = "401", description = "Credenciais incorretas. O corpo da resposta estará vazio."),
         ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
     ])
-    fun login(@RequestParam email:String, @RequestParam senha: String):ResponseEntity<Usuario> {
+    fun login(@RequestBody loginData: LoginDTO):ResponseEntity<Usuario> {
+        val email = loginData.email
+        val senha = loginData.senha
+
         if (!repositorio.existsByEmailIgnoreCase(email)) {
             return ResponseEntity.status(404).build()
         }
+
         val usuarioEncontrado = repositorio.findByEmailIgnoreCase(email)
+
         val senhaValida = encoder.matches(senha, usuarioEncontrado.senha)
 
         if (!senhaValida) {
             return ResponseEntity.status(401).build()
         }
 
-        // Atualiza o status de login e a data do último login
         usuarioEncontrado.logado = true
         usuarioEncontrado.dataUltimoLogin = LocalDateTime.now()
         repositorio.save(usuarioEncontrado)
