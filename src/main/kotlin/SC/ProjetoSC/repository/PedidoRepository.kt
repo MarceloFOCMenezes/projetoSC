@@ -1,7 +1,7 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.Response.PedidoResponse
-import SC.ProjetoSC.entity.Pedido
+import sc.projetosc.Response.PedidoResponse
+import sc.projetosc.entity.Pedido
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.time.LocalDateTime

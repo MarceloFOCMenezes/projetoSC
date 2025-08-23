@@ -1,4 +1,4 @@
-package SC.ProjetoSC.Request
+package sc.projetosc.request
 
 data class EnviarPedidoRequest (
     var idPedido: Int? = null,

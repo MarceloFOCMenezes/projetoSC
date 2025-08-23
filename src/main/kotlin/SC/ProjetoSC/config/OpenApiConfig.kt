@@ -1,4 +1,4 @@
-package SC.ProjetoSC.config
+package sc.projetosc.config
 
 import io.swagger.v3.oas.models.ExternalDocumentation
 import io.swagger.v3.oas.models.OpenAPI

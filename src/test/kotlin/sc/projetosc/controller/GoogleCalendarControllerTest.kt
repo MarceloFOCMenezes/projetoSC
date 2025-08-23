@@ -1,17 +1,16 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.entity.Usuario
-import SC.ProjetoSC.repository.PedidoRepository
+import sc.projetosc.repository.PedidoRepository
+import sc.projetosc.entity.Pedido
+import sc.projetosc.entity.Usuario
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.mockito.Mockito.*
 import org.springframework.http.HttpStatus
+import sc.projetosc.services.GoogleCalendarServices
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.test.Test
-import sc.projetosc.controller.GoogleCalendarController
-import sc.projetosc.Services.GoogleCalendarServices
 
 class GoogleCalendarControllerTest {
 
@@ -136,7 +135,7 @@ class GoogleCalendarControllerTest {
  }
 
  @Test
- @DisplayName("GET /livre/{periodo} - Deve retornar 400 Bad Request para período inválido")
+ @DisplayName("GET /livre/{periodo} - Deve retornar 400 Bad request para período inválido")
  fun `listarHorariosDisponiveisPorPeriodo deve retornar 400 para periodo invalido`() {
   // Cenário (Arrange)
   val periodoInvalido = "ano"
@@ -169,7 +168,7 @@ class GoogleCalendarControllerTest {
  }
 
  @Test
- @DisplayName("GET /ocupados/{periodo} - Deve retornar 400 Bad Request para período inválido")
+ @DisplayName("GET /ocupados/{periodo} - Deve retornar 400 Bad request para período inválido")
  fun `listarPedidosPorPeriodo deve retornar 400 para periodo invalido`() {
   // Cenário (Arrange)
   val periodoInvalido = "trimestre"

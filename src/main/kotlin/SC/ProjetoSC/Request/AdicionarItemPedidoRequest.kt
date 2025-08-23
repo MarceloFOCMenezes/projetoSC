@@ -1,7 +1,6 @@
-package SC.ProjetoSC.Request
+package sc.projetosc.request
 
-import SC.ProjetoSC.dto.InformacaoBoloDTO
-import SC.ProjetoSC.entity.InformacaoBolo
+import sc.projetosc.dto.InformacaoBoloDTO
 
 data class AdicionarItemPedidoRequest(
     val idCliente: Int? = null,

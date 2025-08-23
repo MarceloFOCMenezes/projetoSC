@@ -1,10 +1,10 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
-import SC.ProjetoSC.Request.EnviarPedidoRequest
-import SC.ProjetoSC.Response.PedidoResponse
-import SC.ProjetoSC.Services.PedidoServices
-import SC.ProjetoSC.repository.PedidoRepository
+import sc.projetosc.request.AdicionarItemPedidoRequest
+import sc.projetosc.request.EnviarPedidoRequest
+import sc.projetosc.Response.PedidoResponse
+import sc.projetosc.services.PedidoServices
+import sc.projetosc.repository.PedidoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -12,7 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import sc.projetosc.Services.GoogleCalendarServices
+import sc.projetosc.services.GoogleCalendarServices
 
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
 @RestController

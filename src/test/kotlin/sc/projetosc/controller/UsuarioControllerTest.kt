@@ -1,15 +1,12 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Enum.TipoUsuarioEnum
-import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.entity.Usuario
-import SC.ProjetoSC.repository.UsuarioRepository
+import sc.projetosc.entity.Usuario
+import sc.projetosc.repository.UsuarioRepository
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.mockito.Mockito
 import org.mockito.Mockito.*
 import java.util.*
 

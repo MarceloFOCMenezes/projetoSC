@@ -1,4 +1,4 @@
-package SC.ProjetoSC.Enum
+package sc.projetosc.Enum
 
 enum class TipoDataEnum {
     aniversario,

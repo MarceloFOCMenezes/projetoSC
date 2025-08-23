@@ -1,6 +1,6 @@
-package SC.ProjetoSC.dto
+package sc.projetosc.dto
 
-import SC.ProjetoSC.Enum.UnidadeMedidaEnum
+import sc.projetosc.Enum.UnidadeMedidaEnum
 import java.math.BigDecimal
 
 data class RequestProdutoDTO(

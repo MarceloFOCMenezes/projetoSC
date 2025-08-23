@@ -1,4 +1,4 @@
-package SC.ProjetoSC.Response
+package sc.projetosc.Response
 
 data class ItemPedidoIngredienteResponse(
     val nome: String? = null,

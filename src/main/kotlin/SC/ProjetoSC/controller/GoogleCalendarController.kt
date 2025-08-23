@@ -1,13 +1,13 @@
 package sc.projetosc.controller
 
-import SC.ProjetoSC.repository.PedidoRepository
+import sc.projetosc.repository.PedidoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import sc.projetosc.Services.GoogleCalendarServices
+import sc.projetosc.services.GoogleCalendarServices
 
 @Tag(name = "Calendário", description = "Operações relacionadas ao Google Calendar para agendamentos de pedidos personalizados")
 @RestController
@@ -42,12 +42,12 @@ class GoogleCalendarController (
     fun agendamento(@PathVariable idPedido: Int): ResponseEntity<Any> {
         try {
             // Buscar o pedido no banco de dados
-            val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado.") }
+//            val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado.") }
 
             // Validar os dados do pedido
-            val cliente = pedido.cliente ?: throw Exception("Cliente não encontrado no pedido.")
-            val isRetirada = pedido.isRetirada ?: throw Exception("Informação de retirada não encontrada.")
-            val endereco = pedido.endereco // Pode ser null se for retirada
+//            val cliente = pedido.cliente ?: throw Exception("Cliente não encontrado no pedido.")
+//            val isRetirada = pedido.isRetirada ?: throw Exception("Informação de retirada não encontrada.")
+//            val endereco = pedido.endereco // Pode ser null se for retirada
 
             // Agendar o evento no Google Calendar
             calendarService.agendarEvento(idPedido)

@@ -1,4 +1,4 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty

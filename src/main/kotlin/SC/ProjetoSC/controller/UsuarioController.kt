@@ -1,7 +1,7 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.entity.Usuario
-import SC.ProjetoSC.repository.UsuarioRepository
+import sc.projetosc.entity.Usuario
+import sc.projetosc.repository.UsuarioRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses

@@ -1,9 +1,9 @@
-package SC.ProjetoSC.Services
+package sc.projetosc.services
 
-import SC.ProjetoSC.dto.RequestEnderecoDTO
-import SC.ProjetoSC.entity.Endereco
-import SC.ProjetoSC.repository.EnderecoRepository
-import SC.ProjetoSC.repository.UsuarioRepository
+import sc.projetosc.dto.RequestEnderecoDTO
+import sc.projetosc.entity.Endereco
+import sc.projetosc.repository.EnderecoRepository
+import sc.projetosc.repository.UsuarioRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 

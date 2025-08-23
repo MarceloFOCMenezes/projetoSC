@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.Usuario
+import sc.projetosc.entity.Usuario
 import org.springframework.data.jpa.repository.JpaRepository
 
 /*Uma Repository abstrai os métodos de acesso a dados.
@@ -20,6 +20,6 @@ Dentro de <> temos 2 tipos
 interface UsuarioRepository : JpaRepository<Usuario, Int> {
     fun existsByEmailIgnoreCase(email:String):Boolean
 
-    fun findByEmailIgnoreCase(email:String):Usuario
+    fun findByEmailIgnoreCase(email:String): Usuario
 
 }

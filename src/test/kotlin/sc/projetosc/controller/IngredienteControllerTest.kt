@@ -1,11 +1,11 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.IngredienteServices
-import SC.ProjetoSC.dto.RequestIngredienteDto
-import SC.ProjetoSC.entity.Ingrediente
-import SC.ProjetoSC.entity.TipoIngrediente
-import SC.ProjetoSC.repository.IngredienteRepository
-import SC.ProjetoSC.repository.TipoIngredienteRepository
+import sc.projetosc.services.IngredienteServices
+import sc.projetosc.dto.RequestIngredienteDto
+import sc.projetosc.entity.Ingrediente
+import sc.projetosc.entity.TipoIngrediente
+import sc.projetosc.repository.IngredienteRepository
+import sc.projetosc.repository.TipoIngredienteRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

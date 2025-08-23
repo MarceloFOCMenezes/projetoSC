@@ -1,8 +1,8 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.EnderecoServices
-import SC.ProjetoSC.dto.RequestEnderecoDTO
-import SC.ProjetoSC.entity.Endereco
+import sc.projetosc.services.EnderecoServices
+import sc.projetosc.dto.RequestEnderecoDTO
+import sc.projetosc.entity.Endereco
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses

@@ -1,17 +1,20 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Request.EnviarPedidoRequest
-import SC.ProjetoSC.Response.PedidoResponse
-import SC.ProjetoSC.Services.PedidoServices
-import SC.ProjetoSC.entity.*
-import SC.ProjetoSC.repository.PedidoRepository
+import sc.projetosc.request.EnviarPedidoRequest
+import sc.projetosc.Response.PedidoResponse
+import sc.projetosc.services.PedidoServices
+import sc.projetosc.repository.PedidoRepository
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 
 import org.springframework.http.HttpStatus
-import sc.projetosc.Services.GoogleCalendarServices
+import sc.projetosc.entity.Endereco
+import sc.projetosc.entity.Pedido
+import sc.projetosc.entity.StatusPedido
+import sc.projetosc.entity.Usuario
+import sc.projetosc.services.GoogleCalendarServices
 import java.util.*
 
 class PedidoControllerTest {

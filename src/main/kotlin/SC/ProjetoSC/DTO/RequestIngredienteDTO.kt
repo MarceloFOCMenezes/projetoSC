@@ -1,4 +1,4 @@
-package SC.ProjetoSC.dto
+package sc.projetosc.dto
 
 data class RequestIngredienteDto(
     var idTipoIngrediente: Int? = null,
