@@ -15,13 +15,15 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 
 @Tag(name = "Usuários", description = "Operações relacionadas aos usuários do sistema")
 @RestController
 @RequestMapping("/usuarios")
-class UsuarioController (val repositorio: UsuarioRepository) {
-    val encoder = BCryptPasswordEncoder()
-
+class UsuarioController (
+    val repositorio: UsuarioRepository,
+    val encoder: PasswordEncoder
+) {
     @GetMapping
     @Operation(summary = "Listar todos os usuários", description = "Retorna uma lista com todos os usuários registrados no sistema.")
     @ApiResponses(value = [
@@ -92,26 +94,18 @@ class UsuarioController (val repositorio: UsuarioRepository) {
     fun cadastrarUsuario(@RequestBody @Valid @NotNull novoUsuario: Usuario): ResponseEntity<Usuario> {
         if (novoUsuario.email.isNullOrBlank() || !novoUsuario.email!!.contains('@'))
             return ResponseEntity.status(400).body(null)
-
         if (novoUsuario.telefone.isNullOrBlank() || !novoUsuario.telefone!!.matches(Regex("^[0-9]{10,15}$")))
             return ResponseEntity.status(400).body(null)
-
         if (repositorio.existsByEmailIgnoreCase(novoUsuario.email!!))
             return ResponseEntity.status(409).build()
-
         if (novoUsuario.senha.isNullOrBlank() || novoUsuario.senha!!.length < 8)
             return ResponseEntity.status(400).body(null)
 
-        val senhaCriptografada = encoder.encode(novoUsuario.senha)
+        // Modificando o objeto recebido para evitar criar um novo desnecessariamente
+        novoUsuario.senha = encoder.encode(novoUsuario.senha)
+        novoUsuario.tipo = TipoUsuarioEnum.cliente
 
-        val usuario = Usuario(
-            nome = novoUsuario.nome,
-            email = novoUsuario.email,
-            telefone = novoUsuario.telefone,
-            senha = senhaCriptografada,
-            tipo = TipoUsuarioEnum.cliente // ajuste aqui conforme sua lógica
-        )
-        val usuarioSalvo = repositorio.save(usuario)
+        val usuarioSalvo = repositorio.save(novoUsuario)
         return ResponseEntity.status(201).body(usuarioSalvo)
     }
 
@@ -123,14 +117,12 @@ class UsuarioController (val repositorio: UsuarioRepository) {
         ApiResponse(responseCode = "404", description = "Nenhum usuário encontrado. O corpo da resposta estará vazio.")
     ])
     fun alterarSenha(@RequestParam @Email email: String, @RequestParam @Size(min = 8, max = 45) senha:String):ResponseEntity<Usuario>{
-        // como o @Valid só funciona pra @RequestBody, aqui validamos usando as validações lá da classe mesmo!
-
         val usuario = repositorio.findByEmailIgnoreCase(email)
             ?: return ResponseEntity.status(404).build()
         if (encoder.matches(senha, usuario.senha)) {
             return ResponseEntity.status(409).build()
         }
-        usuario.senha = senha
+        usuario.senha = encoder.encode(senha)
         repositorio.save(usuario)
         return ResponseEntity.status(200).body(usuario)
     }
@@ -143,12 +135,15 @@ class UsuarioController (val repositorio: UsuarioRepository) {
     ])
     fun recuperarSenha(@RequestParam @Email email: String): ResponseEntity<String> {
         val usuario = repositorio.findByEmailIgnoreCase(email)
-        val novaSenha = (100000..999999).random().toString()
+            ?: return ResponseEntity.status(404).build() // Adicionando validação
 
-        usuario.senha = novaSenha
+        val novaSenha = (10000000..99999999).random().toString() // Aumentando para 8 dígitos
+
+        usuario.senha = encoder.encode(novaSenha)
         repositorio.save(usuario)
 
-        return ResponseEntity.status(200).body("Senha gerada com sucesso")
+        // Retornando a senha em texto plano para o usuário (em um app real, isso seria enviado por email)
+        return ResponseEntity.status(200).body("Sua nova senha é: $novaSenha")
     }
 
     @PutMapping("/desativar/{id}")
