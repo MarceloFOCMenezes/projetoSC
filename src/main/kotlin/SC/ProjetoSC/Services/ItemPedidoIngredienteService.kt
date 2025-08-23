@@ -1,10 +1,10 @@
-package SC.ProjetoSC.Services
+package sc.projetosc.services
 
-import SC.ProjetoSC.entity.ItemPedidoIngrediente
-import SC.ProjetoSC.entity.ItemPedidoIngredienteId
-import SC.ProjetoSC.repository.IngredienteRepository
-import SC.ProjetoSC.repository.ItemPedidoIngredienteRepository
-import SC.ProjetoSC.repository.ItemPedidoRepository
+import sc.projetosc.entity.ItemPedidoIngrediente
+import sc.projetosc.entity.ItemPedidoIngredienteId
+import sc.projetosc.repository.IngredienteRepository
+import sc.projetosc.repository.ItemPedidoIngredienteRepository
+import sc.projetosc.repository.ItemPedidoRepository
 
 class ItemPedidoIngredienteService(
     private val itemPedidoRepository: ItemPedidoRepository,

@@ -1,6 +1,7 @@
-package SC.ProjetoSC.Response
+package sc.projetosc.Response
 
-import SC.ProjetoSC.entity.InformacaoBolo
+import sc.projetosc.Response.ItemPedidoIngredienteResponse
+import sc.projetosc.entity.InformacaoBolo
 
 data class ItemPedidoResponse(
     val descricao: String? = null,

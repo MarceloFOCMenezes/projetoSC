@@ -1,11 +1,11 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
+import sc.projetosc.entity.Anexo
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
-import java.io.Serializable
 
 @Table(name = "informacao_bolo")
 @Entity

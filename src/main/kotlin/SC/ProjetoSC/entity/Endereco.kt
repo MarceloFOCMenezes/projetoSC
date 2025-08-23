@@ -1,4 +1,4 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+
 @Table(name = "Endereco")
 @Entity
 data class Endereco (

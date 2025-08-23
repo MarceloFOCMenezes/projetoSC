@@ -1,10 +1,10 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Enum.UnidadeMedidaEnum
-import SC.ProjetoSC.dto.RequestProdutoDTO
-import SC.ProjetoSC.entity.Produto
-import SC.ProjetoSC.repository.ProdutoRepository
-import SC.ProjetoSC.Services.ProdutoServices
+import sc.projetosc.Enum.UnidadeMedidaEnum
+import sc.projetosc.dto.RequestProdutoDTO
+import sc.projetosc.entity.Produto
+import sc.projetosc.repository.ProdutoRepository
+import sc.projetosc.services.ProdutoServices
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -26,7 +26,7 @@ class ProdutoControllerTest {
   produto = Produto(
    idProduto = 1,
    descricao = "Produto Teste",
-   precoUnitario = java.math.BigDecimal("10.50"),
+   precoUnitario = BigDecimal("10.50"),
    categoria = "Bebida",
    ativo = true,
    temIngrediente = false,
@@ -42,7 +42,7 @@ class ProdutoControllerTest {
  fun criarProduto() {
   val dto = RequestProdutoDTO(
    descricao = "Produto Teste",
-   precoUnitario = java.math.BigDecimal("10.50"),
+   precoUnitario = BigDecimal("10.50"),
    categoria = "Bebida",
    ativo = true,
    temIngrediente = false,

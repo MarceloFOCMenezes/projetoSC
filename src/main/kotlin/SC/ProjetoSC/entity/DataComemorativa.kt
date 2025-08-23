@@ -1,10 +1,9 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.TipoDataEnum
+import sc.projetosc.Enum.TipoDataEnum
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
 @Table(name = "data_comemorativa")
@@ -27,7 +26,7 @@ data class DataComemorativa(
     @Schema(description = "FK do usuário que registrou a data comemorativa")
     @ManyToOne
     @JoinColumn(name = "fk_usuario", nullable = false)
-    val usuario:Usuario? = null,
+    val usuario: Usuario? = null,
 
     @field:NotNull
     @Schema(description = "Tipo da data comemorativa")

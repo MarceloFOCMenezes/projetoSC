@@ -1,4 +1,4 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
@@ -6,6 +6,7 @@ import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
+
 @Table(name = "ingrediente")
 @Entity
 data class Ingrediente(
@@ -35,4 +36,4 @@ data class Ingrediente(
     @JoinColumn(name = "fk_tipo_ingrediente", nullable = false) // indica o nome do atributo na tabela, nullable false indica que não pode ser nulo
     val tipoIngrediente: TipoIngrediente? = null,
 
-)
+    )

@@ -1,7 +1,7 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.Response.PedidoResponse
-import SC.ProjetoSC.entity.Pedido
+import sc.projetosc.Response.PedidoResponse
+import sc.projetosc.entity.Pedido
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.time.LocalDateTime
@@ -22,6 +22,9 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     fun findByClienteId(clienteId: Int): List<Pedido>
     fun findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(clienteId: Int, statusPedidoId: Int): List<Pedido>
     fun findByStatusPedidoIdStatusPedido(statusPedidoId: Int): List<Pedido>
+
+    fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
+
 
     @Query("""
         UPDATE Pedido p

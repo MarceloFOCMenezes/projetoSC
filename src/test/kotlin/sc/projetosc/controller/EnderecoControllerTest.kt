@@ -1,15 +1,16 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.EnderecoServices
-import SC.ProjetoSC.dto.RequestEnderecoDTO
-import SC.ProjetoSC.entity.Endereco
-import SC.ProjetoSC.entity.Usuario
+import sc.projetosc.Enum.TipoUsuarioEnum
+import sc.projetosc.dto.RequestEnderecoDTO
+import sc.projetosc.entity.Endereco
+import sc.projetosc.entity.Usuario
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.springframework.http.ResponseEntity
+import sc.projetosc.services.EnderecoServices
 
 class EnderecoControllerTest {
 
@@ -27,7 +28,7 @@ class EnderecoControllerTest {
             email = "teste@email.com",
             telefone = "123456789",
             senha = "senha123",
-            tipo = SC.ProjetoSC.Enum.TipoUsuarioEnum.cliente,
+            tipo = TipoUsuarioEnum.cliente,
             logado = false
         )
         endereco = Endereco(

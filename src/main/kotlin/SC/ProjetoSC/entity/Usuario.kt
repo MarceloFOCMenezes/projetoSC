@@ -1,15 +1,14 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.TipoUsuarioEnum
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.PositiveOrZero
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
+import sc.projetosc.Enum.TipoUsuarioEnum
 import java.time.LocalDateTime
 
 /*

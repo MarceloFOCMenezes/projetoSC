@@ -1,14 +1,11 @@
-package SC.ProjetoSC.Services
+package sc.projetosc.services
 
-
-
-
-import SC.ProjetoSC.dto.RequestIngredienteDto
-import SC.ProjetoSC.entity.Ingrediente
-import SC.ProjetoSC.repository.IngredienteRepository
+import sc.projetosc.dto.RequestIngredienteDto
+import sc.projetosc.entity.Ingrediente
+import sc.projetosc.repository.IngredienteRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
-import SC.ProjetoSC.repository.TipoIngredienteRepository
+import sc.projetosc.repository.TipoIngredienteRepository
 
 @Service
 class IngredienteServices(

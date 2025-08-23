@@ -1,4 +1,4 @@
-package SC.ProjetoSC.Request
+package sc.projetosc.request
 
 class CadastroUsuarioRequest {
     val email: String? = null

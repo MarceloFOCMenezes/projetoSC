@@ -1,9 +1,9 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.ProdutoServices
-import SC.ProjetoSC.dto.RequestProdutoDTO
-import SC.ProjetoSC.entity.Produto
-import SC.ProjetoSC.repository.ProdutoRepository
+import sc.projetosc.services.ProdutoServices
+import sc.projetosc.dto.RequestProdutoDTO
+import sc.projetosc.entity.Produto
+import sc.projetosc.repository.ProdutoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses

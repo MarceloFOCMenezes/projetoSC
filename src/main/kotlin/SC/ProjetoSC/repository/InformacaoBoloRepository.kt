@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.InformacaoBolo
+import sc.projetosc.entity.InformacaoBolo
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface InformacaoBoloRepository: JpaRepository<InformacaoBolo, Int> {

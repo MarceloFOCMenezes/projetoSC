@@ -1,10 +1,8 @@
-package SC.ProjetoSC.Services
+package sc.projetosc.services
 
-import SC.ProjetoSC.dto.RequestProdutoDTO
-import SC.ProjetoSC.entity.Produto
-import SC.ProjetoSC.repository.ProdutoRepository
-import SC.ProjetoSC.repository.UsuarioRepository
-import org.springframework.http.HttpStatus
+import sc.projetosc.dto.RequestProdutoDTO
+import sc.projetosc.entity.Produto
+import sc.projetosc.repository.ProdutoRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 
@@ -12,7 +10,7 @@ import org.springframework.stereotype.Service
 class ProdutoServices (
     private val produtoRepository: ProdutoRepository
 ) {
-    fun criarProduto(requestProduto:RequestProdutoDTO): Produto {
+    fun criarProduto(requestProduto: RequestProdutoDTO): Produto {
         val produto = Produto(
             descricao = requestProduto.descricao,
             precoUnitario = requestProduto.precoUnitario,
