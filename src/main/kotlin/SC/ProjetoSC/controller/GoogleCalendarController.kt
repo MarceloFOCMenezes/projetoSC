@@ -1,6 +1,5 @@
 package sc.projetosc.controller
 
-import sc.projetosc.repository.PedidoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -14,7 +13,6 @@ import sc.projetosc.services.GoogleCalendarServices
 @RequestMapping("/calendario")
 class GoogleCalendarController (
     private val calendarService: GoogleCalendarServices,
-    private val pedidoRepository: PedidoRepository
 ){
 
     @GetMapping("/ocupados")
@@ -41,14 +39,6 @@ class GoogleCalendarController (
     ])
     fun agendamento(@PathVariable idPedido: Int): ResponseEntity<Any> {
         try {
-            // Buscar o pedido no banco de dados
-//            val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado.") }
-
-            // Validar os dados do pedido
-//            val cliente = pedido.cliente ?: throw Exception("Cliente não encontrado no pedido.")
-//            val isRetirada = pedido.isRetirada ?: throw Exception("Informação de retirada não encontrada.")
-//            val endereco = pedido.endereco // Pode ser null se for retirada
-
             // Agendar o evento no Google Calendar
             calendarService.agendarEvento(idPedido)
             return ResponseEntity.ok("Agendamento criado com sucesso.")

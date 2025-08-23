@@ -16,7 +16,7 @@ class GoogleCalendarControllerTest {
 
  private val calendarService = mock(GoogleCalendarServices::class.java)
  private val pedidoRepository = mock(PedidoRepository::class.java)
- private val controller = GoogleCalendarController(calendarService, pedidoRepository)
+ private val controller = GoogleCalendarController(calendarService)
 
  @Test
  @DisplayName("GET /ocupados - Deve retornar 200 OK com lista quando houver horários")
@@ -73,18 +73,19 @@ class GoogleCalendarControllerTest {
  }
 
  @Test
- @DisplayName("POST /{idPedido} - Deve retornar 500 quando pedido não for encontrado")
+ @DisplayName("POST /{idPedido} - Deve retornar 500 quando o serviço falhar ao buscar pedido")
  fun `agendamento deve retornar 500 para pedido nao encontrado`() {
   // Cenário (Arrange)
   val idPedido = 99
-  `when`(pedidoRepository.findById(idPedido)).thenReturn(Optional.empty())
+  val mensagemErro = "Pedido não encontrado."
+  `when`(calendarService.agendarEvento(idPedido)).thenThrow(RuntimeException(mensagemErro))
 
   // Ação (Act)
   val resposta = controller.agendamento(idPedido)
 
   // Verificação (Assert)
   assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, resposta.statusCode)
-  assertTrue((resposta.body as String).contains("Pedido não encontrado."))
+  assertEquals("Erro ao criar agendamento: $mensagemErro", resposta.body)
  }
 
  @Test
@@ -108,7 +109,7 @@ class GoogleCalendarControllerTest {
   // Cenário (Arrange)
   val idPedido = 99
   val mensagemErro = "Evento não encontrado para o pedido #$idPedido."
-  `when`(calendarService.excluirEvento(idPedido)).thenThrow(Exception(mensagemErro))
+  `when`(calendarService.excluirEvento(idPedido)).thenThrow(RuntimeException(mensagemErro))
 
   // Ação (Act)
   val resposta = controller.excluirEvento(idPedido)
