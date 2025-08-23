@@ -12,8 +12,7 @@ import jakarta.validation.constraints.Size
 @Table(name = "Endereco")
 @Entity
 data class Endereco (
-    @JsonIgnore
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+//    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_endereco", nullable = false, unique = true)

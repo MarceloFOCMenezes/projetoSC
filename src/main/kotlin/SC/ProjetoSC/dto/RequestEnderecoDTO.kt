@@ -1,6 +1,7 @@
 package sc.projetosc.dto
 
 data class RequestEnderecoDTO(
+    val idEndereco:Int? = null,
     val nomeEndereco: String? = null,
     val cep: String? = null,
     val logradouro: String? = null,
@@ -14,6 +15,7 @@ data class RequestEnderecoDTO(
     val ativo: Boolean? = null,
 ) {
     constructor() : this(
+        idEndereco = null,
         nomeEndereco = null,
         cep = null,
         logradouro = null,
