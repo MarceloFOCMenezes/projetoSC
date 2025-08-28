@@ -1,9 +1,10 @@
-package sc.projetosc.dto
+package sc.projetosc.request
+
 
 import sc.projetosc.Enum.UnidadeMedidaEnum
 import java.math.BigDecimal
 
-data class RequestProdutoDTO(
+data class ProdutoRequest(
     val descricao: String? = null,
     val precoUnitario: BigDecimal? = null,
     val categoria: String? = null,

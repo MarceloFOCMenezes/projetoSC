@@ -1,10 +1,11 @@
-package sc.projetosc.dto
+package sc.projetosc.request
 
-data class RequestIngredienteDto(
+
+data class IngredienteRequest(
     var idTipoIngrediente: Int? = null,
     var nome: String? = null,
     var is_premium: Boolean? = null,
-    var Ativo: Boolean? = null,
+    var ativo: Boolean? = null,
 ) {
     constructor() : this(null, null, false, true,)
 }

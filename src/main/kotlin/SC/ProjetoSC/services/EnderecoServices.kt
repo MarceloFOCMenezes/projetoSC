@@ -1,18 +1,19 @@
 package sc.projetosc.services
 
-import sc.projetosc.dto.RequestEnderecoDTO
+
+import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Service
 import sc.projetosc.entity.Endereco
 import sc.projetosc.repository.EnderecoRepository
 import sc.projetosc.repository.UsuarioRepository
-import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Service
+import sc.projetosc.request.EnderecoRequest
 
 @Service
 class EnderecoServices(
     private val enderecoRepository: EnderecoRepository,
     private val usuarioRepository: UsuarioRepository
 ) {
-    fun criarEndereco(requestEndereco: RequestEnderecoDTO): Endereco {
+    fun criarEndereco(requestEndereco: EnderecoRequest): Endereco {
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }
         val endereco = Endereco(
             idEndereco = requestEndereco.idEndereco ?: 0,
@@ -31,7 +32,7 @@ class EnderecoServices(
         return enderecoRepository.save(endereco)
     }
 
-    fun atualizarEndereco(id: Int, requestEndereco: RequestEnderecoDTO): ResponseEntity<Any> {
+    fun atualizarEndereco(id: Int, requestEndereco: EnderecoRequest): ResponseEntity<Any> {
         val enderecoOpt = enderecoRepository.findById(id)
         if (enderecoOpt.isEmpty) return ResponseEntity.status(404).build()
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }

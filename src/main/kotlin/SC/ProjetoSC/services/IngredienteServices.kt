@@ -1,6 +1,7 @@
 package sc.projetosc.services
 
-import sc.projetosc.dto.RequestIngredienteDto
+
+import sc.projetosc.request.IngredienteRequest
 import sc.projetosc.entity.Ingrediente
 import sc.projetosc.repository.IngredienteRepository
 import org.springframework.http.ResponseEntity
@@ -12,20 +13,20 @@ class IngredienteServices(
     private val ingredienteRepository: IngredienteRepository,
     private val TipoIngredienteRepository: TipoIngredienteRepository
 ) {
-    fun criarIngrediente(novoIngrediente: RequestIngredienteDto): Ingrediente {
+    fun criarIngrediente(novoIngrediente: IngredienteRequest): Ingrediente {
         val tipoIngrediente = TipoIngredienteRepository.findById(novoIngrediente.idTipoIngrediente!!).orElse(null)
         val ingrediente = Ingrediente(
             tipoIngrediente = tipoIngrediente,
             nome = novoIngrediente.nome,
             premium = novoIngrediente.is_premium ?: false,
-            ativo = novoIngrediente.Ativo ?: true,
+            ativo = novoIngrediente.ativo ?: true,
         )
 
         return ingredienteRepository.save(ingrediente) // Retorna o objeto salvo
     }
 
 
-    fun atualizarIngrediente(id: Int, dto: RequestIngredienteDto): ResponseEntity<Any> {
+    fun atualizarIngrediente(id: Int, dto: IngredienteRequest): ResponseEntity<Any> {
         val ingredienteOpt = ingredienteRepository.findById(id)
         if (ingredienteOpt.isEmpty) return ResponseEntity.status(404).build()
         val tipoIngrediente = TipoIngredienteRepository.findById(dto.idTipoIngrediente!!).orElse(null)
@@ -33,7 +34,7 @@ class IngredienteServices(
         val ingredienteExist = ingredienteOpt.get()
         val ingredienteAtt = ingredienteExist.copy(
             nome = dto.nome,
-            ativo = dto.Ativo!!,
+            ativo = dto.ativo!!,
             premium = dto.is_premium!!,
             tipoIngrediente = tipoIngrediente
         )
