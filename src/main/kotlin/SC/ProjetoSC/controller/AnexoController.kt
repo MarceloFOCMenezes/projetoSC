@@ -1,85 +1,64 @@
 package SC.ProjetoSC.controller
 
+import SC.ProjetoSC.entity.Anexo
+import SC.ProjetoSC.service.AnexoService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.slf4j.LoggerFactory
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 
 @Tag(name = "Anexos", description = "Operações relacionadas aos anexos do sistema")
 @RestController
 @RequestMapping("/anexos")
-class AnexoController {
+class AnexoController(
+    private val anexoService: AnexoService
+) {
 
-    private val logger = LoggerFactory.getLogger(AnexoController::class.java)
-    private val uploadDir = Path.of("uploads")
-
-    init {
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir)
+    @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @Operation(summary = "Fazer upload de anexo", description = "Realiza o upload de um arquivo e o armazena no banco de dados")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "201", description = "Anexo criado com sucesso"),
+        ApiResponse(responseCode = "400", description = "Arquivo vazio ou inválido"),
+        ApiResponse(responseCode = "500", description = "Erro interno ao processar o upload")
+    ])
+    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<Anexo> {
+        if (file.isEmpty) {
+            return ResponseEntity.badRequest().build()
         }
+        val anexo = anexoService.salvar(file)
+        return ResponseEntity.status(201).body(anexo)
     }
 
-    @PostMapping
-    @Operation(summary = "Fazer upload de anexo", description = "Realiza o upload de um arquivo para o sistema.")
+    @GetMapping("/{id}")
+    @Operation(summary = "Baixar anexo", description = "Recupera um anexo armazenado no banco de dados pelo seu ID")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "201", description = "Anexo criado com sucesso."),
-        ApiResponse(responseCode = "400", description = "Arquivo vazio ou nome inválido."),
-        ApiResponse(responseCode = "500", description = "Erro interno ao processar o upload.")
+        ApiResponse(responseCode = "200", description = "Anexo encontrado e retornado com sucesso"),
+        ApiResponse(responseCode = "404", description = "Anexo não encontrado"),
+        ApiResponse(responseCode = "500", description = "Erro interno ao buscar o anexo")
     ])
-    fun uploadAnexo(@RequestParam("file") file: MultipartFile): ResponseEntity<String> {
-        return try {
+    fun download(@PathVariable id: Int): ResponseEntity<ByteArray> {
+        val anexo = anexoService.buscar(id)
+        val nomeArquivo = anexo.nomeArquivo ?: "anexo_${id}.bin"
 
-            if (file.isEmpty) {
-                return ResponseEntity.badRequest().body("O arquivo está vazio.")
-            }
-
-            val fileName = file.originalFilename?.replace("[^a-zA-Z0-9._-]".toRegex(), "_")
-                ?: return ResponseEntity.badRequest().body("Nome do arquivo inválido.")
-
-            val filePath = uploadDir.resolve(fileName)
-            Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
-
-            logger.info("Arquivo '${fileName}' salvo com sucesso em '${filePath}'.")
-            ResponseEntity.status(201).body("Anexo '${fileName}' criado com sucesso.")
-
-        } catch (e: Exception) {
-
-            logger.error("Erro ao fazer upload do anexo: ${e.message}", e)
-            ResponseEntity.status(500).body("Erro ao fazer upload do anexo: ${e.message}")
-
-        }
+        return ResponseEntity.ok()
+            .header("Content-Disposition", "attachment; filename=\"$nomeArquivo\"")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(anexo.imagemAnexo)
     }
 
-    @DeleteMapping
-    @Operation(summary = "Remover anexo", description = "Remove um arquivo do sistema.")
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Remover anexo", description = "Remove um anexo do banco de dados pelo seu ID")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "204", description = "Anexo removido com sucesso."),
-        ApiResponse(responseCode = "404", description = "Anexo não encontrado."),
-        ApiResponse(responseCode = "500", description = "Erro interno ao remover o anexo.")
+        ApiResponse(responseCode = "204", description = "Anexo removido com sucesso"),
+        ApiResponse(responseCode = "404", description = "Anexo não encontrado"),
+        ApiResponse(responseCode = "500", description = "Erro interno ao remover o anexo")
     ])
-    fun removerAnexo(@RequestParam("fileName") fileName: String): ResponseEntity<String> {
-        return try {
-
-            val filePath = uploadDir.resolve(fileName)
-
-            if (!Files.exists(filePath)) {
-                return ResponseEntity.status(404).body("Anexo '${fileName}' não encontrado.")
-            }
-            Files.delete(filePath)
-
-            logger.info("Arquivo '${fileName}' removido com sucesso.")
-            ResponseEntity.status(204).body("Anexo '${fileName}' removido com sucesso.")
-
-        } catch (e: Exception) {
-            logger.error("Erro ao remover o anexo: ${e.message}", e)
-            ResponseEntity.status(500).body("Erro ao remover o anexo: ${e.message}")
-        }
+    fun remover(@PathVariable id: Int): ResponseEntity<Void> {
+        anexoService.deletar(id)
+        return ResponseEntity.noContent().build()
     }
 }

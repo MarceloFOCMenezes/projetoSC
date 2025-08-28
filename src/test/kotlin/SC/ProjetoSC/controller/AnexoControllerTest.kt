@@ -1,27 +1,34 @@
 package SC.ProjetoSC.controller
 
+import SC.ProjetoSC.entity.Anexo
+import SC.ProjetoSC.service.AnexoService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.io.TempDir
+import org.mockito.InjectMocks
+import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.MockitoAnnotations
+import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
-import java.nio.file.Files
-import java.nio.file.Path
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class AnexoControllerTest {
 
+    @Mock
+    private lateinit var anexoService: AnexoService
+
+    @InjectMocks
     private lateinit var controller: AnexoController
-    private lateinit var uploadDir: Path
 
     @BeforeEach
     fun setup() {
-        controller = AnexoController()
-        uploadDir = Path.of("uploads")
+        MockitoAnnotations.openMocks(this)
     }
 
     @Test
-    @DisplayName("Upload: arquivo válido = status 201 com mensagem de sucesso")
+    @DisplayName("Upload: arquivo válido = status 201 e retorna o anexo salvo")
     fun uploadAnexoValido() {
         val mockFile = MockMultipartFile(
             "file",
@@ -29,16 +36,18 @@ class AnexoControllerTest {
             "text/plain",
             "conteúdo teste".toByteArray()
         )
+        val anexo = Anexo(idAnexo = 1, imagemAnexo = mockFile.bytes)
 
-        val resposta = controller.uploadAnexo(mockFile)
+        `when`(anexoService.salvar(mockFile)).thenReturn(anexo)
 
-        assertEquals(201, resposta.statusCode.value())
-        assertTrue(resposta.body!!.contains("teste.txt"))
-        assertTrue(Files.exists(uploadDir.resolve("teste.txt")))
+        val resposta = controller.upload(mockFile)
+
+        assertEquals(HttpStatus.CREATED, resposta.statusCode)
+        assertEquals(anexo, resposta.body)
     }
 
     @Test
-    @DisplayName("Upload: arquivo vazio = status 400 com mensagem de erro")
+    @DisplayName("Upload: arquivo vazio = status 400")
     fun uploadAnexoVazio() {
         val mockFile = MockMultipartFile(
             "file",
@@ -47,47 +56,32 @@ class AnexoControllerTest {
             ByteArray(0)
         )
 
-        val resposta = controller.uploadAnexo(mockFile)
+        val resposta = controller.upload(mockFile)
 
-        assertEquals(400, resposta.statusCode.value())
-        assertEquals("O arquivo está vazio.", resposta.body)
+        assertEquals(HttpStatus.BAD_REQUEST, resposta.statusCode)
     }
 
     @Test
-    @DisplayName("Upload: nome do arquivo inválido = status 400 com mensagem de erro")
-    fun uploadAnexoNomeInvalido() {
-        val mockFile = MockMultipartFile(
-            "file",
-            null,
-            "text/plain",
-            "conteúdo".toByteArray()
-        )
+    @DisplayName("Download: anexo existente = status 200 e retorna bytes")
+    fun downloadAnexoExistente() {
+        val anexo = Anexo(idAnexo = 1, imagemAnexo = "conteúdo".toByteArray())
 
-        val resposta = controller.uploadAnexo(mockFile)
+        `when`(anexoService.buscar(1)).thenReturn(anexo)
 
-        assertEquals(400, resposta.statusCode.value())
-        assertEquals("Nome do arquivo inválido.", resposta.body)
+        val resposta = controller.download(1)
+
+        assertEquals(HttpStatus.OK, resposta.statusCode)
+        assertTrue(resposta.body!!.isNotEmpty())
     }
 
     @Test
-    @DisplayName("Remover: arquivo existente = status 204")
+    @DisplayName("Remover: anexo existente = status 204")
     fun removerAnexoExistente() {
-        val arquivo = uploadDir.resolve("para_remover.txt")
-        Files.createDirectories(uploadDir)
-        Files.write(arquivo, "teste".toByteArray())
+        doNothing().`when`(anexoService).deletar(1)
 
-        val resposta = controller.removerAnexo("para_remover.txt")
+        val resposta = controller.remover(1)
 
-        assertEquals(204, resposta.statusCode.value())
-        assertFalse(Files.exists(arquivo))
-    }
-
-    @Test
-    @DisplayName("Remover: arquivo não existente = status 404 com mensagem")
-    fun removerAnexoInexistente() {
-        val resposta = controller.removerAnexo("nao_existe.txt")
-
-        assertEquals(404, resposta.statusCode.value())
-        assertTrue(resposta.body!!.contains("não encontrado"))
+        assertEquals(HttpStatus.NO_CONTENT, resposta.statusCode)
+        verify(anexoService, times(1)).deletar(1)
     }
 }
