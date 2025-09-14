@@ -102,10 +102,10 @@ class UsuarioController (
             return ResponseEntity.status(400).body(null)
         if (novoUsuario.telefone.isNullOrBlank() || !novoUsuario.telefone!!.matches(Regex("^[0-9]{10,15}$")))
             return ResponseEntity.status(400).body(null)
-        if (repositorio.existsByEmailIgnoreCase(novoUsuario.email!!))
-            return ResponseEntity.status(409).build()
         if (novoUsuario.senha.isNullOrBlank() || novoUsuario.senha!!.length < 8)
             return ResponseEntity.status(400).body(null)
+        if (repositorio.existsByEmailIgnoreCase(novoUsuario.email!!))
+            return ResponseEntity.status(409).build()
 
         // Modificando o objeto recebido para evitar criar um novo desnecessariamente
         novoUsuario.senha = encoder.encode(novoUsuario.senha)

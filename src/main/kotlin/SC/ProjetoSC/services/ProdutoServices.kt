@@ -1,16 +1,17 @@
 package sc.projetosc.services
 
-import sc.projetosc.dto.RequestProdutoDTO
-import sc.projetosc.entity.Produto
-import sc.projetosc.repository.ProdutoRepository
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import sc.projetosc.entity.Produto
+import sc.projetosc.repository.ProdutoRepository
+import sc.projetosc.request.ProdutoRequest
 
 @Service
 class ProdutoServices (
     private val produtoRepository: ProdutoRepository
 ) {
-    fun criarProduto(requestProduto: RequestProdutoDTO): Produto {
+
+    fun criarProduto(requestProduto: ProdutoRequest): Produto {
         val produto = Produto(
             descricao = requestProduto.descricao,
             precoUnitario = requestProduto.precoUnitario,
@@ -24,7 +25,7 @@ class ProdutoServices (
         return produto
     }
 
-    fun atualizarProduto(id:Int, dto: RequestProdutoDTO): ResponseEntity<Any> {
+    fun atualizarProduto(id:Int, dto: ProdutoRequest): ResponseEntity<Any> {
         val produtoOpt = produtoRepository.findById(id)
         if (produtoOpt.isEmpty) return ResponseEntity.status(404).build()
 

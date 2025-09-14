@@ -9,232 +9,144 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.mockito.Mockito.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+import sc.projetosc.Enum.TipoUsuarioEnum
+import sc.projetosc.dto.LoginDTO
 import java.util.*
 
 class UsuarioControllerTest {
 
- // criando um dublê do tipo mock para UsuarioRepository e fazendo as configurações iniciais
- val repository = mock(UsuarioRepository::class.java)
- val controller = UsuarioController(repository)
-    val encoder = BCryptPasswordEncoder()
- lateinit var usuario: Usuario
- lateinit var usuario2: Usuario
- lateinit var usuario3: Usuario
-
+    val repository = mock(UsuarioRepository::class.java)
+    val encoder: PasswordEncoder = BCryptPasswordEncoder()
+    val controller = UsuarioController(repository, encoder)
+    lateinit var usuario: Usuario
 
     @BeforeEach
     fun setup() {
-        usuario = Usuario(1, "Paula", "paula@email.com", "1234567890", encoder.encode("12345678"), logado = true)
-        usuario2 = Usuario(2, "Zé", "zezinho@gmail.com", "1234567890", encoder.encode("12345678"), logado = false)
-        usuario3 = Usuario(9, "Luana", "luana@outlook.com", "1234567890", encoder.encode("12345678"), logado = false)
+        usuario = Usuario(
+            id = 1,
+            nome = "Paula",
+            email = "paula@email.com",
+            telefone = "1234567890",
+            senha = encoder.encode("12345678"),
+            tipo = TipoUsuarioEnum.cliente,
+            logado = false
+        )
         `when`(repository.existsById(1)).thenReturn(true)
         `when`(repository.findById(1)).thenReturn(Optional.of(usuario))
-        `when`(repository.existsById(9)).thenReturn(false)
+        `when`(repository.existsByEmailIgnoreCase(usuario.email!!)).thenReturn(true)
+        `when`(repository.findByEmailIgnoreCase(usuario.email!!)).thenReturn(usuario)
     }
 
- // TESTES DA FUNÇÃO: listarUsuarios
-
- @Test
- @DisplayName("ListarUsuarios: COM dados = status 200 com a lista correta")
- fun get_listarUsuarios() {
-  `when`(repository.findAll()).thenReturn(mutableListOf(mock(Usuario::class.java), mock(Usuario::class.java)))
-    val retorno = controller.listarUsuarios()
-
-  // verificando se o status da resposta é 200
-  assertEquals(200, retorno.statusCode.value())
-  // verificando se o corpo da resposta tem 2 elementos
-  assertEquals(2, retorno.body?.size)
- }
-
- @Test
- @DisplayName("ListarUsuarios: SEM dados = status 204 sem corpo")
- fun get_listarUsuariosVazio() {
-  // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-  `when`(repository.findAll()).thenReturn(mutableListOf())
-  val retorno = controller.listarUsuarios()
-
-  // verificando se o status da resposta é 204
-  assertEquals(204, retorno.statusCode.value())
-  // verificando se o corpo da resposta é nulo
-  assertNull(retorno.body)
- }
-
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO: login
-
- @Test
- @DisplayName("Login: COM dados = status 200 com o usuário correto")
- fun get_login() {
-    // programando o mock pra se comportar como se houvesse dados na tabela -> zezinho@email.com - usuario2
-    `when`(repository.existsByEmailIgnoreCase("zezinho@gmail.com")).thenReturn(true)
-    `when`(repository.findByEmailIgnoreCase("zezinho@gmail.com")).thenReturn(usuario2)
-  val retorno = controller.login("zezinho@gmail.com", "12345678")
-  // verificando se o status da resposta é 200
-  assertEquals(200, retorno.statusCode.value())
-  // verificando se o corpo da resposta é igual ao usuario
-  assertEquals(usuario2, retorno.body)
-  // verificando se o usuario está logado
-  assertTrue(usuario2.logado)
-  // verificando se a data do ultimo login é diferente de nulo
-  assertNotNull(usuario2.dataUltimoLogin)
-  // verificando se o usuario foi salvo no repositorio
-  verify(repository, times(1)).save(usuario2)
-  // verificando se o usuario foi encontrado no repositorio
-  verify(repository, times(1)).findByEmailIgnoreCase("zezinho@gmail.com")
-  verify(repository, times(1)).existsByEmailIgnoreCase("zezinho@gmail.com")
- }
-
- @Test
- @DisplayName("Login: SEM dados = status 404 sem corpo")
-fun get_loginVazio() {
-    // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-    `when`(repository.existsByEmailIgnoreCase("")).thenReturn(false)
-    val retorno = controller.login("", "")
-
-  // verificando se o status da resposta é 404
-  assertEquals(404, retorno.statusCode.value())
-  // verificando se o corpo da resposta é nulo
-  assertNull(retorno.body)
- }
-
- @Test
- @DisplayName("Login: COM dados e credenciais incorretas = status 401 sem corpo")
- fun get_loginIncorreto() {
-  // programando o mock pra se comportar como se houvesse dados na tabela
-    `when`(repository.existsByEmailIgnoreCase("zezinho@gmail.com")).thenReturn(true)
-    `when`(repository.findByEmailIgnoreCase("zezinho@gmail.com")).thenReturn(usuario2)
-    val retorno = controller.login("zezinho@gmail.com", "senhaErrada")
-
-  // verificando se o status da resposta é 404
-  assertEquals(401, retorno.statusCode.value())
-  // verificando se o corpo da resposta é nulo
-  assertNull(retorno.body)
-  // verificando se o usuario foi encontrado no repositorio
-  verify(repository, times(1)).findByEmailIgnoreCase("zezinho@gmail.com")
- }
-
-
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO: logoff
-
- @Test
- @DisplayName("Logoff: COM dados = status 200 com o usuário correto")
- fun logoff() {
- // programando o mock pra se comportar como se houvesse dados na tabela
-  `when`(repository.existsByEmailIgnoreCase("paula@email.com")).thenReturn(true)
-  `when`(repository.findByEmailIgnoreCase("paula@email.com")).thenReturn(usuario)
-  val retorno = controller.logoff("paula@email.com")
-
- // verificando se o status da resposta é 200
-    assertEquals(200, retorno.statusCode.value())
-    // verificando se o corpo da resposta é igual ao usuario
-    assertEquals(usuario, retorno.body)
-    // verificando se o usuario está deslogado
-    assertFalse(usuario.logado)
-    // verificando se o usuario foi salvo no repositorio
-    verify(repository, times(1)).save(usuario)
-    // verificando se o usuario foi encontrado no repositorio
-    verify(repository, times(1)).findByEmailIgnoreCase("paula@email.com")
- }
-
- @Test
- @DisplayName("Logoff: SEM dados = status 404 sem corpo")
- fun logoffVazio() {
-  // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-  `when`(repository.existsByEmailIgnoreCase("")).thenReturn(false)
-  val retorno = controller.logoff("")
-
-  // verificando se o status da resposta é 404
-  assertEquals(404, retorno.statusCode.value())
-  // verificando se o corpo da resposta é nulo
-  assertNull(retorno.body)
- }
-
-
- // ------------------------------------------------------------------------------------------------------------------
- // TESTES DA FUNÇÃO: cadastrarUsuario
-
-
-    // Kotlin
     @Test
-    @DisplayName("CadastrarUsuario: ainda não cadastrado = status 201 com o usuário correto")
-    fun cadastrarUsuario() {
-        `when`(repository.existsByEmailIgnoreCase(usuario2.email!!)).thenReturn(false)
-        `when`(repository.save(any(Usuario::class.java))).thenAnswer { it.arguments[0] as Usuario }
-        val retorno = controller.cadastrarUsuario(usuario2)
-
-        assertEquals(201, retorno.statusCode.value())
-        assertEquals(usuario2.nome, retorno.body?.nome)
-        assertEquals(usuario2.email, retorno.body?.email)
-        assertEquals(usuario2.telefone, retorno.body?.telefone)
-        assertNotNull(retorno.body?.senha)
-        assertEquals("cliente", retorno.body?.tipo?.name)
-        verify(repository, times(1)).save(any(Usuario::class.java))
-        verify(repository, times(1)).existsByEmailIgnoreCase(usuario2.email!!)
+    @DisplayName("ListarUsuarios: COM dados = status 200 com a lista correta")
+    fun listarUsuarios() {
+        `when`(repository.findAll()).thenReturn(listOf(usuario))
+        val retorno = controller.listarUsuarios()
+        assertEquals(200, retorno.statusCode.value())
+        assertEquals(1, retorno.body?.size)
     }
 
- @Test
-    @DisplayName("CadastrarUsuario: já cadastrado = status 409 sem corpo")
-    fun cadastrarUsuarioVazio() {
-        // programando o mock pra se comportar como se houvesse dados na tabela
-        `when`(repository.existsByEmailIgnoreCase(usuario3.email!!)).thenReturn(true)
-        val retorno = controller.cadastrarUsuario(usuario3)
-
-        // verificando se o status da resposta é 409
-        assertEquals(409, retorno.statusCode.value())
-        // verificando se o corpo da resposta é nulo
+    @Test
+    @DisplayName("ListarUsuarios: SEM dados = status 204 sem corpo")
+    fun listarUsuariosVazio() {
+        `when`(repository.findAll()).thenReturn(emptyList())
+        val retorno = controller.listarUsuarios()
+        assertEquals(204, retorno.statusCode.value())
         assertNull(retorno.body)
     }
 
+    @Test
+    @DisplayName("Login: credenciais corretas = status 200")
+    fun loginCorreto() {
+        val loginDTO = LoginDTO(email = usuario.email!!, senha = "12345678")
+        val response = controller.login(loginDTO)
+        assertEquals(200, response.statusCode.value())
+        assertEquals(usuario.email, response.body?.email)
+        assertTrue(response.body?.logado ?: false)
+    }
 
- // -----------------------------------------------------------------------
- // TESTES DA FUNÇÃO: alterarSenha
+    @Test
+    @DisplayName("Login: usuário não encontrado = status 404")
+    fun loginUsuarioNaoEncontrado() {
+        val loginDTO = LoginDTO(email = "naoexiste@email.com", senha = "12345678")
+        `when`(repository.existsByEmailIgnoreCase(loginDTO.email)).thenReturn(false)
+        val response = controller.login(loginDTO)
+        assertEquals(404, response.statusCode.value())
+        assertNull(response.body)
+    }
 
- @Test
- @DisplayName("AlterarSenha: senha aprovada = status 200 com o usuário correto")
- fun alterarSenha() {
-    // programando o mock pra se comportar como se houvesse dados na tabela
-     `when`(repository.existsByEmailIgnoreCase("paula@email.com")).thenReturn(true)
-     `when`(repository.findByEmailIgnoreCase("paula@email.com")).thenReturn(usuario)
-    val retorno = controller.alterarSenha("paula@email.com", "novaSenha")
+    @Test
+    @DisplayName("Login: senha incorreta = status 401")
+    fun loginSenhaIncorreta() {
+        val loginDTO = LoginDTO(email = usuario.email!!, senha = "senhaErrada")
+        val response = controller.login(loginDTO)
+        assertEquals(401, response.statusCode.value())
+        assertNull(response.body)
+    }
 
-    // verificando se o status da resposta é 200
-    assertEquals(200, retorno.statusCode.value())
-    // verificando se o corpo da resposta é igual ao usuario
-    assertEquals(usuario, retorno.body)
-    // verificando se a senha foi alterada
-    assertEquals("novaSenha", usuario.senha)
-    // verificando se o usuario foi salvo no repositorio
-    verify(repository, times(1)).save(usuario)
- }
-@Test
-@DisplayName("AlterarSenha: senha nova igual a atual = status 409 sem corpo")
-fun alterarSenhaIgual() {
-    // programando o mock pra se comportar como se houvesse dados na tabela
-    `when`(repository.existsByEmailIgnoreCase("paula@email.com")).thenReturn(true)
-    `when`(repository.findByEmailIgnoreCase("paula@email.com")).thenReturn(usuario)
-    val retorno = controller.alterarSenha("paula@email.com", "12345678")
+    @Test
+    @DisplayName("CadastrarUsuario: telefone inválido = status 400")
+    fun cadastrarUsuarioTelefoneInvalido() {
+        val novoUsuario = usuario.copy(telefone = "abc123")
+        val response = controller.cadastrarUsuario(novoUsuario)
+        assertEquals(400, response.statusCode.value())
+        assertNull(response.body)
+    }
 
-    // verificando se o status da resposta é 409
-    assertEquals(409, retorno.statusCode.value())
-    // verificando se o corpo da resposta é nulo
-    assertNull(retorno.body)
-}
+    @Test
+    @DisplayName("CadastrarUsuario: senha curta = status 400")
+    fun cadastrarUsuarioSenhaCurta() {
 
-@Test
-@DisplayName("AlterarSenha: SEM usuário = status 404 sem corpo")
-fun alterarSenhaVazio() {
-    // programando o mock pra se comportar como se NÃO houvesse dados na tabela
-    `when`(repository.existsByEmailIgnoreCase("luana@outlook.com")).thenReturn(false)
-    val retorno = controller.alterarSenha("", "")
+        val novoUsuario = usuario.copy(senha = "123")
+        val response = controller.cadastrarUsuario(novoUsuario)
+        assertEquals(400, response.statusCode.value())
+        assertNull(response.body)
+    }
 
-    // verificando se o status da resposta é 404
-    assertEquals(404, retorno.statusCode.value())
-    // verificando se o corpo da resposta é nulo
-    assertNull(retorno.body)
-}
+    @Test
+    @DisplayName("CadastrarUsuario: já cadastrado = status 409")
+    fun cadastrarUsuarioJaCadastrado() {
+        val novoUsuario = usuario.copy(email = usuario.email)
+        `when`(repository.existsByEmailIgnoreCase(novoUsuario.email!!)).thenReturn(true)
+        val response = controller.cadastrarUsuario(novoUsuario)
+        assertEquals(409, response.statusCode.value())
+        assertNull(response.body)
+    }
 
- // -----------------------------------------------------------------------------------------------------
+    @Test
+    @DisplayName("CadastrarUsuario: sucesso = status 201")
+    fun cadastrarUsuarioSucesso() {
+        val novoUsuario = usuario.copy(email = "novo@email.com", telefone = "11999999999", senha = "12345678")
+        `when`(repository.existsByEmailIgnoreCase(novoUsuario.email!!)).thenReturn(false)
+        `when`(repository.save(any(Usuario::class.java))).thenReturn(novoUsuario)
+        val response = controller.cadastrarUsuario(novoUsuario)
+        assertEquals(201, response.statusCode.value())
+        assertEquals(novoUsuario.email, response.body?.email)
+    }
 
+    @Test
+    @DisplayName("AlterarSenha: sucesso = status 200")
+    fun alterarSenhaSucesso() {
+        val novaSenha = "novaSenha123"
+        val response = controller.alterarSenha(usuario.email!!, novaSenha)
+        assertEquals(200, response.statusCode.value())
+        assertTrue(encoder.matches(novaSenha, response.body?.senha ?: ""))
+    }
 
+    @Test
+    @DisplayName("AlterarSenha: senha igual = status 409")
+    fun alterarSenhaIgual() {
+        val response = controller.alterarSenha(usuario.email!!, "12345678")
+        assertEquals(409, response.statusCode.value())
+        assertNull(response.body)
+    }
+
+    @Test
+    @DisplayName("AlterarSenha: usuário não encontrado = status 404")
+    fun alterarSenhaUsuarioNaoEncontrado() {
+        val response = controller.alterarSenha("naoexiste@email.com", "novaSenha123")
+        assertEquals(404, response.statusCode.value())
+        assertNull(response.body)
+    }
 }

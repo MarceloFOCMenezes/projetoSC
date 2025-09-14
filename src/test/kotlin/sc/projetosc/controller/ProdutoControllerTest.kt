@@ -1,7 +1,8 @@
 package sc.projetosc.controller
 
+
 import sc.projetosc.Enum.UnidadeMedidaEnum
-import sc.projetosc.dto.RequestProdutoDTO
+
 import sc.projetosc.entity.Produto
 import sc.projetosc.repository.ProdutoRepository
 import sc.projetosc.services.ProdutoServices
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import sc.projetosc.request.ProdutoRequest
 import java.math.BigDecimal
 import java.util.*
 
@@ -40,7 +42,7 @@ class ProdutoControllerTest {
  @Test
  @DisplayName("criarProduto: COM dados = status 201 com o produto criado")
  fun criarProduto() {
-  val dto = RequestProdutoDTO(
+  val dto = ProdutoRequest(
    descricao = "Produto Teste",
    precoUnitario = BigDecimal("10.50"),
    categoria = "Bebida",
@@ -71,7 +73,7 @@ class ProdutoControllerTest {
  @Test
  @DisplayName("atualizarProduto: produto encontrado = status 200 com produto atualizado")
  fun atualizarProduto_sucesso() {
-  val dto = RequestProdutoDTO(
+  val dto = ProdutoRequest(
    descricao = "Produto Novo",
    precoUnitario = BigDecimal("10.00"),
    categoria = "Bebida",
@@ -100,7 +102,7 @@ class ProdutoControllerTest {
  @Test
  @DisplayName("atualizarProduto: produto não encontrado = status 404 sem corpo")
  fun atualizarProduto_naoEncontrado() {
-  val dto = RequestProdutoDTO(
+  val dto = ProdutoRequest(
    descricao = "Produto Novo",
    precoUnitario = BigDecimal("10.00"),
    categoria = "Bebida",

@@ -1,6 +1,6 @@
-package sc.projetosc.dto
+package sc.projetosc.request
 
-data class RequestEnderecoDTO(
+data class EnderecoRequest(
     val idEndereco:Int? = null,
     val nomeEndereco: String? = null,
     val cep: String? = null,

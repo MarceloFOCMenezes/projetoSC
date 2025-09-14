@@ -1,7 +1,8 @@
 package sc.projetosc.controller
 
+
 import sc.projetosc.services.IngredienteServices
-import sc.projetosc.dto.RequestIngredienteDto
+import sc.projetosc.request.IngredienteRequest
 import sc.projetosc.entity.Ingrediente
 import sc.projetosc.repository.IngredienteRepository
 import io.swagger.v3.oas.annotations.Operation
@@ -30,7 +31,7 @@ class IngredienteController(
     @PostMapping
     @Operation(summary = "Criar um novo ingrediente", description = "Cria um novo ingrediente no sistema com as informações fornecidas.")
     @ApiResponse(responseCode = "201", description = "Ingrediente criado com sucesso. O corpo da resposta contém os dados do ingrediente criado.")
-    fun criarIngrediente(@RequestBody novoIngrediente: RequestIngredienteDto): ResponseEntity<Any> {
+    fun criarIngrediente(@RequestBody novoIngrediente: IngredienteRequest): ResponseEntity<Any> {
         val ingrediente = ingredienteServices.criarIngrediente(novoIngrediente)
         return ResponseEntity.status(201).body(ingrediente)
     }
@@ -41,7 +42,7 @@ class IngredienteController(
         ApiResponse(responseCode = "200", description = "Ingrediente atualizado com sucesso. O corpo da resposta contém os dados do ingrediente atualizado"),
         ApiResponse(responseCode = "404", description = "Ingrediente não encontrado. O corpo da resposta estará vazio.")
     ])
-    fun atualizarIngrediente(@PathVariable id: Int, @RequestBody @Valid ingredienteAtualizado: RequestIngredienteDto): ResponseEntity<Any> {
+    fun atualizarIngrediente(@PathVariable id: Int, @RequestBody @Valid ingredienteAtualizado: IngredienteRequest): ResponseEntity<Any> {
         return ingredienteServices.atualizarIngrediente(id, ingredienteAtualizado)
     }
 
@@ -52,7 +53,7 @@ class IngredienteController(
         ApiResponse(responseCode = "404", description = "Ingrediente não encontrado. O corpo da resposta estará vazio.")
     ])
     fun atualizarStatusIngrediente(@PathVariable id: Int): ResponseEntity<Any> {
-        return ingredienteServices.atualizarIngrediente(id, RequestIngredienteDto())
+        return ingredienteServices.atualizarIngrediente(id, IngredienteRequest())
     }
 
     @GetMapping

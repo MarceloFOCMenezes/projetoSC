@@ -1,7 +1,8 @@
 package sc.projetosc.controller
 
+
 import sc.projetosc.services.IngredienteServices
-import sc.projetosc.dto.RequestIngredienteDto
+import sc.projetosc.request.IngredienteRequest
 import sc.projetosc.entity.Ingrediente
 import sc.projetosc.entity.TipoIngrediente
 import sc.projetosc.repository.IngredienteRepository
@@ -45,11 +46,11 @@ class IngredienteControllerTest {
             ativo = true,
             tipoIngrediente = tipoIngrediente
         )
-        val dto = RequestIngredienteDto(
+        val dto = IngredienteRequest(
             idTipoIngrediente = 1,
             nome = "Recheio de Jujuba",
             is_premium = true,
-            Ativo = true
+            ativo = true
         )
         `when`(tipoIngredienteRepository.findById(1)).thenReturn(java.util.Optional.of(tipoIngrediente))
         `when`(repository.save(any(Ingrediente::class.java))).thenReturn(ingredienteCriado)
@@ -70,11 +71,11 @@ class IngredienteControllerTest {
     @Test
     @DisplayName("Testando atualização de ingrediente com status 200")
     fun atualizarIngrediente() {
-        val dto = RequestIngredienteDto(
+        val dto = IngredienteRequest(
             idTipoIngrediente = 2,
             nome = "Recheio de Jujuba Atualizado",
             is_premium = true,
-            Ativo = true
+            ativo = true
         )
         `when`(repository.findById(1)).thenReturn(java.util.Optional.of(ingrediente))
         `when`(repository.save(any(Ingrediente::class.java))).thenAnswer { it.getArgument(0) }
