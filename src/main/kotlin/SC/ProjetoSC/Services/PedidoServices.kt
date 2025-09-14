@@ -87,7 +87,7 @@ class PedidoServices(
         }
         return pedidoAtual
     }
-
+// todo: add endpoint pra esse metodo, que será usado na tela de listar pedidos para aceitar/recusar da confeiteira
     fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
         val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(idStatusPedido)
         return listarPedido(pedidos)
@@ -107,6 +107,7 @@ class PedidoServices(
 
 
 
+// todo: add endpoint pra esse metodo, que será usado quando a confeiteira seleciona um pedido para ver os detalhes
 
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }

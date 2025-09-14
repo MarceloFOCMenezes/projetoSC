@@ -15,7 +15,7 @@ class EnderecoServices(
     fun criarEndereco(requestEndereco: RequestEnderecoDTO): Endereco {
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }
         val endereco = Endereco(
-            idEndereco = requestEndereco.idEndereco ?: 0,
+            idEndereco = requestEndereco.idEndereco ?: null,
             nomeEndereco = requestEndereco.nomeEndereco ?: "",
             cep = requestEndereco.cep ?: "",
             logradouro = requestEndereco.logradouro ?: "",
