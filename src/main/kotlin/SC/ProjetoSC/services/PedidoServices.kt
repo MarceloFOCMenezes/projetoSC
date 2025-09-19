@@ -23,7 +23,8 @@ class PedidoServices(
     private val ingredienteRepository: IngredienteRepository,
     private val usuarioRepository: UsuarioRepository,
     private val EnderecoRepository: EnderecoRepository,
-    private val googleCalendarServices: GoogleCalendarServices
+    private val googleCalendarServices: GoogleCalendarServices,
+    private val anexoRepository: AnexoRepository
 ) {
 
 
@@ -156,6 +157,7 @@ class PedidoServices(
             val produto = produtoRepository.findById(adicionarItemPedidoRequest.idProduto!!).orElseThrow { Exception("Produto não encontrado") }
 
             val itemPedido = ItemPedido(
+                preco = adicionarItemPedidoRequest.preco,
                 pedido = pedido,
                 produto = produto,
                 quantidade = adicionarItemPedidoRequest.quantidade // Defina a quantidade padrão como 1, ou ajuste conforme necessário
@@ -165,10 +167,12 @@ class PedidoServices(
 
             if(produto.temIngrediente!!){
                 if(adicionarItemPedidoRequest.informacaoBolo != null) {
+                    val anexo: Anexo = anexoRepository.findById(adicionarItemPedidoRequest.informacaoBolo.anexo!!).orElseThrow{ Exception("Anexo não encontrado") }
                     val informacaoBolo = InformacaoBolo(
                         idItemPedido = itemPedido.idItemPedido!!,
                         tema = adicionarItemPedidoRequest.informacaoBolo?.tema,
                         detalhes = adicionarItemPedidoRequest.informacaoBolo?.detalhes,
+                        anexo = anexo
                     )
                     informacaoBoloRepository.save(informacaoBolo)
 
