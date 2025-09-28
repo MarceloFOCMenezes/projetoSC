@@ -6,4 +6,4 @@ import sc.projetosc.entity.Anexo
 
 
 @Repository
-interface AnexoRepository : JpaRepository<Anexo, Int>
+interface AnexoRepository : JpaRepository<Anexo, Int>{}
