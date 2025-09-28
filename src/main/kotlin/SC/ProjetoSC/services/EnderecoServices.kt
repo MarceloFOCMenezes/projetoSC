@@ -14,9 +14,10 @@ class EnderecoServices(
     private val usuarioRepository: UsuarioRepository
 ) {
     fun criarEndereco(requestEndereco: EnderecoRequest): Endereco {
+        try {
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }
         val endereco = Endereco(
-            idEndereco = requestEndereco.idEndereco ?: null,
+            idEndereco = null, // Para criação, sempre null para gerar automaticamente
             nomeEndereco = requestEndereco.nomeEndereco ?: "",
             cep = requestEndereco.cep ?: "",
             logradouro = requestEndereco.logradouro ?: "",
@@ -30,6 +31,9 @@ class EnderecoServices(
             ativo = requestEndereco.ativo ?: true
         )
         return enderecoRepository.save(endereco)
+        } catch (e: Exception) {
+            throw Exception("Erro ao criar endereço: ${e.message}")
+        }
     }
 
     fun atualizarEndereco(id: Int, requestEndereco: EnderecoRequest): ResponseEntity<Any> {
