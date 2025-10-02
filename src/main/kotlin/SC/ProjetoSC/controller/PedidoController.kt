@@ -46,6 +46,8 @@ class PedidoController(
     }
 
 
+
+
     @PatchMapping("/alterarStatus/{idPedido}/status/{idStatus}")
     @Operation(summary = "Atualizar status do pedido", description = "Atualiza o status de um pedido específico.")
     @ApiResponses(value = [

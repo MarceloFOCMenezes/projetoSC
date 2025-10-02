@@ -53,7 +53,7 @@ class IngredienteController(
         ApiResponse(responseCode = "404", description = "Ingrediente não encontrado. O corpo da resposta estará vazio.")
     ])
     fun atualizarStatusIngrediente(@PathVariable id: Int): ResponseEntity<Any> {
-        return ingredienteServices.atualizarIngrediente(id, IngredienteRequest())
+        return ingredienteServices.atualizarStatusIngrediente(id)
     }
 
     @GetMapping
@@ -90,6 +90,21 @@ class IngredienteController(
             ResponseEntity.status(204).build()
         } else {
             ResponseEntity.status(200).body(ingredientes)
+        }
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar ingrediente por ID", description = "Retorna um ingrediente específico pelo seu ID.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Ingrediente encontrado com sucesso."),
+        ApiResponse(responseCode = "404", description = "Ingrediente não encontrado.")
+    ])
+    fun buscarIngredientePorId(@PathVariable id: Int): ResponseEntity<Ingrediente> {
+        val ingredienteOpt = repositorio.findById(id)
+        return if (ingredienteOpt.isPresent) {
+            ResponseEntity.status(200).body(ingredienteOpt.get())
+        } else {
+            ResponseEntity.status(404).build()
         }
     }
 

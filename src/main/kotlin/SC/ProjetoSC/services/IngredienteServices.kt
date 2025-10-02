@@ -44,13 +44,19 @@ class IngredienteServices(
 
 
     fun atualizarStatusIngrediente(id: Int): ResponseEntity<Any>{
+
         val ingredienteOpt = ingredienteRepository.findById(id)
-        if (ingredienteOpt.isEmpty) return ResponseEntity.status(404).build()
+        if (ingredienteOpt.isEmpty) {
+            return ResponseEntity.status(404).build()
+        }
 
         val ingrediente = ingredienteOpt.get()
+        val statusAnterior = ingrediente.ativo
         val novoStatus = !(ingrediente.ativo)
+
         val ingredienteAtualizado = ingrediente.copy(ativo = novoStatus)
         ingredienteRepository.save(ingredienteAtualizado)
+        
         return ResponseEntity.status(200).body(ingredienteAtualizado)
     }
 
