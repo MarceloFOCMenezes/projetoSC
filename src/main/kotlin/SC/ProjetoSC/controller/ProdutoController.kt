@@ -50,6 +50,17 @@ class ProdutoController(
         return produtoServices.atualizarStatusProduto(id)
     }
 
+    @GetMapping("getEssenciais")
+    @Operation(summary = "Listar produtos essenciais", description = "Retorna uma lista com todos os produtos essenciais registrados no sistema.")
+    fun listarProdutosEssenciais(): ResponseEntity<List<Produto>> {
+        val produtos = produtoServices.listarProdutosEssenciais()
+        return if (produtos.isEmpty()) {
+            ResponseEntity.status(204).build()
+        } else {
+            ResponseEntity.status(200).body(produtos)
+        }
+    }
+
     @GetMapping
     @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista com todos os produtos registrados no sistema.")
     @ApiResponses(value = [

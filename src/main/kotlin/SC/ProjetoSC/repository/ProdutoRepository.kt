@@ -18,4 +18,7 @@ interface ProdutoRepository: JpaRepository<Produto, Int> {
 
     //listar produtos com filtro de nome e somente inativos
     fun findByDescricaoContainsIgnoreCaseAndAtivoFalse(descricao: String): List<Produto>
+
+    fun findByCategoriaIgnoreCase(categoria: String): List<Produto>
+
 }

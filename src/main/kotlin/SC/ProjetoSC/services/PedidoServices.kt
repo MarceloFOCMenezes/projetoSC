@@ -169,6 +169,8 @@ class PedidoServices(
                         idItemPedido = itemPedido.idItemPedido!!,
                         tema = adicionarItemPedidoRequest.informacaoBolo?.tema,
                         detalhes = adicionarItemPedidoRequest.informacaoBolo?.detalhes,
+                        anexo = null
+
                     )
                     informacaoBoloRepository.save(informacaoBolo)
 

@@ -14,6 +14,7 @@ data class ItemPedido(
     @Column(name = "id_item_pedido", nullable = false, unique = true)
     val idItemPedido: Int? = null,
 
+
     @field:NotNull(message = "O pedido respectivo é obrigatório.")
     @Schema(description = "FK do pedido respectivo")
     @ManyToOne
@@ -29,4 +30,7 @@ data class ItemPedido(
     @field:NotNull(message = "A quantidade do produto é obrigatória.")
     @Schema(description = "Quantidade do produto no item do pedido")
     val quantidade: Int? = null,
+
+    @Schema(description = "Preco do item do pedido")
+    val preco_item_pedido: Double? = null,
 ){}

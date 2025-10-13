@@ -43,6 +43,10 @@ class ProdutoServices (
         return ResponseEntity.status(200).body(produtoAtt)
     }
 
+    fun listarProdutosEssenciais(): List<Produto> {
+        return produtoRepository.findByCategoriaIgnoreCase("Essencial")
+    }
+
     fun atualizarStatusProduto(id:Int): ResponseEntity<Any> {
         val produtoOpt = produtoRepository.findById(id)
         if (produtoOpt.isEmpty) return ResponseEntity.status(404).build()

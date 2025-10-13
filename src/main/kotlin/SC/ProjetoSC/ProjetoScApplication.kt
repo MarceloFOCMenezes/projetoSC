@@ -12,12 +12,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import java.awt.Desktop
 import java.net.URI
 
+
 @SpringBootApplication
 class ProjetoScApplication
 
 fun main(args: Array<String>) {
 	runApplication<ProjetoScApplication>(*args)
 }
+
+
 @Component
 class SwaggerOpener {
 	@EventListener(ApplicationReadyEvent::class)
@@ -31,7 +34,6 @@ class SwaggerOpener {
 		}
 	}
 }
-
 @Configuration
 class CorsConfig {
 	@Bean
@@ -39,11 +41,11 @@ class CorsConfig {
 		return object : WebMvcConfigurer {
 			override fun addCorsMappings(registry: CorsRegistry) {
 				registry.addMapping("/**")
-					.allowedOrigins("http://localhost:5173")
+					.allowedOrigins("http://localhost:5173", "http://localhost:5174")
 					.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 					.allowedHeaders("*")
+					.allowCredentials(true)
 			}
 		}
 	}
 }
-
