@@ -23,7 +23,8 @@ class PedidoServices(
     private val ingredienteRepository: IngredienteRepository,
     private val usuarioRepository: UsuarioRepository,
     private val EnderecoRepository: EnderecoRepository,
-    private val googleCalendarServices: GoogleCalendarServices
+    private val googleCalendarServices: GoogleCalendarServices,
+    private val anexoRepository: AnexoRepository
 ) {
 
 
@@ -169,8 +170,6 @@ class PedidoServices(
                         idItemPedido = itemPedido.idItemPedido!!,
                         tema = adicionarItemPedidoRequest.informacaoBolo?.tema,
                         detalhes = adicionarItemPedidoRequest.informacaoBolo?.detalhes,
-                        anexo = null
-
                     )
                     informacaoBoloRepository.save(informacaoBolo)
 

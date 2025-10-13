@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.PositiveOrZero
+import jakarta.validation.constraints.Size
+import java.math.BigDecimal
 
 @Table(name = "item_pedido")
 @Entity
@@ -26,6 +29,10 @@ data class ItemPedido(
     @ManyToOne
     @JoinColumn(name = "fk_produto", nullable = false)
     val produto: Produto? = null,
+
+    @field:PositiveOrZero(message = "O preço unitário deve ser zero ou positivo.")
+    @Column(name = "preco")
+    val preco: Double? = 0.0,
 
     @field:NotNull(message = "A quantidade do produto é obrigatória.")
     @Schema(description = "Quantidade do produto no item do pedido")

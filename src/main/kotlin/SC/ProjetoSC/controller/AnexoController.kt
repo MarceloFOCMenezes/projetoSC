@@ -25,12 +25,12 @@ class AnexoController(
         ApiResponse(responseCode = "400", description = "Arquivo vazio ou inválido"),
         ApiResponse(responseCode = "500", description = "Erro interno ao processar o upload")
     ])
-    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<Anexo> {
+    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<Int> {
         if (file.isEmpty) {
             return ResponseEntity.badRequest().build()
         }
         val anexo = anexoService.salvar(file)
-        return ResponseEntity.status(201).body(anexo)
+        return ResponseEntity.status(201).body(anexo.idAnexo)
     }
 
     @GetMapping("/{id}")
