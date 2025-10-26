@@ -9,17 +9,6 @@ data class ItemPedidoResponse(
     val precoUnitario: Double? = null,
     val informacaoBolo: InformacaoBolo? = null,
     val ingredientes: List<ItemPedidoIngredienteResponse>? = null,
-
-
-
-
-
-
-
-
-
-
-    
     val precoItem: Double? = null
     ) {
 

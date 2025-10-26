@@ -65,7 +65,7 @@ data class Pedido(
     @Schema(description = "FK do status atual do pedido")
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
-    var formaPagamento:FormaPagamentoEnum? = null,
+    var formaPagamento:FormaPagamentoEnum? = FormaPagamentoEnum.pix,
 
 
     )

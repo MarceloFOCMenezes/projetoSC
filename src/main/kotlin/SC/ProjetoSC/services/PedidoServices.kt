@@ -58,7 +58,8 @@ class PedidoServices(
                         precoUnitario = produtoRepository.findById(item.produto?.idProduto ?: 0)
                             .orElse(null)?.precoUnitario?.toDouble(),
                         informacaoBolo = informacaoBolo,
-                        ingredientes = listaIngredientes
+                        ingredientes = listaIngredientes,
+                        precoItem = item.preco
                     )
                 )
             }
@@ -159,17 +160,21 @@ class PedidoServices(
             val itemPedido = ItemPedido(
                 pedido = pedido,
                 produto = produto,
-                quantidade = adicionarItemPedidoRequest.quantidade // Defina a quantidade padrão como 1, ou ajuste conforme necessário
+                quantidade = adicionarItemPedidoRequest.quantidade, // Defina a quantidade padrão como 1, ou ajuste conforme necessário
+                preco = adicionarItemPedidoRequest.preco,
             )
             pedido.precoTotal = pedido.precoTotal?.plus(produto.precoUnitario!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
             itemPedidoRepository.save(itemPedido)
 
             if(produto.temIngrediente!!){
                 if(adicionarItemPedidoRequest.informacaoBolo != null) {
+                    val anexoId = adicionarItemPedidoRequest.informacaoBolo.anexo
+                    val anexoAtual = anexoRepository.findById(anexoId!!).orElseThrow{Exception("Anexo não encontrado")}
                     val informacaoBolo = InformacaoBolo(
                         idItemPedido = itemPedido.idItemPedido!!,
                         tema = adicionarItemPedidoRequest.informacaoBolo?.tema,
                         detalhes = adicionarItemPedidoRequest.informacaoBolo?.detalhes,
+                        anexo = anexoAtual
                     )
                     informacaoBoloRepository.save(informacaoBolo)
 
