@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
 import sc.projetosc.Enum.TipoUsuarioEnum
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 /*
@@ -46,7 +47,6 @@ data class Usuario(
     @Column(name = "senha_usuario")
     var senha: String? = null,
 
-
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
     @Enumerated(EnumType.STRING) // para armazenar o valor como string no banco de dados
     @Column(name = "tipo_usuario", nullable = false)
@@ -58,7 +58,13 @@ data class Usuario(
 
     @Schema(description = "Data e hora do último login do usuário")
     @Column(name = "data_ultimo_login")
-    var dataUltimoLogin: LocalDateTime? = null
+    var dataUltimoLogin: LocalDateTime? = null,
+
+    @Column(name = "data_nascimento") // Mapeia para a coluna do banco de dados
+    var dataNascimento: LocalDate? = null,
+
+    @Column(name = "avatar_url") // Mapeia para a coluna do banco de dados
+    var avatarUrl: String? = null
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades

@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZoneId
 
-@Service
+// @Service
 class GoogleCalendarServices (
     private val calendar: com.google.api.services.calendar.Calendar,
     private val itemPedidoRepository: ItemPedidoRepository,

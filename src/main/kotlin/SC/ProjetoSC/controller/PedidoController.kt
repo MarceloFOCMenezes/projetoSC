@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 import sc.projetosc.services.GoogleCalendarServices
 
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
-@RestController
+// @RestController
 @RequestMapping("/pedidos")
 class PedidoController(
     val repositorio: PedidoRepository,

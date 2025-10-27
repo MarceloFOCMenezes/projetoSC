@@ -1,5 +1,6 @@
 package sc.projetosc.controller
 
+import sc.projetosc.dto.UsuarioProfileDTO
 import sc.projetosc.entity.Usuario
 import sc.projetosc.repository.UsuarioRepository
 import sc.projetosc.Enum.TipoUsuarioEnum
@@ -17,6 +18,7 @@ import java.time.LocalDateTime
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import sc.projetosc.dto.LoginDTO
+import sc.projetosc.repository.PedidoRepository
 
 @Tag(name = "Usuários", description = "Operações relacionadas aos usuários do sistema")
 @RestController
@@ -24,7 +26,8 @@ import sc.projetosc.dto.LoginDTO
 @CrossOrigin(origins = ["http://localhost:5173"])
 class UsuarioController (
     val repositorio: UsuarioRepository,
-    val encoder: PasswordEncoder
+    val encoder: PasswordEncoder,
+    val pedidoRepositorio: PedidoRepository // Adicionada
 ) {
     @GetMapping
     @Operation(summary = "Listar todos os usuários", description = "Retorna uma lista com todos os usuários registrados no sistema.")
@@ -41,6 +44,34 @@ class UsuarioController (
         } else {
             ResponseEntity.status(200).body(usuarios)
         }
+    }
+
+    // Em UsuarioController.kt
+
+    // Adicionado o endpoint para buscar perfil por ID
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar perfil do usuário por ID", description = "Retorna os dados do perfil de um usuário específico, incluindo a contagem de pedidos.")
+    fun buscarPerfilPorId(@PathVariable id: Int): ResponseEntity<UsuarioProfileDTO> {
+        return repositorio.findById(id)
+            .map { usuario -> // Se o usuário for encontrado...
+                // Conta os pedidos para este usuário usando o PedidoRepository
+                val totalPedidos = pedidoRepositorio.countByUsuarioId(usuario.id!!)
+                // Cria o DTO com os dados do usuário e a contagem
+                val profileDTO = UsuarioProfileDTO(
+                    id = usuario.id,
+                    nome = usuario.nome,
+                    email = usuario.email,
+                    telefone = usuario.telefone,
+                    dataNascimento = usuario.dataNascimento,
+                    avatarUrl = usuario.avatarUrl,
+                    dataUltimoLogin = usuario.dataUltimoLogin,
+                    totalPedidos = totalPedidos // Adiciona a contagem ao DTO
+                )
+                ResponseEntity.ok(profileDTO)
+            }
+            .orElseGet {
+                ResponseEntity.notFound().build()
+            }
     }
 
     @PostMapping("/login")
@@ -172,6 +203,8 @@ class UsuarioController (
             usuarioExistente.nome = novosDados.nome ?: usuarioExistente.nome
             usuarioExistente.email = novosDados.email ?: usuarioExistente.email
             usuarioExistente.telefone = novosDados.telefone ?: usuarioExistente.telefone
+            usuarioExistente.dataNascimento = novosDados.dataNascimento ?: usuarioExistente.dataNascimento
+            usuarioExistente.avatarUrl = novosDados.avatarUrl ?: usuarioExistente.avatarUrl
 
             repositorio.save(usuarioExistente)
             ResponseEntity.ok(usuarioExistente)
@@ -179,6 +212,8 @@ class UsuarioController (
             ResponseEntity.notFound().build()
         }
     }
+
+
 
 
 }

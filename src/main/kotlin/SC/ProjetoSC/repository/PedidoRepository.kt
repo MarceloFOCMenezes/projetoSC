@@ -25,6 +25,9 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
     fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
 
+    // --- ADICIONADA ESTA FUNÇÃO ---
+    // Conta quantos Pedidos existem para um determinado fkUsuario
+    fun countByUsuarioId(usuarioId: Int): Long
 
     @Query("""
         UPDATE Pedido p

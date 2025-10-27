@@ -12,7 +12,7 @@ import sc.projetosc.repository.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@Service
+// @Service
 class PedidoServices(
     private val pedidoRepository: PedidoRepository,
     private val itemPedidoRepository: ItemPedidoRepository,

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 import sc.projetosc.services.GoogleCalendarServices
 
 @Tag(name = "Calendário", description = "Operações relacionadas ao Google Calendar para agendamentos de pedidos personalizados")
-@RestController
+// @RestController
 @RequestMapping("/calendario")
 class GoogleCalendarController (
     private val calendarService: GoogleCalendarServices,
