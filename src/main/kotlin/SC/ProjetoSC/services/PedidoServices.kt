@@ -38,6 +38,7 @@ class PedidoServices(
                 val produto = item.produto
                 var informacaoBolo: InformacaoBolo? = null
 
+
                 if (produto?.temIngrediente == true) {
                     informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null)
                     val ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
@@ -163,7 +164,7 @@ class PedidoServices(
                 quantidade = adicionarItemPedidoRequest.quantidade, // Defina a quantidade padrão como 1, ou ajuste conforme necessário
                 preco = adicionarItemPedidoRequest.preco,
             )
-            pedido.precoTotal = pedido.precoTotal?.plus(produto.precoUnitario!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
+
             itemPedidoRepository.save(itemPedido)
 
             if(produto.temIngrediente!!){
