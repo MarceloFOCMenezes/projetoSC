@@ -1,4 +1,4 @@
-package SC.ProjetoSC.Dto
+package sc.projetosc.dto
 
 import java.time.LocalDate
 import java.time.LocalDateTime
