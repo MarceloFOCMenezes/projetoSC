@@ -4,6 +4,7 @@ import sc.projetosc.Response.ItemPedidoIngredienteResponse
 import sc.projetosc.entity.InformacaoBolo
 
 data class ItemPedidoResponse(
+    val idItemPedido: Int? = null,
     val descricao: String? = null,
     val quantidade: Int? = null,
     val precoUnitario: Double? = null,

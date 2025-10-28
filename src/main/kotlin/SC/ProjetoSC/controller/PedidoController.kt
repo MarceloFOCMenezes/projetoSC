@@ -45,6 +45,17 @@ class PedidoController(
         }
     }
 
+    @DeleteMapping("/desabilitarItemPedido/{idItemPedido}")
+    @Operation(summary = "Desabilitar Item Pedido", description = "Desabilita um item do pedido específico.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Item do pedido desabilitado com sucesso."),
+        ApiResponse(responseCode = "204", description = "Nenhum item do pedido encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun desabilidarItemPedido(@PathVariable idItemPedido: Int): ResponseEntity<Void> {
+        pedidoServices.desabilitarItemPedido(idItemPedido)
+        return ResponseEntity.status(HttpStatus.OK).build()
+    }
+
 
 
 

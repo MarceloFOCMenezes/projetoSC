@@ -37,4 +37,7 @@ data class ItemPedido(
     @field:NotNull(message = "A quantidade do produto é obrigatória.")
     @Schema(description = "Quantidade do produto no item do pedido")
     val quantidade: Int? = null,
+
+    @Schema(description = "Se o item do pedido está ativo")
+    var ativo: Boolean? = null,
 ){}

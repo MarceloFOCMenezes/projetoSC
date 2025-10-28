@@ -31,13 +31,13 @@ class PedidoServices(
     private fun listarPedido(listaPedidos: List<Pedido>): List<PedidoResponse> {
         return listaPedidos.map { pedido ->
             val listaItensPedido = mutableListOf<ItemPedidoResponse>()
-            val itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!)
+            // Filtra apenas os itens do pedido que estão ativos (ativo == true)
+            val itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).filter{it.ativo == true}
 
             itensPedido.forEach { item ->
                 val listaIngredientes = mutableListOf<ItemPedidoIngredienteResponse>()
                 val produto = item.produto
                 var informacaoBolo: InformacaoBolo? = null
-
 
                 if (produto?.temIngrediente == true) {
                     informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null)
@@ -54,6 +54,7 @@ class PedidoServices(
 
                 listaItensPedido.add(
                     ItemPedidoResponse(
+                        idItemPedido = item.idItemPedido,
                         descricao = produto?.descricao,
                         quantidade = item.quantidade,
                         precoUnitario = produtoRepository.findById(item.produto?.idProduto ?: 0)
@@ -108,40 +109,11 @@ class PedidoServices(
         return pedidoAutalizado
     }
 
-
-
-
+    // Reutiliza listarPedido (que já filtra itens ativos)
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
-        return PedidoResponse(
-            dtPedido = pedido.dtPedido.toString(),
-            dtEntregaEsperada = pedido.dtEntregaEsperada.toString(),
-            precoTotal = pedido.precoTotal,
-            isRetirada = pedido.isRetirada,
-            clienteId = pedido.cliente?.id,
-            endereco = pedido.endereco?.idEndereco?.let { EnderecoRepository.findById(it).orElse(null) },
-            statusPedido = pedido.statusPedido?.descricao,
-            formaPagamento = pedido.formaPagamento.toString(),
-            itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).map { item ->
-                ItemPedidoResponse(
-                    descricao = item.produto?.descricao,
-                    quantidade = item.quantidade,
-                    precoUnitario = item.produto?.precoUnitario?.toDouble(),
-                    informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null),
-                    ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
-                        .map { row ->
-                            ItemPedidoIngredienteResponse(
-                                nome = row[0] as String,
-                                isPremium = (row[1] as Long) == 1L,
-                                descricao = row[2] as String
-                            )
-                        }
-                )
-            }
-        )
+        return listarPedido(listOf(pedido)).first()
     }
-
-
 
     fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
@@ -152,6 +124,7 @@ class PedidoServices(
                     dtPedido = LocalDateTime.now(),
                     cliente = cliente,
                     statusPedido = statusPedidoRepository.findById(1).orElseThrow { Exception("Status do pedido não encontrado") },
+
                 )
                 pedidoRepository.save(pedido)
             }
@@ -163,11 +136,18 @@ class PedidoServices(
                 produto = produto,
                 quantidade = adicionarItemPedidoRequest.quantidade, // Defina a quantidade padrão como 1, ou ajuste conforme necessário
                 preco = adicionarItemPedidoRequest.preco,
+                ativo = true
             )
+            pedido.precoTotal = pedido.precoTotal?.plus(itemPedido.preco!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
 
             itemPedidoRepository.save(itemPedido)
 
             if(produto.temIngrediente!!){
+                if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
+                    adicionarItemPedidoRequest.listaIngredientes?.forEach { idIngrediente ->
+                        adicionarIngredienteAoItemPedido(itemPedido.idItemPedido!!, idIngrediente)
+                    }
+                }
                 if(adicionarItemPedidoRequest.informacaoBolo != null) {
                     val anexoId = adicionarItemPedidoRequest.informacaoBolo.anexo
                     val anexoAtual = anexoRepository.findById(anexoId!!).orElseThrow{Exception("Anexo não encontrado")}
@@ -180,11 +160,7 @@ class PedidoServices(
                     informacaoBoloRepository.save(informacaoBolo)
 
                 }
-                if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
-                    adicionarItemPedidoRequest.listaIngredientes?.forEach { idIngrediente ->
-                        adicionarIngredienteAoItemPedido(itemPedido.idItemPedido!!, idIngrediente)
-                    }
-                }
+
             }
             return listarPedido(listOf(pedido)).first()
         }
@@ -251,4 +227,28 @@ class PedidoServices(
 
         return listarPedido(listOf(pedido)).first()
     }
+
+    fun desabilitarItemPedido(idItemPedido: Int): PedidoResponse {
+        try {
+            val itemPedido = itemPedidoRepository.findById(idItemPedido).orElseThrow { Exception("Item de pedido não encontrado") }
+            val pedido = itemPedido.pedido ?: throw Exception("Pedido não encontrado para o item")
+            if (itemPedido.ativo == false) {
+                return listarPedido(listOf(pedido)).first()
+            }
+
+            // marcar item como inativo
+            itemPedido.ativo = false
+            itemPedidoRepository.save(itemPedido)
+
+
+            val decremento = (itemPedido.preco?.toDouble() ?: 0.0)
+            pedido.precoTotal = (pedido.precoTotal ?: 0.0) - decremento
+            pedidoRepository.save(pedido)
+
+            return listarPedido(listOf(pedido)).first()
+        } catch (e: Exception) {
+            throw Exception("Erro ao desabilitar item do pedido: ${e.message}")
+        }
+    }
 }
+
