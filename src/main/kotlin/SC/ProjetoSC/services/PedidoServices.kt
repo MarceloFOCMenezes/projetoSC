@@ -134,11 +134,11 @@ class PedidoServices(
             val itemPedido = ItemPedido(
                 pedido = pedido,
                 produto = produto,
-                quantidade = adicionarItemPedidoRequest.quantidade, // Defina a quantidade padrão como 1, ou ajuste conforme necessário
+                quantidade = adicionarItemPedidoRequest.quantidade,
                 preco = adicionarItemPedidoRequest.preco,
                 ativo = true
             )
-            pedido.precoTotal = pedido.precoTotal?.plus(itemPedido.preco!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
+            pedido.precoTotal = pedido.precoTotal?.plus(itemPedido.preco!!.toDouble())
 
             itemPedidoRepository.save(itemPedido)
 
