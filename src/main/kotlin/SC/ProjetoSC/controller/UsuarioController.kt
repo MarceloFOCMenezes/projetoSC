@@ -55,7 +55,7 @@ class UsuarioController (
         return repositorio.findById(id)
             .map { usuario -> // Se o usuário for encontrado...
                 // Conta os pedidos para este usuário usando o PedidoRepository
-                val totalPedidos = pedidoRepositorio.countByUsuarioId(usuario.id!!)
+                val totalPedidos = pedidoRepositorio.countByClienteId(usuario.id!!)
                 // Cria o DTO com os dados do usuário e a contagem
                 val profileDTO = UsuarioProfileDTO(
                     id = usuario.id,

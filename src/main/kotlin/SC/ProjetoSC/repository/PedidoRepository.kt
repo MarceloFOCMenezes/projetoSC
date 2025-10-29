@@ -27,7 +27,7 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
     // --- ADICIONADA ESTA FUNÇÃO ---
     // Conta quantos Pedidos existem para um determinado fkUsuario
-    fun countByUsuarioId(usuarioId: Int): Long
+    fun countByClienteId(clienteId: Int): Long
 
     @Query("""
         UPDATE Pedido p

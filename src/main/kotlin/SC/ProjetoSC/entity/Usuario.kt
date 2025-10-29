@@ -35,7 +35,7 @@ data class Usuario(
     @Column(name = "email_usuario", unique = true) // indica que o e-mail não pode se repetir
     var email: String? = null,
 
-    @field:NotBlank @field:Size(min = 11, max = 11)
+    @field:NotBlank @field:Size(min = 10, max = 11)
     @Schema(description = "Número de telefone do usuário")
     @Column(name = "telefone_usuario")
     var telefone: String? = null,
