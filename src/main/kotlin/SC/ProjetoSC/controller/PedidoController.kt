@@ -23,6 +23,28 @@ class PedidoController(
     val googleCalendarServices: GoogleCalendarServices
 ) {
 
+
+
+    @GetMapping("/DiasPedidos")
+    @Operation(summary = "Listar dias com pedidos", description = "Retorna uma lista de dias que possuem pedidos registrados com o id 4.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de dias retornada com sucesso. O corpo da resposta contém os dias com pedidos."),
+        ApiResponse(responseCode = "204", description = "Nenhum dia com pedidos encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun listarDiasComPedidos(): ResponseEntity<List<String>> {
+        return try {
+            val diasComPedidos = pedidoServices.findDiasLotados()
+            if (diasComPedidos.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(diasComPedidos)
+            }
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+
     @GetMapping("/carrinho")
     @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
     @ApiResponses(value = [

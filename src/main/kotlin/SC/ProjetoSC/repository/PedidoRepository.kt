@@ -25,6 +25,8 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
     fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
 
+    @Query("SELECT dt_entrega_esperada FROM (SELECT dt_entrega_esperada, COUNT(*) quantidade FROM pedido where fk_status_pedido = 4 GROUP BY dt_entrega_esperada) as groupDate WHERE groupDate.quantidade >5;", nativeQuery = true)
+    fun findDiasLotados(): List<String>
 
     @Query("""
         UPDATE Pedido p
