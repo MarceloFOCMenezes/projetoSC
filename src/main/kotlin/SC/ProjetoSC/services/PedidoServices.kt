@@ -1,5 +1,6 @@
 package sc.projetosc.services
 
+import  sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.Enum.FormaPagamentoEnum
 import sc.projetosc.request.AdicionarItemPedidoRequest
 import sc.projetosc.request.EnviarPedidoRequest
@@ -252,6 +253,15 @@ class PedidoServices(
             return listarPedido(listOf(pedido)).first()
         } catch (e: Exception) {
             throw Exception("Erro ao desabilitar item do pedido: ${e.message}")
+        }
+    }
+
+    fun PedidoSemana(): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemana()
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
         }
     }
 }

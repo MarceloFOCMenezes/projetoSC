@@ -1,5 +1,6 @@
 package sc.projetosc.controller
 
+import  sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.request.AdicionarItemPedidoRequest
 import sc.projetosc.request.EnviarPedidoRequest
 import sc.projetosc.Response.PedidoResponse
@@ -24,6 +25,21 @@ class PedidoController(
 ) {
 
 
+
+    @GetMapping("/PedidosSemana")
+    @Operation(summary = "Lista pedidos semana")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedidos Semana")
+    ])
+    fun listarPedidosSemana(): ResponseEntity<List<PedidoSemanaResponse>> {
+        return try{
+            val semanaPedido = pedidoServices.PedidoSemana()
+            ResponseEntity.status(HttpStatus.OK).body((semanaPedido))
+        }
+        catch (e: Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
 
     @GetMapping("/DiasPedidos")
     @Operation(summary = "Listar dias com pedidos", description = "Retorna uma lista de dias que possuem pedidos registrados com o id 4.")

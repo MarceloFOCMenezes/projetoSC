@@ -1,5 +1,6 @@
 package sc.projetosc.repository
 
+import sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.Response.PedidoResponse
 import sc.projetosc.entity.Pedido
 import org.springframework.data.jpa.repository.JpaRepository
@@ -27,6 +28,31 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
     @Query("SELECT dt_entrega_esperada FROM (SELECT dt_entrega_esperada, COUNT(*) quantidade FROM pedido where fk_status_pedido = 4 GROUP BY dt_entrega_esperada) as groupDate WHERE groupDate.quantidade >5;", nativeQuery = true)
     fun findDiasLotados(): List<String>
+
+
+
+    @Query("""
+    WITH RECURSIVE semana AS (
+        SELECT DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) AS data
+        UNION ALL
+        SELECT DATE_ADD(data, INTERVAL 1 DAY)
+        FROM semana
+        WHERE data < DATE_ADD(
+            DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY),
+            INTERVAL 6 DAY
+        )
+    )
+    SELECT 
+        DATE_FORMAT(sm.data, '%Y-%m-%d') AS data,
+        COUNT(pd.id_Pedido) AS quantidade
+    FROM semana sm
+    LEFT JOIN PEDIDO pd
+        ON DATE(pd.dt_entrega_esperada) = sm.data
+    GROUP BY sm.data
+    ORDER BY sm.data
+""", nativeQuery = true)
+    fun getPedidosSemana(): List<PedidoSemanaResponse>
+
 
     @Query("""
         UPDATE Pedido p
