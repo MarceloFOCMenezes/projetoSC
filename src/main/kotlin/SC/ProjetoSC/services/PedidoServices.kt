@@ -97,6 +97,19 @@ class PedidoServices(
         return listarPedido(pedidos)
     }
 
+    fun listarPedidosPendentes(): List<PedidoResponse> {
+        // Busca pedidos com status 3 (Aceito pela confeiteira), 4 (Validado pelo fornecedor) e 5 (Agendamento confirmado)
+        val statusPendentes = listOf(3, 4, 5)
+        val todosPedidosPendentes = mutableListOf<Pedido>()
+        
+        statusPendentes.forEach { statusId ->
+            val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(statusId)
+            todosPedidosPendentes.addAll(pedidos)
+        }
+        
+        return listarPedido(todosPedidosPendentes)
+    }
+
     fun atualizarStatusPedido(idPedido: Int, idStatusPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
         pedido.statusPedido = idStatusPedido?.let {

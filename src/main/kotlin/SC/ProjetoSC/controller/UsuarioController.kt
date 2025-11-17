@@ -109,7 +109,7 @@ class UsuarioController (
 
         // Modificando o objeto recebido para evitar criar um novo desnecessariamente
         novoUsuario.senha = encoder.encode(novoUsuario.senha)
-        novoUsuario.tipo = TipoUsuarioEnum.cliente
+        novoUsuario.tipo = TipoUsuarioEnum.confeiteira
 
         val usuarioSalvo = repositorio.save(novoUsuario)
         return ResponseEntity.status(201).body(usuarioSalvo)
@@ -177,6 +177,21 @@ class UsuarioController (
             ResponseEntity.ok(usuarioExistente)
         } else {
             ResponseEntity.notFound().build()
+        }
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico pelo seu ID.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso. O corpo da resposta contém os dados do usuário."),
+        ApiResponse(responseCode = "404", description = "Usuário não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun buscarUsuarioPorId(@PathVariable id: Int): ResponseEntity<Usuario> {
+        val usuarioOpt = repositorio.findById(id)
+        return if (usuarioOpt.isPresent) {
+            ResponseEntity.status(200).body(usuarioOpt.get())
+        } else {
+            ResponseEntity.status(404).build()
         }
     }
 

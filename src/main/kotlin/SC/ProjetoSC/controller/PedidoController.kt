@@ -59,6 +59,40 @@ class PedidoController(
 
 
 
+    @GetMapping("/pendentes")
+    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 3, 4 e 5).")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
+        ApiResponse(responseCode = "204", description = "Nenhum pedido pendente encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun listarPedidosPendentes(): ResponseEntity<List<PedidoResponse>> {
+        try {
+            val pedidosPendentes = pedidoServices.listarPedidosPendentes()
+            return if (pedidosPendentes.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
+            }
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/{idPedido}")
+    @Operation(summary = "Buscar pedido por ID", description = "Retorna um pedido específico pelo seu ID.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedido encontrado com sucesso. O corpo da resposta contém os dados do pedido."),
+        ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun buscarPedidoPorId(@PathVariable idPedido: Int): ResponseEntity<PedidoResponse> {
+        try {
+            val pedido = pedidoServices.listarPedidosPorId(idPedido)
+            return ResponseEntity.status(HttpStatus.OK).body(pedido)
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }
+    }
+
     @PatchMapping("/alterarStatus/{idPedido}/status/{idStatus}")
     @Operation(summary = "Atualizar status do pedido", description = "Atualiza o status de um pedido específico.")
     @ApiResponses(value = [
