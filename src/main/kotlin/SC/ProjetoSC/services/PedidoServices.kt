@@ -1,5 +1,6 @@
 package sc.projetosc.services
 
+import  sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.Enum.FormaPagamentoEnum
 import sc.projetosc.request.AdicionarItemPedidoRequest
 import sc.projetosc.request.EnviarPedidoRequest
@@ -26,7 +27,12 @@ class PedidoServices(
     private val googleCalendarServices: GoogleCalendarServices,
     private val anexoRepository: AnexoRepository
 ) {
-
+    fun findDiasLotados(): List<String> {
+        if (pedidoRepository.findDiasLotados().isEmpty()) {
+            return emptyList()
+        }
+        return pedidoRepository.findDiasLotados()
+    }
 
     private fun listarPedido(listaPedidos: List<Pedido>): List<PedidoResponse> {
         return listaPedidos.map { pedido ->
@@ -221,9 +227,7 @@ class PedidoServices(
 
         pedido.statusPedido =  statusPedidoRepository.findById(2).orElseThrow { Exception("Status do pedido não encontrado") }
 
-        pedido.formaPagamento = enviarPedidoRequest.formaPagamento.let {
-            FormaPagamentoEnum.valueOf(it!!)
-        }
+        pedido.formaPagamento = null
         pedido.isRetirada = enviarPedidoRequest.isRetirada
 
         if(!pedido.isRetirada!!){
@@ -236,8 +240,9 @@ class PedidoServices(
         pedido.dtEntregaEsperada = LocalDateTime.parse(data!!, formatter)
 
         // chamando a função para criar o evento no Google Calendar
-        googleCalendarServices.agendarEvento(pedido.id!!)
+       // googleCalendarServices.agendarEvento(pedido.id!!)
 
+        pedidoRepository.save(pedido);
         return listarPedido(listOf(pedido)).first()
     }
 
@@ -261,6 +266,15 @@ class PedidoServices(
             return listarPedido(listOf(pedido)).first()
         } catch (e: Exception) {
             throw Exception("Erro ao desabilitar item do pedido: ${e.message}")
+        }
+    }
+
+    fun PedidoSemana(): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemana()
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
         }
     }
 }

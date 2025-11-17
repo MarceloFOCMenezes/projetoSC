@@ -1,5 +1,6 @@
 package sc.projetosc.controller
 
+import  sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.request.AdicionarItemPedidoRequest
 import sc.projetosc.request.EnviarPedidoRequest
 import sc.projetosc.Response.PedidoResponse
@@ -22,6 +23,43 @@ class PedidoController(
     val pedidoServices: PedidoServices,
     val googleCalendarServices: GoogleCalendarServices
 ) {
+
+
+
+    @GetMapping("/PedidosSemana")
+    @Operation(summary = "Lista pedidos semana")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedidos Semana")
+    ])
+    fun listarPedidosSemana(): ResponseEntity<List<PedidoSemanaResponse>> {
+        return try{
+            val semanaPedido = pedidoServices.PedidoSemana()
+            ResponseEntity.status(HttpStatus.OK).body((semanaPedido))
+        }
+        catch (e: Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/DiasPedidos")
+    @Operation(summary = "Listar dias com pedidos", description = "Retorna uma lista de dias que possuem pedidos registrados com o id 4.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de dias retornada com sucesso. O corpo da resposta contém os dias com pedidos."),
+        ApiResponse(responseCode = "204", description = "Nenhum dia com pedidos encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun listarDiasComPedidos(): ResponseEntity<List<String>> {
+        return try {
+            val diasComPedidos = pedidoServices.findDiasLotados()
+            if (diasComPedidos.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(diasComPedidos)
+            }
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
 
     @GetMapping("/carrinho")
     @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
