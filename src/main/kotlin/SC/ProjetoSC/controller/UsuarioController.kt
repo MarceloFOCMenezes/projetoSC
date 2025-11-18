@@ -109,7 +109,7 @@ class UsuarioController (
 
         // Modificando o objeto recebido para evitar criar um novo desnecessariamente
         novoUsuario.senha = encoder.encode(novoUsuario.senha)
-        novoUsuario.tipo = TipoUsuarioEnum.confeiteira
+        novoUsuario.tipo = TipoUsuarioEnum.cliente
 
         val usuarioSalvo = repositorio.save(novoUsuario)
         return ResponseEntity.status(201).body(usuarioSalvo)

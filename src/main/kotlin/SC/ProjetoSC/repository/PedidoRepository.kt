@@ -48,6 +48,7 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     FROM semana sm
     LEFT JOIN PEDIDO pd
         ON DATE(pd.dt_entrega_esperada) = sm.data
+        AND pd.fk_status_pedido = 5
     GROUP BY sm.data
     ORDER BY sm.data
 """, nativeQuery = true)
