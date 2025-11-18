@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull
 import sc.projetosc.Enum.TipoUsuarioEnum
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.hibernate.annotations.CreationTimestamp
 
 /*
 Com @Entity, o Spring vai supor que essa classe 'espelha',
@@ -64,7 +65,12 @@ data class Usuario(
     var dataNascimento: LocalDate? = null,
 
     @Column(name = "avatar_url") // Mapeia para a coluna do banco de dados
-    var avatarUrl: String? = null
+    var avatarUrl: String? = null,
+
+    @Schema(description = "Data e hora do cadastro do usuário")
+    @Column(name = "data_cadastro", nullable = false, updatable = false)
+    @CreationTimestamp // Define automaticamente a data/hora no momento da criação
+    var dataCadastro: LocalDateTime? = null
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades

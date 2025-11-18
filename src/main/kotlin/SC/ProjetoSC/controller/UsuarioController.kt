@@ -65,7 +65,8 @@ class UsuarioController (
                     dataNascimento = usuario.dataNascimento,
                     avatarUrl = usuario.avatarUrl,
                     dataUltimoLogin = usuario.dataUltimoLogin,
-                    totalPedidos = totalPedidos // Adiciona a contagem ao DTO
+                    totalPedidos = totalPedidos,
+                    dataCadastro = usuario.dataCadastro
                 )
                 ResponseEntity.ok(profileDTO)
             }

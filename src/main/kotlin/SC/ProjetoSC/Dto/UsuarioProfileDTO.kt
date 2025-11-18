@@ -12,5 +12,6 @@ data class UsuarioProfileDTO(
     val dataNascimento: LocalDate?, // Campo que adicionei
     val avatarUrl: String?,      // Campo que adicionei
     val dataUltimoLogin: LocalDateTime?, // Campo que adicionei
-    val totalPedidos: Long // Novo campo para a contagem
+    val totalPedidos: Long, // Novo campo para a contagem
+    val dataCadastro: LocalDateTime? // Campo que adicionei
 )
