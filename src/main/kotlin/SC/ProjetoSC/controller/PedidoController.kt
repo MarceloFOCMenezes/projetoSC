@@ -98,19 +98,15 @@ class PedidoController(
 
 
     @GetMapping("/pendentes")
-    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 3, 4 e 5).")
+    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 2, 3 e 4).")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
-        ApiResponse(responseCode = "204", description = "Nenhum pedido pendente encontrado. O corpo da resposta estará vazio.")
+        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos (pode ser um array vazio se não houver pedidos pendentes).")
     ])
     fun listarPedidosPendentes(): ResponseEntity<List<PedidoResponse>> {
         try {
             val pedidosPendentes = pedidoServices.listarPedidosPendentes()
-            return if (pedidosPendentes.isEmpty()) {
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-            } else {
-                ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
-            }
+            // Sempre retorna 200 com um array (mesmo que vazio) para facilitar o tratamento no frontend
+            return ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
         } catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }

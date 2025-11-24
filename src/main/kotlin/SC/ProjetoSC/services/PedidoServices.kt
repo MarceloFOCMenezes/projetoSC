@@ -104,8 +104,8 @@ class PedidoServices(
     }
 
     fun listarPedidosPendentes(): List<PedidoResponse> {
-        // Busca pedidos com status 3 (Aceito pela confeiteira), 4 (Validado pelo fornecedor) e 5 (Agendamento confirmado)
-        val statusPendentes = listOf(3, 4, 5)
+        // Busca pedidos com status 2 (Enviado), 3 (Validação) e 4 (Pagamento)
+        val statusPendentes = listOf(2, 3, 4)
         val todosPedidosPendentes = mutableListOf<Pedido>()
         
         statusPendentes.forEach { statusId ->
