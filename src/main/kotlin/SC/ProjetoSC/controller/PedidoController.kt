@@ -1,27 +1,65 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Request.AdicionarItemPedidoRequest
-import SC.ProjetoSC.Request.EnviarPedidoRequest
-import SC.ProjetoSC.Response.PedidoResponse
-import SC.ProjetoSC.Services.PedidoServices
-import SC.ProjetoSC.entity.Pedido
-import SC.ProjetoSC.repository.PedidoRepository
+import  sc.projetosc.Response.PedidoSemanaResponse
+import sc.projetosc.request.AdicionarItemPedidoRequest
+import sc.projetosc.request.EnviarPedidoRequest
+import sc.projetosc.Response.PedidoResponse
+import sc.projetosc.services.PedidoServices
+import sc.projetosc.repository.PedidoRepository
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import sc.projetosc.services.GoogleCalendarServices
 
 @Tag(name = "Pedidos", description = "Operações relacionadas a pedidos do sistema")
 @RestController
 @RequestMapping("/pedidos")
 class PedidoController(
     val repositorio: PedidoRepository,
-    val pedidoServices: PedidoServices
+    val pedidoServices: PedidoServices,
+    val googleCalendarServices: GoogleCalendarServices
 ) {
+
+
+
+    @GetMapping("/PedidosSemana")
+    @Operation(summary = "Lista pedidos semana")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedidos Semana")
+    ])
+    fun listarPedidosSemana(): ResponseEntity<List<PedidoSemanaResponse>> {
+        return try{
+            val semanaPedido = pedidoServices.PedidoSemana()
+            ResponseEntity.status(HttpStatus.OK).body((semanaPedido))
+        }
+        catch (e: Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/DiasPedidos")
+    @Operation(summary = "Listar dias com pedidos", description = "Retorna uma lista de dias que possuem pedidos registrados com o id 4.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de dias retornada com sucesso. O corpo da resposta contém os dias com pedidos."),
+        ApiResponse(responseCode = "204", description = "Nenhum dia com pedidos encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun listarDiasComPedidos(): ResponseEntity<List<String>> {
+        return try {
+            val diasComPedidos = pedidoServices.findDiasLotados()
+            if (diasComPedidos.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(diasComPedidos)
+            }
+        } catch (e: Exception) {
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
 
     @GetMapping("/carrinho")
     @Operation(summary = "Listar pedidos", description = "Retorna uma lista de pedidos, podendo filtrar por ID do usuário.")
@@ -45,6 +83,53 @@ class PedidoController(
         }
     }
 
+    @DeleteMapping("/desabilitarItemPedido/{idItemPedido}")
+    @Operation(summary = "Desabilitar Item Pedido", description = "Desabilita um item do pedido específico.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Item do pedido desabilitado com sucesso."),
+        ApiResponse(responseCode = "204", description = "Nenhum item do pedido encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun desabilidarItemPedido(@PathVariable idItemPedido: Int): ResponseEntity<Void> {
+        pedidoServices.desabilitarItemPedido(idItemPedido)
+        return ResponseEntity.status(HttpStatus.OK).build()
+    }
+
+
+
+
+    @GetMapping("/pendentes")
+    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 3, 4 e 5).")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
+        ApiResponse(responseCode = "204", description = "Nenhum pedido pendente encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun listarPedidosPendentes(): ResponseEntity<List<PedidoResponse>> {
+        try {
+            val pedidosPendentes = pedidoServices.listarPedidosPendentes()
+            return if (pedidosPendentes.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
+            }
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/{idPedido}")
+    @Operation(summary = "Buscar pedido por ID", description = "Retorna um pedido específico pelo seu ID.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedido encontrado com sucesso. O corpo da resposta contém os dados do pedido."),
+        ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun buscarPedidoPorId(@PathVariable idPedido: Int): ResponseEntity<PedidoResponse> {
+        try {
+            val pedido = pedidoServices.listarPedidosPorId(idPedido)
+            return ResponseEntity.status(HttpStatus.OK).body(pedido)
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+        }
+    }
 
     @PatchMapping("/alterarStatus/{idPedido}/status/{idStatus}")
     @Operation(summary = "Atualizar status do pedido", description = "Atualiza o status de um pedido específico.")
@@ -101,6 +186,7 @@ class PedidoController(
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
         try {
+            googleCalendarServices.excluirEvento(idPedido)// Exclui o evento do Google Calendar
             pedidoServices.atualizarStatusPedido(idPedido, 8) // 8 é o ID do status "Cancelado"
             return ResponseEntity.status(HttpStatus.OK).build()
 

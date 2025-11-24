@@ -1,7 +1,5 @@
-package SC.ProjetoSC.controller
+package sc.projetosc
 
-import SC.ProjetoSC.entity.Anexo
-import SC.ProjetoSC.service.AnexoService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -11,13 +9,15 @@ import org.mockito.Mockito.*
 import org.mockito.MockitoAnnotations
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
+import sc.projetosc.controller.AnexoController
+import sc.projetosc.entity.Anexo
+import sc.projetosc.services.AnexoServices
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AnexoControllerTest {
-
     @Mock
-    private lateinit var anexoService: AnexoService
+    private lateinit var anexoService: AnexoServices
 
     @InjectMocks
     private lateinit var controller: AnexoController

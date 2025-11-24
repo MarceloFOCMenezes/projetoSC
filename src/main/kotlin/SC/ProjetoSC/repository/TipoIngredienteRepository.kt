@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.TipoIngrediente
+import sc.projetosc.entity.TipoIngrediente
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface TipoIngredienteRepository:JpaRepository<TipoIngrediente, Int>  {

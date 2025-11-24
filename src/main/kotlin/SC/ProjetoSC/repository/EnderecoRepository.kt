@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.Endereco
+import sc.projetosc.entity.Endereco
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface EnderecoRepository: JpaRepository<Endereco, Int> {

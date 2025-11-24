@@ -1,6 +1,7 @@
-package SC.ProjetoSC.Response
+package sc.projetosc.Response
 
-import SC.ProjetoSC.entity.Endereco
+import sc.projetosc.Response.ItemPedidoResponse
+import sc.projetosc.entity.Endereco
 
 data class PedidoResponse (
     val idPedido: Int? = null,

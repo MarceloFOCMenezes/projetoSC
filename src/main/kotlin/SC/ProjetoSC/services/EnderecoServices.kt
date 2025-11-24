@@ -1,20 +1,23 @@
-package SC.ProjetoSC.Services
+package sc.projetosc.services
 
-import SC.ProjetoSC.dto.RequestEnderecoDTO
-import SC.ProjetoSC.entity.Endereco
-import SC.ProjetoSC.repository.EnderecoRepository
-import SC.ProjetoSC.repository.UsuarioRepository
+
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
+import sc.projetosc.entity.Endereco
+import sc.projetosc.repository.EnderecoRepository
+import sc.projetosc.repository.UsuarioRepository
+import sc.projetosc.request.EnderecoRequest
 
 @Service
 class EnderecoServices(
     private val enderecoRepository: EnderecoRepository,
     private val usuarioRepository: UsuarioRepository
 ) {
-    fun criarEndereco(requestEndereco: RequestEnderecoDTO): Endereco {
+    fun criarEndereco(requestEndereco: EnderecoRequest): Endereco {
+        try {
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }
         val endereco = Endereco(
+            idEndereco = null, // Para criação, sempre null para gerar automaticamente
             nomeEndereco = requestEndereco.nomeEndereco ?: "",
             cep = requestEndereco.cep ?: "",
             logradouro = requestEndereco.logradouro ?: "",
@@ -28,9 +31,12 @@ class EnderecoServices(
             ativo = requestEndereco.ativo ?: true
         )
         return enderecoRepository.save(endereco)
+        } catch (e: Exception) {
+            throw Exception("Erro ao criar endereço: ${e.message}")
+        }
     }
 
-    fun atualizarEndereco(id: Int, requestEndereco: RequestEnderecoDTO): ResponseEntity<Any> {
+    fun atualizarEndereco(id: Int, requestEndereco: EnderecoRequest): ResponseEntity<Any> {
         val enderecoOpt = enderecoRepository.findById(id)
         if (enderecoOpt.isEmpty) return ResponseEntity.status(404).build()
         val usuario = requestEndereco.usuarioId?.let { usuarioRepository.findById(it).orElse(null) }

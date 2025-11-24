@@ -1,7 +1,7 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.entity.Anexo
-import SC.ProjetoSC.service.AnexoService
+import sc.projetosc.entity.Anexo
+import sc.projetosc.services.AnexoServices
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/anexos")
 class AnexoController(
-    private val anexoService: AnexoService
+    private val anexoService: AnexoServices
 ) {
 
     @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -25,12 +25,12 @@ class AnexoController(
         ApiResponse(responseCode = "400", description = "Arquivo vazio ou inválido"),
         ApiResponse(responseCode = "500", description = "Erro interno ao processar o upload")
     ])
-    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<Anexo> {
+    fun upload(@RequestParam("file") file: MultipartFile): ResponseEntity<Int> {
         if (file.isEmpty) {
             return ResponseEntity.badRequest().build()
         }
         val anexo = anexoService.salvar(file)
-        return ResponseEntity.status(201).body(anexo)
+        return ResponseEntity.status(201).body(anexo.idAnexo)
     }
 
     @GetMapping("/{id}")
@@ -42,11 +42,22 @@ class AnexoController(
     ])
     fun download(@PathVariable id: Int): ResponseEntity<ByteArray> {
         val anexo = anexoService.buscar(id)
-        val nomeArquivo = anexo.nomeArquivo ?: "anexo_${id}.bin"
+        //val nomeArquivo = anexo.nomeArquivo ?: "anexo_${id}.bin"
+        val contentType = when {
+            anexo.nomeArquivo?.endsWith(".png", true) == true -> MediaType.IMAGE_PNG_VALUE
+            anexo.nomeArquivo?.endsWith(".jpg", true) == true -> MediaType.IMAGE_JPEG_VALUE
+            anexo.nomeArquivo?.endsWith(".jpeg", true) == true -> MediaType.IMAGE_JPEG_VALUE
+            anexo.nomeArquivo?.endsWith(".gif", true) == true -> MediaType.IMAGE_GIF_VALUE
+            anexo.nomeArquivo?.endsWith(".pdf", true) == true -> MediaType.APPLICATION_PDF_VALUE
+            else -> {
+                MediaType.APPLICATION_OCTET_STREAM_VALUE
+                return ResponseEntity.badRequest().build()
+            }
+
+        }
 
         return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"$nomeArquivo\"")
-            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .contentType(MediaType.parseMediaType(contentType))
             .body(anexo.imagemAnexo)
     }
 

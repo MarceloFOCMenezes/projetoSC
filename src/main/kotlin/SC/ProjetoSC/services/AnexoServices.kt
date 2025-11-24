@@ -1,12 +1,12 @@
-package SC.ProjetoSC.service
+package sc.projetosc.services
 
-import SC.ProjetoSC.entity.Anexo
-import SC.ProjetoSC.repository.AnexoRepository
+import sc.projetosc.entity.Anexo
+import sc.projetosc.repository.AnexoRepository
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 
 @Service
-class AnexoService(
+class AnexoServices(
     private val anexoRepository: AnexoRepository
 ) {
     fun salvar(file: MultipartFile): Anexo {

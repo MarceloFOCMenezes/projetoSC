@@ -1,12 +1,13 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.FormaPagamentoEnum
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.FutureOrPresent
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PositiveOrZero
+import sc.projetosc.Enum.FormaPagamentoEnum
+import sc.projetosc.entity.Endereco
 import java.time.LocalDateTime
 
 @Entity
@@ -46,13 +47,13 @@ data class Pedido(
     @Schema(description = "FK do cliente que fez o pedido - usuário")
     @ManyToOne
     @JoinColumn(name = "fk_cliente", nullable = false)
-    val cliente:Usuario? = null,
+    val cliente: Usuario? = null,
 
 
     @Schema(description = "FK do endereço de entrega do pedido")
     @ManyToOne
     @JoinColumn(name = "fk_endereco", nullable = true)
-    var endereco:Endereco? = null,
+    var endereco: Endereco? = null,
 
     @field:NotNull(message = "A FK do status do pedido é obrigatória.")
     @Schema(description = "FK do status atual do pedido")
@@ -64,7 +65,7 @@ data class Pedido(
     @Schema(description = "FK do status atual do pedido")
     @Enumerated(EnumType.STRING)
     @Column(name = "forma_pagamento")
-    var formaPagamento:FormaPagamentoEnum? = null,
+    var formaPagamento:FormaPagamentoEnum? = FormaPagamentoEnum.pix,
 
 
     )

@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.Produto
+import sc.projetosc.entity.Produto
 import org.springframework.data.jpa.repository.JpaRepository
 interface ProdutoRepository: JpaRepository<Produto, Int> {
 
@@ -18,4 +18,7 @@ interface ProdutoRepository: JpaRepository<Produto, Int> {
 
     //listar produtos com filtro de nome e somente inativos
     fun findByDescricaoContainsIgnoreCaseAndAtivoFalse(descricao: String): List<Produto>
+
+    fun findByCategoriaIgnoreCase(categoria: String): List<Produto>
+
 }

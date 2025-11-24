@@ -1,15 +1,18 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.EnderecoServices
-import SC.ProjetoSC.dto.RequestEnderecoDTO
-import SC.ProjetoSC.entity.Endereco
-import SC.ProjetoSC.entity.Usuario
+
+
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
 import org.springframework.http.ResponseEntity
+import sc.projetosc.Enum.TipoUsuarioEnum
+import sc.projetosc.entity.Endereco
+import sc.projetosc.entity.Usuario
+import sc.projetosc.services.EnderecoServices
+import sc.projetosc.request.EnderecoRequest
 
 class EnderecoControllerTest {
 
@@ -27,7 +30,7 @@ class EnderecoControllerTest {
             email = "teste@email.com",
             telefone = "123456789",
             senha = "senha123",
-            tipo = SC.ProjetoSC.Enum.TipoUsuarioEnum.cliente,
+            tipo = TipoUsuarioEnum.cliente,
             logado = false
         )
         endereco = Endereco(
@@ -49,7 +52,7 @@ class EnderecoControllerTest {
     @Test
     @DisplayName("criarEndereco: deve retornar status 201 e o endereço criado")
     fun criarEndereco() {
-        val dto = RequestEnderecoDTO(
+        val dto = EnderecoRequest(
             nomeEndereco = "Casa",
             cep = "12345678",
             logradouro = "Rua Teste",
@@ -71,7 +74,7 @@ class EnderecoControllerTest {
     @Test
     @DisplayName("atualizarEndereco: deve retornar status 200 e o endereço atualizado")
     fun atualizarEndereco() {
-        val dto = RequestEnderecoDTO(
+        val dto = EnderecoRequest(
             nomeEndereco = "Casa",
             cep = "12345678",
             logradouro = "Rua Teste",
@@ -93,7 +96,7 @@ class EnderecoControllerTest {
     @Test
     @DisplayName("atualizarEndereco: endereço não encontrado = status 404")
     fun atualizarEnderecoNaoEncontrado() {
-        val dto = RequestEnderecoDTO()
+        val dto = EnderecoRequest()
         `when`(enderecoServices.atualizarEndereco(99, dto)).thenReturn(ResponseEntity.status(404).build())
 
         val response = controller.atualizarEndereco(99, dto)

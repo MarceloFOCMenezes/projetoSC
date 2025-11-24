@@ -1,10 +1,13 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.PositiveOrZero
+import jakarta.validation.constraints.Size
+import java.math.BigDecimal
+
 @Table(name = "item_pedido")
 @Entity
 data class ItemPedido(
@@ -13,6 +16,7 @@ data class ItemPedido(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_item_pedido", nullable = false, unique = true)
     val idItemPedido: Int? = null,
+
 
     @field:NotNull(message = "O pedido respectivo é obrigatório.")
     @Schema(description = "FK do pedido respectivo")
@@ -26,7 +30,14 @@ data class ItemPedido(
     @JoinColumn(name = "fk_produto", nullable = false)
     val produto: Produto? = null,
 
+    @field:PositiveOrZero(message = "O preço unitário deve ser zero ou positivo.")
+    @Column(name = "preco")
+    val preco: Double? = 0.0,
+
     @field:NotNull(message = "A quantidade do produto é obrigatória.")
     @Schema(description = "Quantidade do produto no item do pedido")
-    val quantidade: Int? = null,
+    val quantidade: Double? = 0.0,
+
+    @Schema(description = "Se o item do pedido está ativo")
+    var ativo: Boolean? = null,
 ){}

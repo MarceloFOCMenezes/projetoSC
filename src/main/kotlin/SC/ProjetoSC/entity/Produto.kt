@@ -1,13 +1,14 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.UnidadeMedidaEnum
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PositiveOrZero
+import jakarta.validation.constraints.Size
+import sc.projetosc.Enum.UnidadeMedidaEnum
 import java.math.BigDecimal
+
 @Table(name = "Produto")
 @Entity
 data class Produto(

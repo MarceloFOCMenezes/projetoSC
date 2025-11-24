@@ -1,6 +1,6 @@
-package SC.ProjetoSC.repository
+package sc.projetosc.repository
 
-import SC.ProjetoSC.entity.ItemPedido
+import sc.projetosc.entity.ItemPedido
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ItemPedidoRepository : JpaRepository<ItemPedido, Int> {

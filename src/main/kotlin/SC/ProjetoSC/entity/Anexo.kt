@@ -1,9 +1,5 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.TipoUsuarioEnum
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
-import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 
 @Entity

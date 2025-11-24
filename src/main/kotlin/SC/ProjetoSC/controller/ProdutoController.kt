@@ -1,9 +1,11 @@
-package SC.ProjetoSC.controller
+package sc.projetosc.controller
 
-import SC.ProjetoSC.Services.ProdutoServices
-import SC.ProjetoSC.dto.RequestProdutoDTO
-import SC.ProjetoSC.entity.Produto
-import SC.ProjetoSC.repository.ProdutoRepository
+
+import sc.projetosc.services.ProdutoServices
+import sc.projetosc.request.ProdutoRequest
+import sc.projetosc.entity.Produto
+import sc.projetosc.repository.ProdutoRepository
+
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -23,7 +25,7 @@ class ProdutoController(
     @PostMapping
     @Operation(summary = "Criar um novo produto", description = "Cria um novo produto no sistema com as informações fornecidas.")
     @ApiResponse(responseCode = "201", description = "Produto criado com sucesso. O corpo da resposta contém os dados do produto criado.")
-    fun criarProduto(@RequestBody @Valid novoProduto: RequestProdutoDTO): ResponseEntity<Any> {
+    fun criarProduto(@RequestBody @Valid novoProduto: ProdutoRequest): ResponseEntity<Any> {
         val produto = produtoServices.criarProduto(novoProduto)
         return ResponseEntity.status(201).body(produto)
     }
@@ -34,7 +36,7 @@ class ProdutoController(
         ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso. O corpo da resposta contém os dados do produto atualizado"),
         ApiResponse(responseCode = "404", description = "Produto não encontrado. O corpo da resposta estará vazio.")
     ])
-    fun atualizarProduto(@PathVariable id:Int, @RequestBody @Valid produtoAtualizado: RequestProdutoDTO): ResponseEntity<Any> {
+    fun atualizarProduto(@PathVariable id:Int, @RequestBody @Valid produtoAtualizado: ProdutoRequest): ResponseEntity<Any> {
         return produtoServices.atualizarProduto(id, produtoAtualizado)
     }
 
@@ -46,6 +48,17 @@ class ProdutoController(
     ])
     fun atualizarStatusProduto(@PathVariable id:Int): ResponseEntity<Any> {
         return produtoServices.atualizarStatusProduto(id)
+    }
+
+    @GetMapping("getEssenciais")
+    @Operation(summary = "Listar produtos essenciais", description = "Retorna uma lista com todos os produtos essenciais registrados no sistema.")
+    fun listarProdutosEssenciais(): ResponseEntity<List<Produto>> {
+        val produtos = produtoServices.listarProdutosEssenciais()
+        return if (produtos.isEmpty()) {
+            ResponseEntity.status(204).build()
+        } else {
+            ResponseEntity.status(200).body(produtos)
+        }
     }
 
     @GetMapping

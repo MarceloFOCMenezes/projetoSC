@@ -1,15 +1,14 @@
-package SC.ProjetoSC.entity
+package sc.projetosc.entity
 
-import SC.ProjetoSC.Enum.TipoUsuarioEnum
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.persistence.*
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.PositiveOrZero
 import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
+import sc.projetosc.Enum.TipoUsuarioEnum
 import java.time.LocalDateTime
 
 /*
@@ -40,18 +39,18 @@ data class Usuario(
     @Column(name = "telefone_usuario")
     var telefone: String? = null,
 
-    @JsonIgnore
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @field:Size(min = 8, max = 60)
     @Schema(description = "Senha da conta do usuário")
     @Column(name = "senha_usuario")
     var senha: String? = null,
 
 
-    @field:NotNull
     @Schema(description = "Indica o tipo de usuário: 0 - Administrador/Confeiteiro, 1 - Cliente")
     @Enumerated(EnumType.STRING) // para armazenar o valor como string no banco de dados
     @Column(name = "tipo_usuario", nullable = false)
-    val tipo: TipoUsuarioEnum? = null,
+    var tipo: TipoUsuarioEnum? = null,
 
     @Transient // não será persistido no banco de dados
     @Schema(description = "Indica se o usuário está logado")
