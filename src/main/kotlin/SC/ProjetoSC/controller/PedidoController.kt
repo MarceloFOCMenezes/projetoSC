@@ -123,11 +123,11 @@ class PedidoController(
         ApiResponse(responseCode = "404", description = "Pedido não encontrado. O corpo da resposta estará vazio.")
     ])
     fun buscarPedidoPorId(@PathVariable idPedido: Int): ResponseEntity<PedidoResponse> {
-        try {
+        return try {
             val pedido = pedidoServices.listarPedidosPorId(idPedido)
-            return ResponseEntity.status(HttpStatus.OK).body(pedido)
+            ResponseEntity.status(HttpStatus.OK).body(pedido)
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build()
+            ResponseEntity.status(HttpStatus.NOT_FOUND).build()
         }
     }
 
@@ -223,6 +223,31 @@ class PedidoController(
         }
         catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.localizedMessage)
+        }
+    }
+
+    @GetMapping("/listar")
+    @Operation(
+        summary = "Listar todos os pedidos do usuário",
+        description = "Retorna uma lista de todos os pedidos associados ao ID do usuário fornecido."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Lista de pedidos retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
+            ApiResponse(responseCode = "204", description = "Nenhum pedido encontrado para o usuário. O corpo da resposta estará vazio."),
+            ApiResponse(responseCode = "500", description = "Erro interno ao processar a solicitação.")
+        ]
+    )
+    fun listarPedidosDoUsuario(@RequestParam idUsuario: Int): ResponseEntity<List<PedidoResponse>> {
+        try {
+            val pedidos = pedidoServices.listarPedidosPorUsuario(idUsuario)
+            return if (pedidos.isEmpty()) {
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+            } else {
+                ResponseEntity.status(HttpStatus.OK).body(pedidos)
+            }
+        } catch (e: Exception) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 }

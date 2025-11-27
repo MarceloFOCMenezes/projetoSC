@@ -98,6 +98,14 @@ class PedidoServices(
         return pedidoAtual
     }
 
+    fun listarPedidosPorUsuario(idUsuario: Int): List<PedidoResponse> {
+        // Busca os pedidos do usuário pelo ID do cliente
+        val pedidos = pedidoRepository.findByClienteId(idUsuario)
+
+        // Reaproveita o método que já converte Pedido -> PedidoResponse
+        return listarPedido(pedidos)
+    }
+
     fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
         val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(idStatusPedido)
         return listarPedido(pedidos)
