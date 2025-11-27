@@ -10,6 +10,7 @@ import sc.projetosc.Response.PedidoResponse
 import org.springframework.stereotype.Service
 import sc.projetosc.entity.*
 import sc.projetosc.repository.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -96,6 +97,15 @@ class PedidoServices(
             return PedidoResponse() // Retorna um PedidoResponse vazio se não houver pedidos
         }
         return pedidoAtual
+    }
+
+    fun listarPedidosPorData(dataPedido: String): List<PedidoResponse>{
+
+        val pedidos = pedidoRepository.findByDtPedido(dataPedido)
+
+        val pedidosTratados = listarPedido(pedidos)
+
+        return pedidosTratados
     }
 
     fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
@@ -277,5 +287,6 @@ class PedidoServices(
             throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
         }
     }
+
 }
 

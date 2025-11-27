@@ -5,13 +5,16 @@ import sc.projetosc.Response.PedidoResponse
 import sc.projetosc.entity.Pedido
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface PedidoRepository : JpaRepository<Pedido, Int> {
 
 
     // buscar somente por data de pedido
-    fun findByDtPedido(dtPedido:LocalDateTime):List<Pedido>
+    @Query("SELECT * FROM Pedido p WHERE DATE(p.dt_entrega_esperada) = :dtPedido AND p.fk_status_pedido = 5",
+        nativeQuery = true)
+    fun findByDtPedido(dtPedido: String):List<Pedido>
 
     //buscar somente por data de entrega
     fun findByDtEntregaGreaterThanEqual(dtEntrega:LocalDateTime):List<Pedido>
@@ -25,6 +28,8 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     fun findByStatusPedidoIdStatusPedido(statusPedidoId: Int): List<Pedido>
 
     fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
+
+    fun findPedidoByDtEntregaEsperada(dtEntrega: LocalDateTime): List<Pedido>
 
     @Query("SELECT dt_entrega_esperada FROM (SELECT dt_entrega_esperada, COUNT(*) quantidade FROM pedido where fk_status_pedido = 4 GROUP BY dt_entrega_esperada) as groupDate WHERE groupDate.quantidade >5;", nativeQuery = true)
     fun findDiasLotados(): List<String>

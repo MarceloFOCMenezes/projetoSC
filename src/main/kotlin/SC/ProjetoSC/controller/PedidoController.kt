@@ -25,6 +25,37 @@ class PedidoController(
 ) {
 
 
+    @GetMapping("/PedidosData")
+    @Operation(summary = "Lista pedidos por data")
+    @ApiResponses(value =[
+        ApiResponse(responseCode = "200", description = "Pedidos por Data"),
+    ])
+    fun listarPedidosData(@RequestParam data: String): ResponseEntity<List<PedidoResponse>> {
+        return try {
+            val pedidosData = pedidoServices.listarPedidosPorData(data)
+            ResponseEntity.status(HttpStatus.OK).body(pedidosData)
+        }
+        catch (e:Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/PedidosStatus")
+    @Operation(summary = "Lista pedidos por data")
+    @ApiResponses(value =[
+        ApiResponse(responseCode = "200", description = "Pedidos por Data"),
+    ])
+    fun listarPedidosStatus(@RequestParam idStatus: Int): ResponseEntity<List<PedidoResponse>> {
+        return try {
+            val pedidosStatus = pedidoServices.listarPedidosPorStatus(idStatus)
+            ResponseEntity.status(HttpStatus.OK).body(pedidosStatus)
+        }
+        catch (e:Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+
 
     @GetMapping("/PedidosSemana")
     @Operation(summary = "Lista pedidos semana")
