@@ -288,5 +288,14 @@ class PedidoServices(
         }
     }
 
+    fun getSemana(data:String): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemanaData(data)
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
+        }
+    }
+
 }
 

@@ -54,7 +54,20 @@ class PedidoController(
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
-
+    @GetMapping("/PedidosSemanaData")
+    @Operation(summary = "Lista pedidos semana com data")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedidos Semana")
+    ])
+    fun listarPedidosSemana(@RequestParam data:String): ResponseEntity<List<PedidoSemanaResponse>> {
+        return try{
+            val semanaPedido = pedidoServices.getSemana(data)
+            ResponseEntity.status(HttpStatus.OK).body((semanaPedido))
+        }
+        catch (e: Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
 
 
     @GetMapping("/PedidosSemana")

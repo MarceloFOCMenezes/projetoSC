@@ -61,6 +61,37 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
 
 
     @Query("""
+    WITH RECURSIVE semana AS (
+    SELECT DATE_SUB(
+               STR_TO_DATE(:data, '%Y-%m-%d'),
+               INTERVAL WEEKDAY(STR_TO_DATE(:data, '%Y-%m-%d')) DAY
+           ) AS data
+    UNION ALL
+    SELECT DATE_ADD(data, INTERVAL 1 DAY)
+    FROM semana
+    WHERE data < DATE_ADD(
+                    DATE_SUB(
+                        STR_TO_DATE(:data, '%Y-%m-%d'),
+                        INTERVAL WEEKDAY(STR_TO_DATE(:data, '%Y-%m-%d')) DAY
+                    ),
+                    INTERVAL 6 DAY
+                )
+)
+SELECT 
+    DATE_FORMAT(sm.data, '%Y-%m-%d') AS data,
+    COUNT(pd.id_Pedido) AS quantidade
+FROM semana sm
+LEFT JOIN PEDIDO pd
+    ON DATE(pd.dt_entrega_esperada) = sm.data
+    AND pd.fk_status_pedido = 5
+GROUP BY sm.data
+ORDER BY sm.data;
+
+""", nativeQuery = true)
+    fun getPedidosSemanaData(data:String): List<PedidoSemanaResponse>
+
+
+    @Query("""
         UPDATE Pedido p
         SET p.statusPedido.idStatusPedido = 2,
         p.dt_entrega_esperada = ?2,
