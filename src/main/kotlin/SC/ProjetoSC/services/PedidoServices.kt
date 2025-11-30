@@ -10,6 +10,7 @@ import sc.projetosc.Response.PedidoResponse
 import org.springframework.stereotype.Service
 import sc.projetosc.entity.*
 import sc.projetosc.repository.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -98,12 +99,13 @@ class PedidoServices(
         return pedidoAtual
     }
 
-    fun listarPedidosPorUsuario(idUsuario: Int): List<PedidoResponse> {
-        // Busca os pedidos do usuário pelo ID do cliente
-        val pedidos = pedidoRepository.findByClienteId(idUsuario)
+    fun listarPedidosPorData(dataPedido: String): List<PedidoResponse>{
 
-        // Reaproveita o método que já converte Pedido -> PedidoResponse
-        return listarPedido(pedidos)
+        val pedidos = pedidoRepository.findByDtPedido(dataPedido)
+
+        val pedidosTratados = listarPedido(pedidos)
+
+        return pedidosTratados
     }
 
     fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
@@ -112,8 +114,8 @@ class PedidoServices(
     }
 
     fun listarPedidosPendentes(): List<PedidoResponse> {
-        // Busca pedidos com status 3 (Aceito pela confeiteira), 4 (Validado pelo fornecedor) e 5 (Agendamento confirmado)
-        val statusPendentes = listOf(3, 4, 5)
+        // Busca pedidos com status 2 (Enviado), 3 (Validação) e 4 (Pagamento)
+        val statusPendentes = listOf(2, 3, 4)
         val todosPedidosPendentes = mutableListOf<Pedido>()
         
         statusPendentes.forEach { statusId ->
@@ -285,5 +287,15 @@ class PedidoServices(
             throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
         }
     }
+
+    fun getSemana(data:String): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemanaData(data)
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
+        }
+    }
+
 }
 

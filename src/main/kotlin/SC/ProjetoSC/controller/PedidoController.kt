@@ -25,6 +25,50 @@ class PedidoController(
 ) {
 
 
+    @GetMapping("/PedidosData")
+    @Operation(summary = "Lista pedidos por data")
+    @ApiResponses(value =[
+        ApiResponse(responseCode = "200", description = "Pedidos por Data"),
+    ])
+    fun listarPedidosData(@RequestParam data: String): ResponseEntity<List<PedidoResponse>> {
+        return try {
+            val pedidosData = pedidoServices.listarPedidosPorData(data)
+            ResponseEntity.status(HttpStatus.OK).body(pedidosData)
+        }
+        catch (e:Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
+    @GetMapping("/PedidosStatus")
+    @Operation(summary = "Lista pedidos por data")
+    @ApiResponses(value =[
+        ApiResponse(responseCode = "200", description = "Pedidos por Data"),
+    ])
+    fun listarPedidosStatus(@RequestParam idStatus: Int): ResponseEntity<List<PedidoResponse>> {
+        return try {
+            val pedidosStatus = pedidoServices.listarPedidosPorStatus(idStatus)
+            ResponseEntity.status(HttpStatus.OK).body(pedidosStatus)
+        }
+        catch (e:Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+    @GetMapping("/PedidosSemanaData")
+    @Operation(summary = "Lista pedidos semana com data")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Pedidos Semana")
+    ])
+    fun listarPedidosSemana(@RequestParam data:String): ResponseEntity<List<PedidoSemanaResponse>> {
+        return try{
+            val semanaPedido = pedidoServices.getSemana(data)
+            ResponseEntity.status(HttpStatus.OK).body((semanaPedido))
+        }
+        catch (e: Exception){
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+        }
+    }
+
 
     @GetMapping("/PedidosSemana")
     @Operation(summary = "Lista pedidos semana")
@@ -98,19 +142,15 @@ class PedidoController(
 
 
     @GetMapping("/pendentes")
-    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 3, 4 e 5).")
+    @Operation(summary = "Listar pedidos pendentes", description = "Retorna uma lista de pedidos pendentes para a confeiteira (status 2, 3 e 4).")
     @ApiResponses(value = [
-        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos."),
-        ApiResponse(responseCode = "204", description = "Nenhum pedido pendente encontrado. O corpo da resposta estará vazio.")
+        ApiResponse(responseCode = "200", description = "Lista de pedidos pendentes retornada com sucesso. O corpo da resposta contém os dados dos pedidos (pode ser um array vazio se não houver pedidos pendentes).")
     ])
     fun listarPedidosPendentes(): ResponseEntity<List<PedidoResponse>> {
         try {
             val pedidosPendentes = pedidoServices.listarPedidosPendentes()
-            return if (pedidosPendentes.isEmpty()) {
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build()
-            } else {
-                ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
-            }
+            // Sempre retorna 200 com um array (mesmo que vazio) para facilitar o tratamento no frontend
+            return ResponseEntity.status(HttpStatus.OK).body(pedidosPendentes)
         } catch (e: Exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
