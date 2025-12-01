@@ -279,15 +279,15 @@ class PedidoController(
         ]
     )
     fun listarPedidosDoUsuario(@RequestParam idUsuario: Int): ResponseEntity<List<PedidoResponse>> {
-        try {
+        return try {
             val pedidos = pedidoServices.listarPedidosPorUsuario(idUsuario)
-            return if (pedidos.isEmpty()) {
+            if (pedidos.isEmpty()) {
                 ResponseEntity.status(HttpStatus.NO_CONTENT).build()
             } else {
                 ResponseEntity.status(HttpStatus.OK).body(pedidos)
             }
         } catch (e: Exception) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 }

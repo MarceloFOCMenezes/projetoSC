@@ -297,5 +297,10 @@ class PedidoServices(
         }
     }
 
+    fun listarPedidosPorUsuario(idUsuario: Int): List<PedidoResponse> {
+        val pedidosUsuario = pedidoRepository.findByClienteId(idUsuario) // Busca pedidos pelo ID do cliente
+        return listarPedido(pedidosUsuario) // Reutiliza o método listarPedido para mapear os pedidos
+    }
+
 }
 
