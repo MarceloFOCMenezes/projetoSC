@@ -58,7 +58,12 @@ data class Usuario(
 
     @Schema(description = "Data e hora do último login do usuário")
     @Column(name = "data_ultimo_login")
-    var dataUltimoLogin: LocalDateTime? = null
+    var dataUltimoLogin: LocalDateTime? = null,
+
+    @field:NotNull
+    @Schema(description = "Indica o usuário não está ativo: 0 ou se está ativo 1")
+    @Column(name = "ativo", nullable = false)
+    val ativo: Boolean? = null,
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades
