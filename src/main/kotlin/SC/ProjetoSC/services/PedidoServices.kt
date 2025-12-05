@@ -114,16 +114,19 @@ class PedidoServices(
     }
 
     fun listarPedidosPendentes(): List<PedidoResponse> {
-        // Busca pedidos com status 2 (Enviado), 3 (Validação) e 4 (Pagamento)
-        val statusPendentes = listOf(2, 3, 4)
-        val todosPedidosPendentes = mutableListOf<Pedido>()
-        
-        statusPendentes.forEach { statusId ->
-            val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(statusId)
-            todosPedidosPendentes.addAll(pedidos)
-        }
-        
-        return listarPedido(todosPedidosPendentes)
+        val hoje = LocalDate.now()
+        val dataMinima = hoje.plusDays(3)
+
+        val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedidoIn(listOf(2, 3, 4))
+
+        return pedidos
+            .filter { pedido ->
+                pedido.dtEntregaEsperada?.let { dataEntrega ->
+                    val dataEntregaDate = dataEntrega.toLocalDate()
+                    dataEntregaDate.isAfter(dataMinima) || dataEntregaDate.isEqual(dataMinima)
+                } ?: false
+            }
+            .let { pedidosFiltrados -> listarPedido(pedidosFiltrados) }
     }
 
     fun atualizarStatusPedido(idPedido: Int, idStatusPedido: Int): PedidoResponse {

@@ -27,6 +27,8 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     fun findByClienteIdAndStatusPedidoIdStatusPedidoOrderByDtPedidoDesc(clienteId: Int, statusPedidoId: Int): List<Pedido>
     fun findByStatusPedidoIdStatusPedido(statusPedidoId: Int): List<Pedido>
 
+    fun findByStatusPedidoIdStatusPedidoIn(statusList: List<Int>): List<Pedido>
+
     fun findAllByDtEntregaEsperadaBetween(inicio: LocalDateTime, fim: LocalDateTime): List<Pedido>
 
     fun findPedidoByDtEntregaEsperada(dtEntrega: LocalDateTime): List<Pedido>
