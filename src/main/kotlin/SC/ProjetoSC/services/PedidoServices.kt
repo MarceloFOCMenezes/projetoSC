@@ -1,5 +1,6 @@
 package sc.projetosc.services
 
+import  sc.projetosc.Response.PedidoSemanaResponse
 import sc.projetosc.Enum.FormaPagamentoEnum
 import sc.projetosc.request.AdicionarItemPedidoRequest
 import sc.projetosc.request.EnviarPedidoRequest
@@ -9,6 +10,7 @@ import sc.projetosc.Response.PedidoResponse
 import org.springframework.stereotype.Service
 import sc.projetosc.entity.*
 import sc.projetosc.repository.*
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -26,12 +28,18 @@ class PedidoServices(
     private val googleCalendarServices: GoogleCalendarServices,
     private val anexoRepository: AnexoRepository
 ) {
-
+    fun findDiasLotados(): List<String> {
+        if (pedidoRepository.findDiasLotados().isEmpty()) {
+            return emptyList()
+        }
+        return pedidoRepository.findDiasLotados()
+    }
 
     private fun listarPedido(listaPedidos: List<Pedido>): List<PedidoResponse> {
         return listaPedidos.map { pedido ->
             val listaItensPedido = mutableListOf<ItemPedidoResponse>()
-            val itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!)
+            // Filtra apenas os itens do pedido que estão ativos (ativo == true)
+            val itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).filter{it.ativo == true}
 
             itensPedido.forEach { item ->
                 val listaIngredientes = mutableListOf<ItemPedidoIngredienteResponse>()
@@ -53,6 +61,7 @@ class PedidoServices(
 
                 listaItensPedido.add(
                     ItemPedidoResponse(
+                        idItemPedido = item.idItemPedido,
                         descricao = produto?.descricao,
                         quantidade = item.quantidade,
                         precoUnitario = produtoRepository.findById(item.produto?.idProduto ?: 0)
@@ -90,9 +99,34 @@ class PedidoServices(
         return pedidoAtual
     }
 
+    fun listarPedidosPorData(dataPedido: String): List<PedidoResponse>{
+
+        val pedidos = pedidoRepository.findByDtPedido(dataPedido)
+
+        val pedidosTratados = listarPedido(pedidos)
+
+        return pedidosTratados
+    }
+
     fun listarPedidosPorStatus(idStatusPedido: Int): List<PedidoResponse> {
         val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedido(idStatusPedido)
         return listarPedido(pedidos)
+    }
+
+    fun listarPedidosPendentes(): List<PedidoResponse> {
+        val hoje = LocalDate.now()
+        val dataMinima = hoje.plusDays(3)
+
+        val pedidos = pedidoRepository.findByStatusPedidoIdStatusPedidoIn(listOf(2, 3, 4))
+
+        return pedidos
+            .filter { pedido ->
+                pedido.dtEntregaEsperada?.let { dataEntrega ->
+                    val dataEntregaDate = dataEntrega.toLocalDate()
+                    dataEntregaDate.isAfter(dataMinima) || dataEntregaDate.isEqual(dataMinima)
+                } ?: false
+            }
+            .let { pedidosFiltrados -> listarPedido(pedidosFiltrados) }
     }
 
     fun atualizarStatusPedido(idPedido: Int, idStatusPedido: Int): PedidoResponse {
@@ -107,40 +141,11 @@ class PedidoServices(
         return pedidoAutalizado
     }
 
-
-
-
+    // Reutiliza listarPedido (que já filtra itens ativos)
     fun listarPedidosPorId(idPedido: Int): PedidoResponse {
         val pedido = pedidoRepository.findById(idPedido).orElseThrow { Exception("Pedido não encontrado") }
-        return PedidoResponse(
-            dtPedido = pedido.dtPedido.toString(),
-            dtEntregaEsperada = pedido.dtEntregaEsperada.toString(),
-            precoTotal = pedido.precoTotal,
-            isRetirada = pedido.isRetirada,
-            clienteId = pedido.cliente?.id,
-            endereco = pedido.endereco?.idEndereco?.let { EnderecoRepository.findById(it).orElse(null) },
-            statusPedido = pedido.statusPedido?.descricao,
-            formaPagamento = pedido.formaPagamento.toString(),
-            itensPedido = itemPedidoRepository.findByPedidoId(pedido.id!!).map { item ->
-                ItemPedidoResponse(
-                    descricao = item.produto?.descricao,
-                    quantidade = item.quantidade,
-                    precoUnitario = item.produto?.precoUnitario?.toDouble(),
-                    informacaoBolo = informacaoBoloRepository.findById(item.idItemPedido!!).orElse(null),
-                    ingredientes = itemPedidoIngredienteRepository.findIngredienteInItemPedido(item.idItemPedido)
-                        .map { row ->
-                            ItemPedidoIngredienteResponse(
-                                nome = row[0] as String,
-                                isPremium = (row[1] as Long) == 1L,
-                                descricao = row[2] as String
-                            )
-                        }
-                )
-            }
-        )
+        return listarPedido(listOf(pedido)).first()
     }
-
-
 
     fun adicionarItemPedido(adicionarItemPedidoRequest: AdicionarItemPedidoRequest) : PedidoResponse {
         try{
@@ -151,6 +156,7 @@ class PedidoServices(
                     dtPedido = LocalDateTime.now(),
                     cliente = cliente,
                     statusPedido = statusPedidoRepository.findById(1).orElseThrow { Exception("Status do pedido não encontrado") },
+
                 )
                 pedidoRepository.save(pedido)
             }
@@ -160,13 +166,20 @@ class PedidoServices(
             val itemPedido = ItemPedido(
                 pedido = pedido,
                 produto = produto,
-                quantidade = adicionarItemPedidoRequest.quantidade, // Defina a quantidade padrão como 1, ou ajuste conforme necessário
+                quantidade = adicionarItemPedidoRequest.quantidade,
                 preco = adicionarItemPedidoRequest.preco,
+                ativo = true
             )
-            pedido.precoTotal = pedido.precoTotal?.plus(produto.precoUnitario!!.toDouble() * adicionarItemPedidoRequest.quantidade!!)
+            pedido.precoTotal = pedido.precoTotal?.plus(itemPedido.preco!!.toDouble())
+
             itemPedidoRepository.save(itemPedido)
 
             if(produto.temIngrediente!!){
+                if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
+                    adicionarItemPedidoRequest.listaIngredientes?.forEach { idIngrediente ->
+                        adicionarIngredienteAoItemPedido(itemPedido.idItemPedido!!, idIngrediente)
+                    }
+                }
                 if(adicionarItemPedidoRequest.informacaoBolo != null) {
                     val anexoId = adicionarItemPedidoRequest.informacaoBolo.anexo
                     val anexoAtual = anexoRepository.findById(anexoId!!).orElseThrow{Exception("Anexo não encontrado")}
@@ -179,11 +192,7 @@ class PedidoServices(
                     informacaoBoloRepository.save(informacaoBolo)
 
                 }
-                if(adicionarItemPedidoRequest.listaIngredientes!!.isNotEmpty()){
-                    adicionarItemPedidoRequest.listaIngredientes?.forEach { idIngrediente ->
-                        adicionarIngredienteAoItemPedido(itemPedido.idItemPedido!!, idIngrediente)
-                    }
-                }
+
             }
             return listarPedido(listOf(pedido)).first()
         }
@@ -231,9 +240,7 @@ class PedidoServices(
 
         pedido.statusPedido =  statusPedidoRepository.findById(2).orElseThrow { Exception("Status do pedido não encontrado") }
 
-        pedido.formaPagamento = enviarPedidoRequest.formaPagamento.let {
-            FormaPagamentoEnum.valueOf(it!!)
-        }
+        pedido.formaPagamento = null
         pedido.isRetirada = enviarPedidoRequest.isRetirada
 
         if(!pedido.isRetirada!!){
@@ -246,8 +253,57 @@ class PedidoServices(
         pedido.dtEntregaEsperada = LocalDateTime.parse(data!!, formatter)
 
         // chamando a função para criar o evento no Google Calendar
-        googleCalendarServices.agendarEvento(pedido.id!!)
+       // googleCalendarServices.agendarEvento(pedido.id!!)
 
+        pedidoRepository.save(pedido);
         return listarPedido(listOf(pedido)).first()
     }
+
+    fun desabilitarItemPedido(idItemPedido: Int): PedidoResponse {
+        try {
+            val itemPedido = itemPedidoRepository.findById(idItemPedido).orElseThrow { Exception("Item de pedido não encontrado") }
+            val pedido = itemPedido.pedido ?: throw Exception("Pedido não encontrado para o item")
+            if (itemPedido.ativo == false) {
+                return listarPedido(listOf(pedido)).first()
+            }
+
+            // marcar item como inativo
+            itemPedido.ativo = false
+            itemPedidoRepository.save(itemPedido)
+
+
+            val decremento = (itemPedido.preco?.toDouble() ?: 0.0)
+            pedido.precoTotal = (pedido.precoTotal ?: 0.0) - decremento
+            pedidoRepository.save(pedido)
+
+            return listarPedido(listOf(pedido)).first()
+        } catch (e: Exception) {
+            throw Exception("Erro ao desabilitar item do pedido: ${e.message}")
+        }
+    }
+
+    fun PedidoSemana(): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemana()
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
+        }
+    }
+
+    fun getSemana(data:String): List<PedidoSemanaResponse>{
+        try{
+            return pedidoRepository.getPedidosSemanaData(data)
+        }
+        catch (e: Exception) {
+            throw  Exception("Erro ao obter pedidos da semana: ${e.message}")
+        }
+    }
+
+    fun listarPedidosPorUsuario(idUsuario: Int): List<PedidoResponse> {
+        val pedidosUsuario = pedidoRepository.findByClienteId(idUsuario) // Busca pedidos pelo ID do cliente
+        return listarPedido(pedidosUsuario) // Reutiliza o método listarPedido para mapear os pedidos
+    }
+
 }
+

@@ -70,7 +70,12 @@ data class Usuario(
     @Schema(description = "Data e hora do cadastro do usuário")
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     @CreationTimestamp // Define automaticamente a data/hora no momento da criação
-    var dataCadastro: LocalDateTime? = null
+    var dataCadastro: LocalDateTime? = null,
+
+    @field:NotNull
+    @Schema(description = "Indica o usuário não está ativo: 0 ou se está ativo 1")
+    @Column(name = "ativo", nullable = false)
+    val ativo: Boolean? = null,
 ) {
 
     // O JPA exige que exista um construtor vazio nas Entidades

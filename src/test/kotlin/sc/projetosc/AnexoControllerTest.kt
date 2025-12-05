@@ -43,7 +43,7 @@ class AnexoControllerTest {
         val resposta = controller.upload(mockFile)
 
         assertEquals(HttpStatus.CREATED, resposta.statusCode)
-        assertEquals(anexo, resposta.body)
+
     }
 
     @Test

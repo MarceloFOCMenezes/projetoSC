@@ -16,11 +16,9 @@ data class InformacaoBolo(
     @Column(name = "id_item_pedido")
     val idItemPedido: Int? = null,
 
-    @field:NotBlank @field:Size(min = 2, max = 255)
     @Schema(description = "Tema do bolo")
     val tema: String? = null,
 
-    @field:NotBlank @field:Size(min = 2, max = 255)
     @Schema(description = "Detalhes do bolo")
     val detalhes: String? = null,
 

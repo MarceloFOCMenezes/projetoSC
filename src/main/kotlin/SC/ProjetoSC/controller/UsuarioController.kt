@@ -196,6 +196,23 @@ class UsuarioController (
         }
     }
 
+    @PutMapping("/ativar/{id}")
+    @Operation(summary = "Ativar usuário", description = "Ativa um usuário no sistema.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Usuário ativado com sucesso. O corpo da resposta contém o usuário ativado."),
+        ApiResponse(responseCode = "404", description = "Usuário não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun ativarUsuario(@PathVariable id: Int): ResponseEntity<Usuario> {
+        return if (repositorio.existsById(id)) {
+            val usuario = repositorio.findById(id).get()
+            usuario.logado = true
+            repositorio.save(usuario)
+            ResponseEntity.ok(usuario)
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
+
     @PutMapping("/{id}")
     fun atualizarUsuario(@PathVariable id: Int, @RequestBody novosDados: Usuario): ResponseEntity<Usuario> {
         return if (repositorio.existsById(id)) {
@@ -211,6 +228,21 @@ class UsuarioController (
             ResponseEntity.ok(usuarioExistente)
         } else {
             ResponseEntity.notFound().build()
+        }
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar usuário por ID", description = "Retorna um usuário específico pelo seu ID.")
+    @ApiResponses(value = [
+        ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso. O corpo da resposta contém os dados do usuário."),
+        ApiResponse(responseCode = "404", description = "Usuário não encontrado. O corpo da resposta estará vazio.")
+    ])
+    fun buscarUsuarioPorId(@PathVariable id: Int): ResponseEntity<Usuario> {
+        val usuarioOpt = repositorio.findById(id)
+        return if (usuarioOpt.isPresent) {
+            ResponseEntity.status(200).body(usuarioOpt.get())
+        } else {
+            ResponseEntity.status(404).build()
         }
     }
 
