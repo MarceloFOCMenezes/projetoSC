@@ -1,17 +1,13 @@
 package sc.projetosc.services
 
-import sc.projetosc.dto.DashboardOverviewDTO
-import sc.projetosc.dto.EstatisticasGeraisDTO
-import sc.projetosc.dto.PedidosPeriodoDTO
-import sc.projetosc.dto.TopClienteDTO
-import sc.projetosc.dto.IngredientePorTipoDTO
-import sc.projetosc.dto.RankingIngredientesPorTipoDTO
-import sc.projetosc.dto.IngredienteRankingDTO
 import sc.projetosc.repository.PedidoRepository
 import sc.projetosc.repository.IngredienteRepository
 import org.springframework.stereotype.Service
 import org.slf4j.LoggerFactory
+import sc.projetosc.dto.*
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import kotlin.math.roundToInt
 
 @Service
 class DashboardService(
@@ -22,10 +18,10 @@ class DashboardService(
 
     fun getDashboardOverview(): DashboardOverviewDTO {
         return try {
-            val pedidosHoje = pedidoRepository.countPedidosHoje()
-            val pendentes = pedidoRepository.countPedidosPendentes()
-            val produzindo = pedidoRepository.countPedidosProduzindo()
-            val concluidos = pedidoRepository.countPedidosConcluidos()
+            val pedidosHoje = pedidoRepository.countPedidosHoje() ?: 0
+            val pendentes = pedidoRepository.countPedidosPendentes() ?: 0
+            val produzindo = pedidoRepository.countPedidosProduzindo() ?: 0
+            val concluidos = pedidoRepository.countPedidosConcluidos() ?: 0
 
             DashboardOverviewDTO(
                 pedidosHoje = pedidosHoje,
@@ -118,10 +114,10 @@ class DashboardService(
                 throw IllegalArgumentException("Datas de início e fim são obrigatórias")
             }
             
-            val totalPedidosPeriodo = pedidoRepository.countPedidosPeriodo(dataInicio, dataFim)
-            val receitaTotalPeriodo = pedidoRepository.sumReceitaPeriodo(dataInicio, dataFim)
-            val ticketMedio = pedidoRepository.avgTicketMedioPeriodo(dataInicio, dataFim)
-            val taxaConclusao = pedidoRepository.calcTaxaConclusaoPeriodo(dataInicio, dataFim)
+            val totalPedidosPeriodo = pedidoRepository.countPedidosPeriodo(dataInicio, dataFim) ?: 0
+            val receitaTotalPeriodo = pedidoRepository.sumReceitaPeriodo(dataInicio, dataFim) ?: 0.0
+            val ticketMedio = pedidoRepository.avgTicketMedioPeriodo(dataInicio, dataFim) ?: 0.0
+            val taxaConclusao = pedidoRepository.calcTaxaConclusaoPeriodo(dataInicio, dataFim) ?: 0.0
 
             EstatisticasGeraisDTO(
                 totalPedidosPeriodo = totalPedidosPeriodo,
@@ -206,4 +202,70 @@ class DashboardService(
         }
     }
 
+    fun getComparacaoPedidos(dataInicio: String, dataFim: String): PedidosComparisonDTO {
+        val inicio = LocalDate.parse(dataInicio)
+        val fim = LocalDate.parse(dataFim)
+        val diasPeriodo = ChronoUnit.DAYS.between(inicio, fim)
+        
+        val dataInicioAnterior = inicio.minusDays(diasPeriodo + 1)
+        val dataFimAnterior = inicio.minusDays(1)
+        
+        val pedidosAtual = pedidoRepository.countPedidosConcluidosByPeriodo(
+            dataInicio, 
+            dataFim
+        ) ?: 0
+        
+        val pedidosAnterior = pedidoRepository.countPedidosConcluidosByPeriodo(
+            dataInicioAnterior.toString(), 
+            dataFimAnterior.toString()
+        ) ?: 0
+        
+        val percentualCrescimento = if (pedidosAnterior > 0) {
+            ((pedidosAtual - pedidosAnterior).toDouble() / pedidosAnterior) * 100
+        } else {
+            if (pedidosAtual > 0) 100.0 else 0.0
+        }
+        
+        return PedidosComparisonDTO(
+            periodoAtual = pedidosAtual,
+            periodoAnterior = pedidosAnterior,
+            percentualCrescimento = (percentualCrescimento * 10).roundToInt() / 10.0
+        )
+    }
+
+    fun getPrecoMedio(dataInicio: String, dataFim: String): PrecoMedioDTO {
+        val precoMedio = pedidoRepository.calcularPrecoMedioPedidosConcluidos(dataInicio, dataFim) ?: 0.0
+        val totalPedidos = pedidoRepository.countPedidosConcluidosByPeriodo(dataInicio, dataFim) ?: 0
+        
+        return PrecoMedioDTO(
+            precoMedio = (precoMedio * 100).roundToInt() / 100.0,
+            totalPedidos = totalPedidos
+        )
+    }
+
+    fun getRankingClientes(dataInicio: String, dataFim: String, limit: Int): List<ClienteRankingDTO> {
+        val resultados = pedidoRepository.findTopClientesByValorGasto(dataInicio, dataFim, limit)
+        
+        return resultados.map { row ->
+            ClienteRankingDTO(
+                clienteId = (row[0] as Number).toInt(),
+                clienteNome = row[1] as String,
+                clienteEmail = row[2] as String,
+                totalGasto = (row[3] as Number).toDouble(),
+                quantidadePedidos = (row[4] as Number).toInt()
+            )
+        }
+    }
+
+    fun getRankingIngredientes(dataInicio: String, dataFim: String, limit: Int): List<IngredienteRankingDTO> {
+        val resultados = pedidoRepository.findTopIngredientesMaisPedidos(dataInicio, dataFim, limit)
+        
+        return resultados.map { row ->
+            IngredienteRankingDTO(
+                ingredienteId = (row[0] as Number).toInt(),
+                ingredienteNome = row[1] as String,
+                quantidadePedidos = (row[2] as Number).toInt()
+            )
+        }
+    }
 }

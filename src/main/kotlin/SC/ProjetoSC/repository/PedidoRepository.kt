@@ -104,22 +104,22 @@ ORDER BY sm.data;
     ): Int
 
     // Dashboard queries
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) = CURDATE()", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) = CURDATE()", nativeQuery = true)
     fun countPedidosHoje(): Int
 
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE p.fk_status_pedido = 2", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE p.fk_status_pedido = 2", nativeQuery = true)
     fun countPedidosPendentes(): Int
 
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE p.fk_status_pedido = 3", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE p.fk_status_pedido = 3", nativeQuery = true)
     fun countPedidosProduzindo(): Int
 
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE p.fk_status_pedido = 4 AND DATE(p.dt_entrega_esperada) = CURDATE()", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE p.fk_status_pedido = 4 AND DATE(p.dt_entrega_esperada) = CURDATE()", nativeQuery = true)
     fun countPedidosConcluidos(): Int
 
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE MONTH(p.dt_entrega_esperada) = MONTH(CURDATE()) AND YEAR(p.dt_entrega_esperada) = YEAR(CURDATE())", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE MONTH(p.dt_entrega_esperada) = MONTH(CURDATE()) AND YEAR(p.dt_entrega_esperada) = YEAR(CURDATE())", nativeQuery = true)
     fun countPedidosMes(): Int
 
-    @Query("SELECT COUNT(*) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim", nativeQuery = true)
+    @Query("SELECT COALESCE(COUNT(*), 0) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim AND p.fk_status_pedido = 7", nativeQuery = true)
     fun countPedidosPeriodo(dataInicio: String, dataFim: String): Int
 
     @Query("SELECT COALESCE(SUM(p.preco_total), 0) FROM Pedido p WHERE MONTH(p.dt_entrega_esperada) = MONTH(CURDATE()) AND YEAR(p.dt_entrega_esperada) = YEAR(CURDATE()) AND p.fk_status_pedido IN (4, 5)", nativeQuery = true)
@@ -131,12 +131,14 @@ ORDER BY sm.data;
     @Query("SELECT COALESCE(AVG(p.preco_total), 0) FROM Pedido p WHERE MONTH(p.dt_entrega_esperada) = MONTH(CURDATE()) AND YEAR(p.dt_entrega_esperada) = YEAR(CURDATE())", nativeQuery = true)
     fun avgTicketMedio(): Double
 
-    @Query("SELECT COALESCE(AVG(p.preco_total), 0) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim", nativeQuery = true)
+    @Query("SELECT COALESCE(AVG(p.preco_total), 0) FROM Pedido p WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim AND fk_status_pedido = 7", nativeQuery = true)
     fun avgTicketMedioPeriodo(dataInicio: String, dataFim: String): Double
 
     @Query("""
-        SELECT 
-            (COUNT(CASE WHEN p.fk_status_pedido IN (4, 5) THEN 1 END) * 100.0) / COUNT(*)
+        SELECT COALESCE(
+            (COUNT(CASE WHEN p.fk_status_pedido IN (4, 5) THEN 1 END) * 100.0) / NULLIF(COUNT(*), 0),
+            0
+        )
         FROM Pedido p 
         WHERE MONTH(p.dt_entrega_esperada) = MONTH(CURDATE()) 
         AND YEAR(p.dt_entrega_esperada) = YEAR(CURDATE())
@@ -145,8 +147,10 @@ ORDER BY sm.data;
     fun calcTaxaConclusao(): Double
 
     @Query("""
-        SELECT 
-            (COUNT(CASE WHEN p.fk_status_pedido IN (4, 5) THEN 1 END) * 100.0) / COUNT(*)
+        SELECT COALESCE(
+            (COUNT(CASE WHEN p.fk_status_pedido IN (7) THEN 1 END) * 100.0) / NULLIF(COUNT(*), 0),
+            0
+        )
         FROM Pedido p 
         WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim
         AND p.fk_status_pedido > 1
@@ -179,4 +183,54 @@ ORDER BY sm.data;
     """, nativeQuery = true)
     fun getTopClientesPorPeriodo(dataInicio: String, dataFim: String): List<Array<Any>>
 
+    // Novos métodos para indicadores do dashboard
+    @Query("""
+        SELECT COALESCE(COUNT(*), 0)
+        FROM Pedido p 
+        WHERE p.fk_status_pedido = 7 
+        AND DATE(p.dt_pedido) BETWEEN :dataInicio AND :dataFim
+    """, nativeQuery = true)
+    fun countPedidosConcluidosByPeriodo(dataInicio: String, dataFim: String): Int
+
+    @Query("""
+        SELECT COALESCE(AVG(p.preco_total), 0) 
+        FROM Pedido p 
+        WHERE p.fk_status_pedido = 7 
+        AND DATE(p.dt_pedido) BETWEEN :dataInicio AND :dataFim
+    """, nativeQuery = true)
+    fun calcularPrecoMedioPedidosConcluidos(dataInicio: String, dataFim: String): Double
+
+    @Query("""
+        SELECT 
+            u.id_usuario as id,
+            u.nome_usuario as nome,
+            u.email_usuario as email,
+            COALESCE(SUM(p.preco_total), 0) as total_gasto,
+            COUNT(p.id_pedido) as quantidade_pedidos
+        FROM usuario u
+        INNER JOIN pedido p ON u.id_usuario = p.fk_cliente
+        WHERE p.fk_status_pedido = 7
+        AND DATE(p.dt_pedido) BETWEEN :dataInicio AND :dataFim
+        GROUP BY u.id_usuario, u.nome_usuario, u.email_usuario
+        ORDER BY total_gasto DESC
+        LIMIT :limit
+    """, nativeQuery = true)
+    fun findTopClientesByValorGasto(dataInicio: String, dataFim: String, limit: Int): List<Array<Any>>
+
+    @Query("""
+        SELECT 
+            i.id_ingrediente as id,
+            i.nome as nome,
+            COUNT(DISTINCT ip.id_item_pedido) as quantidade_pedidos
+        FROM ingrediente i
+        INNER JOIN item_pedido_ingrediente ipi ON i.id_ingrediente = ipi.fk_ingrediente
+        INNER JOIN item_pedido ip ON ipi.fk_item_pedido = ip.id_item_pedido
+        INNER JOIN pedido p ON ip.fk_pedido = p.id_pedido
+        WHERE p.fk_status_pedido = 7
+        AND DATE(p.dt_pedido) BETWEEN :dataInicio AND :dataFim
+        GROUP BY i.id_ingrediente, i.nome
+        ORDER BY quantidade_pedidos DESC
+        LIMIT :limit
+    """, nativeQuery = true)
+    fun findTopIngredientesMaisPedidos(dataInicio: String, dataFim: String, limit: Int): List<Array<Any>>
 }

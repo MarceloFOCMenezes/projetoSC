@@ -13,6 +13,10 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.slf4j.LoggerFactory
+import sc.projetosc.dto.PedidosComparisonDTO
+import sc.projetosc.dto.PrecoMedioDTO
+import sc.projetosc.dto.ClienteRankingDTO
+import sc.projetosc.dto.IngredienteRankingDTO
 
 @RestController
 @RequestMapping("/dashboard")
@@ -213,6 +217,172 @@ class DashboardController(
         } catch (e: Exception) {
             println("Erro ao buscar top clientes: ${e.message}")
             e.printStackTrace()
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @GetMapping("/comparacao-pedidos")
+    @Operation(
+        summary = "Comparação de pedidos concluídos entre períodos",
+        description = """
+            Compara a quantidade de pedidos concluídos (status 7) entre o período selecionado 
+            e o período anterior de mesma duração. Calcula automaticamente o percentual de crescimento.
+            
+            **Critérios:**
+            - Considera apenas pedidos com status 7 (concluídos)
+            - Baseado na data do pedido (dt_pedido)
+            - Compara com período anterior de mesma duração
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Comparação retornada com sucesso"),
+            ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos"),
+            ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        ]
+    )
+    fun getComparacaoPedidos(
+        @RequestParam dataInicio: String,
+        @RequestParam dataFim: String
+    ): ResponseEntity<PedidosComparisonDTO> {
+        return try {
+            if (!isValidDateFormat(dataInicio) || !isValidDateFormat(dataFim)) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            if (dataInicio > dataFim) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            val comparacao = dashboardService.getComparacaoPedidos(dataInicio, dataFim)
+            ResponseEntity.ok(comparacao)
+        } catch (e: Exception) {
+            logger.error("Erro ao buscar comparação de pedidos", e)
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @GetMapping("/preco-medio")
+    @Operation(
+        summary = "Preço médio dos pedidos concluídos",
+        description = """
+            Calcula o preço médio dos pedidos concluídos (status 7) no período especificado.
+            
+            **Critérios:**
+            - Considera apenas pedidos com status 7 (concluídos)
+            - Baseado na data do pedido (dt_pedido)
+            - Retorna o valor médio com 2 casas decimais
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Preço médio retornado com sucesso"),
+            ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos"),
+            ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        ]
+    )
+    fun getPrecoMedio(
+        @RequestParam dataInicio: String,
+        @RequestParam dataFim: String
+    ): ResponseEntity<PrecoMedioDTO> {
+        return try {
+            if (!isValidDateFormat(dataInicio) || !isValidDateFormat(dataFim)) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            if (dataInicio > dataFim) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            val precoMedio = dashboardService.getPrecoMedio(dataInicio, dataFim)
+            ResponseEntity.ok(precoMedio)
+        } catch (e: Exception) {
+            logger.error("Erro ao buscar preço médio", e)
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @GetMapping("/ranking-clientes")
+    @Operation(
+        summary = "Ranking de clientes por valor gasto",
+        description = """
+            Retorna os clientes que mais gastaram no período, considerando apenas pedidos concluídos.
+            
+            **Critérios:**
+            - Considera apenas pedidos com status 7 (concluídos)
+            - Baseado na data do pedido (dt_pedido)
+            - Ordenado por valor total gasto (decrescente)
+            - Limitado a 10 clientes por padrão
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Ranking retornado com sucesso"),
+            ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos"),
+            ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        ]
+    )
+    fun getRankingClientes(
+        @RequestParam dataInicio: String,
+        @RequestParam dataFim: String,
+        @RequestParam(defaultValue = "10") limit: Int
+    ): ResponseEntity<List<ClienteRankingDTO>> {
+        return try {
+            if (!isValidDateFormat(dataInicio) || !isValidDateFormat(dataFim)) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            if (dataInicio > dataFim) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            val ranking = dashboardService.getRankingClientes(dataInicio, dataFim, limit)
+            ResponseEntity.ok(ranking)
+        } catch (e: Exception) {
+            logger.error("Erro ao buscar ranking de clientes", e)
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
+    @GetMapping("/ranking-ingredientes")
+    @Operation(
+        summary = "Ranking de ingredientes mais pedidos",
+        description = """
+            Retorna os ingredientes mais utilizados no período, considerando apenas pedidos concluídos.
+            
+            **Critérios:**
+            - Considera apenas pedidos com status 7 (concluídos)
+            - Baseado na data do pedido (dt_pedido)
+            - Conta quantas vezes o ingrediente aparece em ItemPedidos
+            - Ordenado por quantidade de pedidos (decrescente)
+            - Limitado a 10 ingredientes por padrão
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Ranking retornado com sucesso"),
+            ApiResponse(responseCode = "400", description = "Parâmetros de data inválidos"),
+            ApiResponse(responseCode = "500", description = "Erro interno do servidor")
+        ]
+    )
+    fun getRankingIngredientes(
+        @RequestParam dataInicio: String,
+        @RequestParam dataFim: String,
+        @RequestParam(defaultValue = "10") limit: Int
+    ): ResponseEntity<List<IngredienteRankingDTO>> {
+        return try {
+            if (!isValidDateFormat(dataInicio) || !isValidDateFormat(dataFim)) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            if (dataInicio > dataFim) {
+                return ResponseEntity.badRequest().build()
+            }
+            
+            val ranking = dashboardService.getRankingIngredientes(dataInicio, dataFim, limit)
+            ResponseEntity.ok(ranking)
+        } catch (e: Exception) {
+            logger.error("Erro ao buscar ranking de ingredientes", e)
             ResponseEntity.internalServerError().build()
         }
     }
