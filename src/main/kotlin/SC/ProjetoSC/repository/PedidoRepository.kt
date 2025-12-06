@@ -11,9 +11,11 @@ import java.time.LocalDateTime
 interface PedidoRepository : JpaRepository<Pedido, Int> {
 
 
-    // buscar somente por data de pedido
-    @Query("SELECT * FROM Pedido p WHERE DATE(p.dt_entrega_esperada) = :dtPedido AND p.fk_status_pedido = 5",
-        nativeQuery = true)
+    // buscar somente por data de pedido com ordenação por status 5,6,7,8
+    @Query(
+        "SELECT * FROM Pedido p WHERE DATE(p.dt_entrega_esperada) = :dtPedido AND p.fk_status_pedido IN (5, 6, 7, 8) ORDER BY FIELD(p.fk_status_pedido, 5, 6, 7, 8)",
+        nativeQuery = true
+    )
     fun findByDtPedido(dtPedido: String):List<Pedido>
 
     //buscar somente por data de entrega
@@ -55,7 +57,7 @@ interface PedidoRepository : JpaRepository<Pedido, Int> {
     FROM semana sm
     LEFT JOIN PEDIDO pd
         ON DATE(pd.dt_entrega_esperada) = sm.data
-        AND pd.fk_status_pedido = 5
+        AND pd.fk_status_pedido IN (5, 6, 7, 8)
     GROUP BY sm.data
     ORDER BY sm.data
 """, nativeQuery = true)
@@ -85,7 +87,7 @@ SELECT
 FROM semana sm
 LEFT JOIN PEDIDO pd
     ON DATE(pd.dt_entrega_esperada) = sm.data
-    AND pd.fk_status_pedido = 5
+    AND pd.fk_status_pedido IN (5, 6, 7, 8)
 GROUP BY sm.data
 ORDER BY sm.data;
 
