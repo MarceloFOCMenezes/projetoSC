@@ -6,18 +6,22 @@ import io.swagger.v3.oas.annotations.media.Schema
 data class IngredientePorTipoDTO(
     @Schema(description = "ID do ingrediente")
     val id: Int,
-    
+
     @Schema(description = "Nome do ingrediente")
     val nome: String,
-    
+
     @Schema(description = "Tipo do ingrediente")
     val tipoIngrediente: String,
-    
+
     @Schema(description = "Número de pedidos que contém este ingrediente")
     val quantidadePedidos: Int,
 
     @Schema(description = "Posição no ranking do tipo (1-5 ou menos)")
-    val posicao: Int
+    val posicao: Int,
+
+    @Schema(description = "Tipo do ingrediente - premium ou comum")
+    val premium: Any
+
 )
 
 @Schema(description = "DTO para ranking de ingredientes por categoria")

@@ -89,10 +89,12 @@ class DashboardController(
             )
         ]
     )
-    fun getTop5Ingredientes(): ResponseEntity<RankingIngredientesPorTipoDTO> {
+    fun getTop5Ingredientes(@RequestParam(required = false) dataInicio: String?,
+                            @RequestParam(required = false) dataFim: String?
+    ): ResponseEntity<RankingIngredientesPorTipoDTO> {
         return try {
-            logger.info("Requisição recebida para top 5 ingredientes por tipo")
-            val ranking = dashboardService.getTop5Ingredientes()
+            logger.info("Requisição recebida para top 5 ingredientes por tipo - Período: $dataInicio a $dataFim\"")
+            val ranking = dashboardService.getTop5Ingredientes(dataInicio, dataFim)
             logger.info("Top 5 ingredientes por tipo retornado com sucesso - Massa: ${ranking.massa.size}, Recheio: ${ranking.recheio.size}, Adicional: ${ranking.adicional.size}")
             ResponseEntity.ok(ranking)
         } catch (e: Exception) {

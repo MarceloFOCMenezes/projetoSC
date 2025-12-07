@@ -35,14 +35,14 @@ class DashboardService(
         }
     }
 
-    fun getTop5Ingredientes(): RankingIngredientesPorTipoDTO {
+    fun getTop5Ingredientes(dataInicio: String?, dataFim: String?): RankingIngredientesPorTipoDTO {
         return try {
             logger.info("Buscando top 5 ingredientes por tipo")
             
             // Buscar ingredientes por tipo
-            val massa = getTop5PorTipo("massa")
-            val recheio = getTop5PorTipo("cobertura")
-            val adicional = getTop5PorTipo("adicionais")
+            val massa = getTop5PorTipo("massa", dataInicio, dataFim)
+            val recheio = getTop5PorTipo("cobertura", dataInicio, dataFim)
+            val adicional = getTop5PorTipo("adicionais", dataInicio, dataFim)
             
             logger.info("Top ingredientes encontrados - Massa: ${massa.size}, Recheio: ${recheio.size}, Adicional: ${adicional.size}")
             
@@ -61,10 +61,18 @@ class DashboardService(
         }
     }
     
-    private fun getTop5PorTipo(tipo: String): List<IngredientePorTipoDTO> {
+    private fun getTop5PorTipo(tipo: String, dataInicio: String?, dataFim: String?): List<IngredientePorTipoDTO> {
         return try {
-            val resultados = ingredienteRepository.findTop5IngredientesPorTipo(tipo)
-            
+            val resultados = if (dataInicio != null && dataFim != null) {
+                // Validar formato das datas
+                if (!isValidDateFormat(dataInicio) || !isValidDateFormat(dataFim)) {
+                    throw IllegalArgumentException("Formato de data inválido")
+                }
+                ingredienteRepository.findTop5IngredientesPorTipoComPeriodo(tipo, dataInicio, dataFim)
+            } else {
+                ingredienteRepository.findTop5IngredientesPorTipo(tipo)
+            }
+
             if (resultados.isEmpty()) {
                 // Se não houver ingredientes com pedidos, buscar todos do tipo
                 val semPedidos = ingredienteRepository.findIngredientesPorTipoSemPedidos(tipo)
@@ -72,33 +80,45 @@ class DashboardService(
                     val id = (array[0] as Number).toInt()
                     val nome = array[1]?.toString() ?: "Ingrediente sem nome"
                     val tipoIngrediente = array[2]?.toString() ?: tipo
-                    
+                    val premium = when (val premiumValue = array[3]) {
+                        is Number -> premiumValue.toInt() == 1
+                        is Boolean -> premiumValue
+                        else -> false
+                    }
+
                     IngredientePorTipoDTO(
                         id = id,
                         nome = nome,
                         tipoIngrediente = tipoIngrediente,
                         quantidadePedidos = 0,
-                        posicao = index + 1
+                        posicao = index + 1,
+                        premium = premium
                     )
                 }
             }
             
             // Calcular total para percentuais
-            val total = resultados.sumOf { (it[3] as Number).toLong() }.toDouble()
-            
+            val total = resultados.sumOf { (it[4] as Number).toLong() }.toDouble()
+
             resultados.take(5).mapIndexed { index, array ->
                 val id = (array[0] as Number).toInt()
                 val nome = array[1]?.toString() ?: "Ingrediente sem nome"
                 val tipoIngrediente = array[2]?.toString() ?: tipo
-                val quantidade = (array[3] as Number).toInt()
+                val premium = when (val premiumValue = array[3]) {
+                    is Number -> premiumValue.toInt() == 1
+                    is Boolean -> premiumValue
+                    else -> false
+                }
+                val quantidade = (array[4] as Number).toInt()
                 val percentual = if (total > 0) (quantidade / total) * 100 else 0.0
-                
+
                 IngredientePorTipoDTO(
                     id = id,
                     nome = nome,
                     tipoIngrediente = tipoIngrediente,
                     quantidadePedidos = quantidade,
-                    posicao = index + 1
+                    posicao = index + 1,
+                    premium = premium
                 )
             }
         } catch (e: Exception) {
@@ -264,8 +284,20 @@ class DashboardService(
             IngredienteRankingDTO(
                 ingredienteId = (row[0] as Number).toInt(),
                 ingredienteNome = row[1] as String,
-                quantidadePedidos = (row[2] as Number).toInt()
+                quantidadePedidos = (row[2] as Number).toInt(),
+                premium = (row[3] as Number).toInt() == 1
             )
+        }
+    }
+
+    private fun isValidDateFormat(date: String): Boolean {
+        return try {
+            val pattern = Regex("^\\d{4}-\\d{2}-\\d{2}$")
+            if (!pattern.matches(date)) return false
+            java.time.LocalDate.parse(date)
+            true
+        } catch (e: Exception) {
+            false
         }
     }
 }

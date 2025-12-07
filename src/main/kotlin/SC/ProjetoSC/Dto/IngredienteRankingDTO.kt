@@ -11,5 +11,9 @@ data class IngredienteRankingDTO(
     val ingredienteNome: String,
     
     @Schema(description = "Quantidade de vezes que o ingrediente foi pedido")
-    val quantidadePedidos: Int
+    val quantidadePedidos: Int,
+
+    @Schema(description = "Tipo do ingrediente - premium ou comum")
+    val premium: Boolean
+
 )

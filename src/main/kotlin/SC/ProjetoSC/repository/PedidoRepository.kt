@@ -180,7 +180,7 @@ ORDER BY sm.data;
         FROM usuario u
         INNER JOIN pedido p ON u.id_usuario = p.fk_cliente
         WHERE DATE(p.dt_entrega_esperada) BETWEEN :dataInicio AND :dataFim
-        AND p.fk_status_pedido IN (4, 5)
+        AND p.fk_status_pedido = 7
         GROUP BY u.id_usuario, u.nome_usuario, u.email_usuario
         ORDER BY valor_total DESC, quantidade_pedidos DESC
         LIMIT 10
